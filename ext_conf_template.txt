@@ -1,0 +1,4 @@
+
+# cat=basic/enable; type=string; label=API Key
+apiKey =
+

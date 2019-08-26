@@ -1,0 +1,39 @@
+{
+    "name": "wapplersystems/zabbix_client",
+    "description": "TYPO3 Zabbix Client",
+    "type": "typo3-cms-extension",
+    "homepage": "https://github.com/svewap/zabbix_client",
+    "require": {
+        "typo3/cms-core": "^9.5"
+    },
+    "require-dev": {
+    },
+    "suggest": {
+    },
+    "autoload": {
+        "psr-4": {
+            "WapplerSystems\\ZabbixClient\\": "Classes/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "WapplerSystems\\ZabbixClient\\Tests\\": "Tests/"
+        }
+    },
+    "replace": {
+        "zabbix_client": "self.version",
+        "typo3-ter/zabbix_client": "self.version"
+    },
+    "config": {
+        "vendor-dir": ".Build/vendor",
+        "bin-dir": ".Build/bin"
+    },
+    "scripts": {
+    },
+    "extra": {
+        "typo3/cms": {
+            "cms-package-dir": "{$vendor-dir}/typo3/cms",
+            "web-dir": ".Build/Web"
+        }
+    }
+}
