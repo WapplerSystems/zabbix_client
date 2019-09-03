@@ -19,5 +19,7 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'] = [
     'GetLastExtensionListUpdate' => \WapplerSystems\ZabbixClient\Operation\GetLastExtensionListUpdate::class,
     'GetDatabaseVersion' => \WapplerSystems\ZabbixClient\Operation\GetDatabaseVersion::class,
     'GetApplicationContext' => \WapplerSystems\ZabbixClient\Operation\GetApplicationContext::class,
+    'GetInsecureExtensionList' => \WapplerSystems\ZabbixClient\Operation\GetInsecureExtensionList::class,
+    'GetOutdatedExtensionList' => \WapplerSystems\ZabbixClient\Operation\GetOutdatedExtensionList::class,
 ];
 
