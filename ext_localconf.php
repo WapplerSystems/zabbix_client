@@ -21,7 +21,7 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'] = [
     'GetApplicationContext' => \WapplerSystems\ZabbixClient\Operation\GetApplicationContext::class,
     'GetInsecureExtensionList' => \WapplerSystems\ZabbixClient\Operation\GetInsecureExtensionList::class,
     'GetOutdatedExtensionList' => \WapplerSystems\ZabbixClient\Operation\GetOutdatedExtensionList::class,
-    'GetTotalLogFileSize' => \WapplerSystems\ZabbixClient\Operation\GetTotalLogFileSize::class,
+    'GetTotalLogFilesSize' => \WapplerSystems\ZabbixClient\Operation\GetTotalLogFilesSize::class,
     'HasStrictSyntaxEnabled' => \WapplerSystems\ZabbixClient\Operation\HasStrictSyntaxEnabled::class,
 ];
 

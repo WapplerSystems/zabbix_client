@@ -10,19 +10,15 @@ namespace WapplerSystems\ZabbixClient\Operation;
  */
 
 use TYPO3\CMS\Core\Core\Environment;
-use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\SingletonInterface;
-use TYPO3\CMS\Core\Utility\DebugUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use WapplerSystems\ZabbixClient\OperationResult;
 
 
 /**
  * Return total log files size in KB
  */
-class GetTotalLogFileSize implements IOperation, SingletonInterface
+class GetTotalLogFilesSize implements IOperation, SingletonInterface
 {
 
     /**
@@ -34,9 +30,9 @@ class GetTotalLogFileSize implements IOperation, SingletonInterface
     {
         $totalSize = 0;
 
-        $files = GeneralUtility::getFilesInDir(Environment::getVarPath() . '/log/','log');
+        $files = GeneralUtility::getFilesInDir(Environment::getVarPath() . '/log/', 'log');
         foreach ($files as $file) {
-            $totalSize += filesize(Environment::getVarPath() . '/log/'.$file);
+            $totalSize += filesize(Environment::getVarPath() . '/log/' . $file);
         }
         $totalSize /= 1024;
 

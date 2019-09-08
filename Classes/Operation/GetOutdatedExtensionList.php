@@ -13,9 +13,7 @@ use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extensionmanager\Domain\Model\Extension;
-use TYPO3\CMS\Extensionmanager\Report\ExtensionStatus;
 use TYPO3\CMS\Extensionmanager\Utility\ListUtility;
-use TYPO3\CMS\Reports\Status;
 use WapplerSystems\ZabbixClient\OperationResult;
 
 
@@ -73,17 +71,19 @@ class GetOutdatedExtensionList implements IOperation, SingletonInterface
 
         if ($scope === 'loaded') {
             $exts = $loadedOutdated;
-        } else if ($scope === 'existing') {
-            $exts = $existingOutdated;
         } else {
-            $exts = array_merge($loadedOutdated,$existingOutdated);
+            if ($scope === 'existing') {
+                $exts = $existingOutdated;
+            } else {
+                $exts = array_merge($loadedOutdated, $existingOutdated);
+            }
         }
 
         $out = '';
         foreach ($exts as $ext) {
-            $out .= $ext['extensionKey'].',';
+            $out .= $ext['extensionKey'] . ',';
         }
-        $out = substr($out,0,-1);
+        $out = substr($out, 0, -1);
 
         return new OperationResult(true, $out);
     }
