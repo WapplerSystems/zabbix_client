@@ -27,7 +27,7 @@ class GetLastSchedulerRun implements IOperation, SingletonInterface
         if (isset($lastRun['end'])) {
             return new OperationResult(true, $lastRun['end']);
         }
-        return new OperationResult(true, $lastRun);
+        return new OperationResult(true, 0);
     }
 
 }
