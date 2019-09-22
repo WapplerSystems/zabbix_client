@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>4.2</version>
-    <date>2019-09-03T02:14:17Z</date>
+    <date>2019-09-22T20:10:22Z</date>
     <groups>
         <group>
-            <name>TYPO3</name>
+            <name>TYPO3 Monitoring Demo</name>
         </group>
     </groups>
     <templates>
@@ -14,7 +14,7 @@
             <description/>
             <groups>
                 <group>
-                    <name>TYPO3</name>
+                    <name>TYPO3 Monitoring Demo</name>
                 </group>
             </groups>
             <applications>
@@ -410,9 +410,9 @@
                     <key>typo3_GetLastSchedulerRun</key>
                     <delay>1d</delay>
                     <history>90d</history>
-                    <trends>0</trends>
+                    <trends>365d</trends>
                     <status>0</status>
-                    <value_type>2</value_type>
+                    <value_type>3</value_type>
                     <allowed_hosts/>
                     <units/>
                     <snmpv3_contextname/>
@@ -628,6 +628,81 @@
                     <master_item/>
                 </item>
                 <item>
+                    <name>TYPO3 Total Log Files Size (KB)</name>
+                    <type>19</type>
+                    <snmp_community/>
+                    <snmp_oid/>
+                    <key>typo3_GetTotalLogFilesSize</key>
+                    <delay>1h</delay>
+                    <history>90d</history>
+                    <trends>365d</trends>
+                    <status>0</status>
+                    <value_type>3</value_type>
+                    <allowed_hosts/>
+                    <units/>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <params/>
+                    <ipmi_sensor/>
+                    <authtype>0</authtype>
+                    <username/>
+                    <password/>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <description/>
+                    <inventory_link>0</inventory_link>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <valuemap/>
+                    <logtimefmt/>
+                    <preprocessing>
+                        <step>
+                            <type>12</type>
+                            <params>$.value</params>
+                            <error_handler>0</error_handler>
+                            <error_handler_params/>
+                        </step>
+                    </preprocessing>
+                    <jmx_endpoint/>
+                    <timeout>3s</timeout>
+                    <url>https://{HOST.HOST}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>key</name>
+                            <value>{$TYPO3_CLIENT_KEY}</value>
+                        </query_field>
+                        <query_field>
+                            <name>operation</name>
+                            <value>GetTotalLogFilesSize</value>
+                        </query_field>
+                    </query_fields>
+                    <posts/>
+                    <status_codes>200</status_codes>
+                    <follow_redirects>0</follow_redirects>
+                    <post_type>0</post_type>
+                    <http_proxy/>
+                    <headers/>
+                    <retrieve_mode>0</retrieve_mode>
+                    <request_method>1</request_method>
+                    <output_format>0</output_format>
+                    <allow_traps>0</allow_traps>
+                    <ssl_cert_file/>
+                    <ssl_key_file/>
+                    <ssl_key_password/>
+                    <verify_peer>1</verify_peer>
+                    <verify_host>0</verify_host>
+                    <master_item/>
+                </item>
+                <item>
                     <name>TYPO3 Version</name>
                     <type>19</type>
                     <snmp_community/>
@@ -703,6 +778,235 @@
                     <master_item/>
                 </item>
                 <item>
+                    <name>TYPO3 Zabbix client log file</name>
+                    <type>19</type>
+                    <snmp_community/>
+                    <snmp_oid/>
+                    <key>typo3_GetZabbixLogFileSize</key>
+                    <delay>5m</delay>
+                    <history>90d</history>
+                    <trends>365d</trends>
+                    <status>0</status>
+                    <value_type>3</value_type>
+                    <allowed_hosts/>
+                    <units/>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <params/>
+                    <ipmi_sensor/>
+                    <authtype>0</authtype>
+                    <username/>
+                    <password/>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <description/>
+                    <inventory_link>0</inventory_link>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <valuemap/>
+                    <logtimefmt/>
+                    <preprocessing>
+                        <step>
+                            <type>12</type>
+                            <params>$.value</params>
+                            <error_handler>0</error_handler>
+                            <error_handler_params/>
+                        </step>
+                    </preprocessing>
+                    <jmx_endpoint/>
+                    <timeout>3s</timeout>
+                    <url>https://{HOST.HOST}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>key</name>
+                            <value>{$TYPO3_CLIENT_KEY}</value>
+                        </query_field>
+                        <query_field>
+                            <name>operation</name>
+                            <value>GetZabbixLogFileSize</value>
+                        </query_field>
+                    </query_fields>
+                    <posts/>
+                    <status_codes>200</status_codes>
+                    <follow_redirects>1</follow_redirects>
+                    <post_type>0</post_type>
+                    <http_proxy/>
+                    <headers/>
+                    <retrieve_mode>0</retrieve_mode>
+                    <request_method>1</request_method>
+                    <output_format>0</output_format>
+                    <allow_traps>0</allow_traps>
+                    <ssl_cert_file/>
+                    <ssl_key_file/>
+                    <ssl_key_password/>
+                    <verify_peer>1</verify_peer>
+                    <verify_host>0</verify_host>
+                    <master_item/>
+                </item>
+                <item>
+                    <name>TYPO3 Forbidden users</name>
+                    <type>19</type>
+                    <snmp_community/>
+                    <snmp_oid/>
+                    <key>typo3_HasForbiddenUsers</key>
+                    <delay>1d</delay>
+                    <history>90d</history>
+                    <trends>0</trends>
+                    <status>0</status>
+                    <value_type>4</value_type>
+                    <allowed_hosts/>
+                    <units/>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <params/>
+                    <ipmi_sensor/>
+                    <authtype>0</authtype>
+                    <username/>
+                    <password/>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <description/>
+                    <inventory_link>0</inventory_link>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <valuemap/>
+                    <logtimefmt/>
+                    <preprocessing>
+                        <step>
+                            <type>12</type>
+                            <params>$.value</params>
+                            <error_handler>0</error_handler>
+                            <error_handler_params/>
+                        </step>
+                    </preprocessing>
+                    <jmx_endpoint/>
+                    <timeout>3s</timeout>
+                    <url>https://{HOST.HOST}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>key</name>
+                            <value>{$TYPO3_CLIENT_KEY}</value>
+                        </query_field>
+                        <query_field>
+                            <name>operation</name>
+                            <value>HasForbiddenUsers</value>
+                        </query_field>
+                        <query_field>
+                            <name>usernames</name>
+                            <value>admin</value>
+                        </query_field>
+                    </query_fields>
+                    <posts/>
+                    <status_codes>200</status_codes>
+                    <follow_redirects>0</follow_redirects>
+                    <post_type>0</post_type>
+                    <http_proxy/>
+                    <headers/>
+                    <retrieve_mode>0</retrieve_mode>
+                    <request_method>1</request_method>
+                    <output_format>0</output_format>
+                    <allow_traps>0</allow_traps>
+                    <ssl_cert_file/>
+                    <ssl_key_file/>
+                    <ssl_key_password/>
+                    <verify_peer>1</verify_peer>
+                    <verify_host>0</verify_host>
+                    <master_item/>
+                </item>
+                <item>
+                    <name>TYPO3 Has remaining updates</name>
+                    <type>19</type>
+                    <snmp_community/>
+                    <snmp_oid/>
+                    <key>typo3_HasRemainingUpdates</key>
+                    <delay>8h</delay>
+                    <history>90d</history>
+                    <trends>0</trends>
+                    <status>0</status>
+                    <value_type>4</value_type>
+                    <allowed_hosts/>
+                    <units/>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <params/>
+                    <ipmi_sensor/>
+                    <authtype>0</authtype>
+                    <username/>
+                    <password/>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <description/>
+                    <inventory_link>0</inventory_link>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <valuemap/>
+                    <logtimefmt/>
+                    <preprocessing>
+                        <step>
+                            <type>12</type>
+                            <params>$.value</params>
+                            <error_handler>0</error_handler>
+                            <error_handler_params/>
+                        </step>
+                    </preprocessing>
+                    <jmx_endpoint/>
+                    <timeout>3s</timeout>
+                    <url>https://{HOST.HOST}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>key</name>
+                            <value>{$TYPO3_CLIENT_KEY}</value>
+                        </query_field>
+                        <query_field>
+                            <name>operation</name>
+                            <value>HasRemainingUpdates</value>
+                        </query_field>
+                    </query_fields>
+                    <posts/>
+                    <status_codes>200</status_codes>
+                    <follow_redirects>1</follow_redirects>
+                    <post_type>0</post_type>
+                    <http_proxy/>
+                    <headers/>
+                    <retrieve_mode>0</retrieve_mode>
+                    <request_method>0</request_method>
+                    <output_format>0</output_format>
+                    <allow_traps>0</allow_traps>
+                    <ssl_cert_file/>
+                    <ssl_key_file/>
+                    <ssl_key_password/>
+                    <verify_peer>1</verify_peer>
+                    <verify_host>0</verify_host>
+                    <master_item/>
+                </item>
+                <item>
                     <name>TYPO3 Security Update available</name>
                     <type>19</type>
                     <snmp_community/>
@@ -774,6 +1078,81 @@
                     <ssl_key_file/>
                     <ssl_key_password/>
                     <verify_peer>0</verify_peer>
+                    <verify_host>0</verify_host>
+                    <master_item/>
+                </item>
+                <item>
+                    <name>TYPO3 Strict Syntax Check</name>
+                    <type>19</type>
+                    <snmp_community/>
+                    <snmp_oid/>
+                    <key>typo3_HasStrictSyntaxEnabled</key>
+                    <delay>1d</delay>
+                    <history>90d</history>
+                    <trends>0</trends>
+                    <status>0</status>
+                    <value_type>4</value_type>
+                    <allowed_hosts/>
+                    <units/>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <params/>
+                    <ipmi_sensor/>
+                    <authtype>0</authtype>
+                    <username/>
+                    <password/>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <description/>
+                    <inventory_link>0</inventory_link>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <valuemap/>
+                    <logtimefmt/>
+                    <preprocessing>
+                        <step>
+                            <type>12</type>
+                            <params>$.value</params>
+                            <error_handler>0</error_handler>
+                            <error_handler_params/>
+                        </step>
+                    </preprocessing>
+                    <jmx_endpoint/>
+                    <timeout>3s</timeout>
+                    <url>https://{HOST.HOST}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>key</name>
+                            <value>{$TYPO3_CLIENT_KEY}</value>
+                        </query_field>
+                        <query_field>
+                            <name>operation</name>
+                            <value>HasStrictSyntaxEnabled</value>
+                        </query_field>
+                    </query_fields>
+                    <posts/>
+                    <status_codes>200</status_codes>
+                    <follow_redirects>0</follow_redirects>
+                    <post_type>0</post_type>
+                    <http_proxy/>
+                    <headers/>
+                    <retrieve_mode>0</retrieve_mode>
+                    <request_method>1</request_method>
+                    <output_format>0</output_format>
+                    <allow_traps>0</allow_traps>
+                    <ssl_cert_file/>
+                    <ssl_key_file/>
+                    <ssl_key_password/>
+                    <verify_peer>1</verify_peer>
                     <verify_host>0</verify_host>
                     <master_item/>
                 </item>
@@ -1116,7 +1495,7 @@
             <tags/>
         </trigger>
         <trigger>
-            <expression>{Template TYPO3:typo3_GetLastExtensionListUpdate.last()}-{Template TYPO3:typo3_GetLastExtensionListUpdate.now()}&lt;172800</expression>
+            <expression>{Template TYPO3:typo3_GetLastExtensionListUpdate.fuzzytime(172800)}=0</expression>
             <recovery_mode>0</recovery_mode>
             <recovery_expression/>
             <name>TYPO3 Extension List Update is more than 2 days overdue</name>
@@ -1125,6 +1504,38 @@
             <url/>
             <status>0</status>
             <priority>3</priority>
+            <description/>
+            <type>0</type>
+            <manual_close>0</manual_close>
+            <dependencies/>
+            <tags/>
+        </trigger>
+        <trigger>
+            <expression>{Template TYPO3:typo3_HasForbiddenUsers.str(false)}=0</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
+            <name>TYPO3 Has forbidden user</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
+            <url/>
+            <status>0</status>
+            <priority>4</priority>
+            <description/>
+            <type>0</type>
+            <manual_close>0</manual_close>
+            <dependencies/>
+            <tags/>
+        </trigger>
+        <trigger>
+            <expression>{Template TYPO3:typo3_HasRemainingUpdates.str(false)}=0</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
+            <name>TYPO3 Has remaining updates</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
+            <url/>
+            <status>0</status>
+            <priority>4</priority>
             <description/>
             <type>0</type>
             <manual_close>0</manual_close>
@@ -1148,6 +1559,22 @@
             <tags/>
         </trigger>
         <trigger>
+            <expression>{Template TYPO3:typo3_GetTotalLogFilesSize.last()}&gt;10000</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
+            <name>TYPO3 log files size is too big</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
+            <url/>
+            <status>0</status>
+            <priority>2</priority>
+            <description/>
+            <type>0</type>
+            <manual_close>0</manual_close>
+            <dependencies/>
+            <tags/>
+        </trigger>
+        <trigger>
             <expression>{Template TYPO3:typo3_GetOutdatedExtensionList.str(false)}=0</expression>
             <recovery_mode>0</recovery_mode>
             <recovery_expression/>
@@ -1164,7 +1591,7 @@
             <tags/>
         </trigger>
         <trigger>
-            <expression>{Template TYPO3:typo3_GetLastSchedulerRun.last()}-{Template TYPO3:typo3_GetLastSchedulerRun.now()}&lt;172800</expression>
+            <expression>{Template TYPO3:typo3_GetLastSchedulerRun.fuzzytime(172800)}=0</expression>
             <recovery_mode>0</recovery_mode>
             <recovery_expression/>
             <name>TYPO3 Scheduler is more than 2 days overdue</name>
@@ -1183,12 +1610,12 @@
             <expression>{Template TYPO3:typo3_HasSecurityUpdate.str(true)}=1</expression>
             <recovery_mode>0</recovery_mode>
             <recovery_expression/>
-            <name>TYPO3 Security Update</name>
+            <name>TYPO3 Security Update available</name>
             <correlation_mode>0</correlation_mode>
             <correlation_tag/>
             <url/>
             <status>0</status>
-            <priority>3</priority>
+            <priority>4</priority>
             <description/>
             <type>0</type>
             <manual_close>0</manual_close>
@@ -1222,6 +1649,22 @@
             <status>0</status>
             <priority>1</priority>
             <description/>
+            <type>0</type>
+            <manual_close>0</manual_close>
+            <dependencies/>
+            <tags/>
+        </trigger>
+        <trigger>
+            <expression>{Template TYPO3:typo3_GetZabbixLogFileSize.last()}&gt;0</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
+            <name>TYPO3 Zabbix log file increased</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
+            <url/>
+            <status>0</status>
+            <priority>4</priority>
+            <description>An indicator of unauthorized access to the interface</description>
             <type>0</type>
             <manual_close>0</manual_close>
             <dependencies/>
