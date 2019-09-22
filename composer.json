@@ -3,6 +3,14 @@
     "description": "TYPO3 Zabbix Client",
     "type": "typo3-cms-extension",
     "homepage": "https://github.com/svewap/zabbix_client",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Sven Wappler",
+            "role": "Developer",
+            "homepage": "https://wappler.systems"
+        }
+    ],
     "require": {
         "typo3/cms-core": "^9.5"
     },
@@ -19,10 +27,6 @@
         "psr-4": {
             "WapplerSystems\\ZabbixClient\\Tests\\": "Tests/"
         }
-    },
-    "replace": {
-        "zabbix_client": "self.version",
-        "typo3-ter/zabbix_client": "self.version"
     },
     "config": {
         "vendor-dir": ".Build/vendor",
