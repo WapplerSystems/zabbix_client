@@ -25,7 +25,7 @@ class GetLastSchedulerRun implements IOperation, SingletonInterface
 
         $lastRun = $registry->get('tx_scheduler', 'lastRun', []);
         if (isset($lastRun['end'])) {
-            return new OperationResult(true, $lastRun['end']);
+            return new OperationResult(true, (int)$lastRun['end']);
         }
         return new OperationResult(true, 0);
     }

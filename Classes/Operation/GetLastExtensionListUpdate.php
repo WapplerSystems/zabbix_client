@@ -12,7 +12,9 @@ namespace WapplerSystems\ZabbixClient\Operation;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
 use TYPO3\CMS\Extensionmanager\Task\UpdateExtensionListTask;
 use TYPO3\CMS\Scheduler\Task\AbstractTask;
 use WapplerSystems\ZabbixClient\OperationResult;
@@ -23,6 +25,10 @@ class GetLastExtensionListUpdate implements IOperation, SingletonInterface
 
     public function execute($parameter = [])
     {
+
+        if (!ExtensionManagementUtility::isLoaded('scheduler')) {
+            return new OperationResult(true, 0);
+        }
 
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
