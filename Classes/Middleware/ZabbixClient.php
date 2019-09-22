@@ -17,6 +17,8 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Http\Response;
+use TYPO3\CMS\Core\Log\Logger;
+use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use WapplerSystems\ZabbixClient\Authentication\KeyAuthenticationProvider;
 use WapplerSystems\ZabbixClient\ManagerFactory;
@@ -54,8 +56,12 @@ class ZabbixClient implements MiddlewareInterface
         if (!$keyAuthenticationProvider->hasValidKey($key)) {
             /** @var Response $response */
             $response = GeneralUtility::makeInstance(Response::class);
-            // TODO: Write in log
-            return $response->withStatus(403, 'key wrong');
+
+            /** @var $logger Logger */
+            $logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
+            $logger->error('API key wrong', ['ip' => $_SERVER['REMOTE_ADDR']]);
+
+            return $response->withStatus(403, 'API key wrong');
         }
 
         $operation = $request->getParsedBody()['operation'] ?? $request->getQueryParams()['operation'] ?? null;

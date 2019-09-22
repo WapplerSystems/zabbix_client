@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('TYPO3_MODE')) {
     die('Access denied.');
 }
@@ -24,5 +25,14 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'] = [
     'GetTotalLogFilesSize' => \WapplerSystems\ZabbixClient\Operation\GetTotalLogFilesSize::class,
     'HasStrictSyntaxEnabled' => \WapplerSystems\ZabbixClient\Operation\HasStrictSyntaxEnabled::class,
     'HasRemainingUpdates' => \WapplerSystems\ZabbixClient\Operation\HasRemainingUpdates::class,
+    'GetZabbixLogFileSize' => \WapplerSystems\ZabbixClient\Operation\GetZabbixLogFileSize::class,
 ];
 
+
+$GLOBALS['TYPO3_CONF_VARS']['LOG']['WapplerSystems']['ZabbixClient']['Middleware']['ZabbixClient']['writerConfiguration'] = [
+    \TYPO3\CMS\Core\Log\LogLevel::WARNING => [
+        \TYPO3\CMS\Core\Log\Writer\FileWriter::class => [
+            'logFileInfix' => 'zabbixclient'
+        ],
+    ],
+];
