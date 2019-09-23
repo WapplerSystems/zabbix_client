@@ -1,7 +1,7 @@
 <?php
 $EM_CONF[$_EXTKEY] = [
     'title' => 'Zabbix Client',
-    'description' => 'Client for zabbix monitoring system',
+    'description' => 'Client for zabbix monitoring system. Secure up your TYPO3 Systems and detect errors.',
     'category' => 'misc',
     'author' => 'Sven Wappler',
     'author_email' => 'typo3YYYY@wappler.systems',
@@ -18,7 +18,7 @@ $EM_CONF[$_EXTKEY] = [
     'clearCacheOnLoad' => 0,
     'lockType' => '',
     'author_company' => 'WapplerSystems',
-    'version' => '0.2.0',
+    'version' => '0.2.1',
     'constraints' => [
         'depends' => [
             'typo3' => '9.5.0-10.0.99',
