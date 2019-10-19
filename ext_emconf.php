@@ -1,7 +1,7 @@
 <?php
 $EM_CONF[$_EXTKEY] = [
     'title' => 'Zabbix Client',
-    'description' => 'Client for zabbix monitoring system. Secure up your TYPO3 Systems and detect errors.',
+    'description' => 'Client for zabbix monitoring system. Secure up your TYPO3 Systems and detect errors and performance killers.',
     'category' => 'misc',
     'author' => 'Sven Wappler',
     'author_email' => 'typo3YYYY@wappler.systems',
