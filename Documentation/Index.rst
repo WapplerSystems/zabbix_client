@@ -13,7 +13,7 @@ Zabbix Client
        zabbix_client
 
     :Version:
-       1
+       |release|
 
     :Language:
        en
