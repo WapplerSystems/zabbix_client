@@ -23,6 +23,6 @@ conf.py:
     - t3sphinx.ext.targets
     - sphinxcontrib.youtube
   html_theme_options:
-    github_repository: TYPO3-Documentation/TYPO3CMS-Example-ExtensionManual
+    github_repository: svewap/zabbix_client
     github_branch: latest
 ...

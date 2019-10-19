@@ -7,42 +7,47 @@
 Zabbix Client
 ====
 
+.. only:: html
 
-:Extension key:
-   zabbix_client
+    :Extension key:
+       zabbix_client
 
-:Version:
-   1
+    :Version:
+       1
 
-:Language:
-   en
+    :Language:
+       en
 
-:Description:
-   Zabbix monitoring client
+    :Description:
+       Zabbix monitoring client
 
 
-:Keywords:
-   zabbix monitoring
+    :Keywords:
+       zabbix monitoring
 
-:Copyright:
-   2019-2019
+    :Copyright:
+       2019-2019
 
-:Author:
-   Sven Wappler
+    :Author:
+       Sven Wappler
 
-:License:
-   Open Content License available from `www.opencontent.org/openpub/
-   <http://www.opencontent.org/openpub/>`_
+    :License:
+       Open Content License available from `www.opencontent.org/openpub/
+       <http://www.opencontent.org/openpub/>`_
 
-:Rendered:
-   |today|
+    :Rendered:
+       |today|
 
-The content of this document is related to TYPO3,
-a GNU/GPL CMS/Framework available from https://typo3.org/
+    The content of this document is related to TYPO3,
+    a GNU/GPL CMS/Framework available from `www.typo3.org <http://www.typo3.org/>`_.
 
+
+    **Table of Contents**
 
 .. toctree::
-   :hidden:
+    :maxdepth: 5
+    :titlesonly:
+    :glob:
 
-   Sitemap/Index
-   Introduction/Index
+    Introduction/Index
+    Installation/Index
