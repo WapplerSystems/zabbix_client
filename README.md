@@ -17,7 +17,8 @@ Website: https://t3monitoring.de/
 
 ## screenshots
 
-![Data](https://github.com/svewap/zabbix_client/blob/master/Documentation/Images/zabbix_data.png?raw=true)
+![Data](https://github.com/svewap/zabbix_client/blob/master/Documentation/Images/data_overview.png?raw=true)
 
-![Errors](https://github.com/svewap/zabbix_client/blob/master/Documentation/Images/zabbix_errors.png?raw=true)
+![Errors](https://github.com/svewap/zabbix_client/blob/master/Documentation/Images/graph_error.png?raw=true)
 
+![Problems](https://github.com/svewap/zabbix_client/blob/master/Documentation/Images/data_overview_problems.png?raw=true)
