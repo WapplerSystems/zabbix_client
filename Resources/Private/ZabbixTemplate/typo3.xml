@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>4.4</version>
-    <date>2019-10-19T01:28:17Z</date>
+    <date>2019-11-08T23:48:43Z</date>
     <groups>
         <group>
             <name>Templates/Applications</name>
@@ -23,7 +23,7 @@
             </applications>
             <items>
                 <item>
-                    <name>TYPO3 Failed Logins</name>
+                    <name>TYPO3 failed logins</name>
                     <type>HTTP_AGENT</type>
                     <key>typo3_FailedLogins</key>
                     <applications>
@@ -37,12 +37,8 @@
                             <params>$.value</params>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.HOST}/zabbixclient/</url>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
                     <query_fields>
-                        <query_field>
-                            <name>key</name>
-                            <value>{$TYPO3_CLIENT_KEY}</value>
-                        </query_field>
                         <query_field>
                             <name>operation</name>
                             <value>GetLogResults</value>
@@ -52,11 +48,13 @@
                             <value>FailedLogins</value>
                         </query_field>
                     </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
                     <follow_redirects>NO</follow_redirects>
                     <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
                 </item>
                 <item>
-                    <name>TYPO3 Application Context</name>
+                    <name>TYPO3 application context</name>
                     <type>HTTP_AGENT</type>
                     <key>typo3_GetApplicationContext</key>
                     <delay>5m</delay>
@@ -73,17 +71,14 @@
                             <params>$.value</params>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.HOST}/zabbixclient/</url>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
                     <query_fields>
-                        <query_field>
-                            <name>key</name>
-                            <value>{$TYPO3_CLIENT_KEY}</value>
-                        </query_field>
                         <query_field>
                             <name>operation</name>
                             <value>GetApplicationContext</value>
                         </query_field>
                     </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
                     <follow_redirects>NO</follow_redirects>
                     <request_method>POST</request_method>
                     <verify_peer>YES</verify_peer>
@@ -96,7 +91,7 @@
                     </triggers>
                 </item>
                 <item>
-                    <name>TYPO3 Database Version</name>
+                    <name>TYPO3 database version</name>
                     <type>HTTP_AGENT</type>
                     <key>typo3_GetDatabaseVersion</key>
                     <trends>0</trends>
@@ -112,22 +107,20 @@
                             <params>$.value[0]</params>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.HOST}/zabbixclient/</url>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
                     <query_fields>
-                        <query_field>
-                            <name>key</name>
-                            <value>{$TYPO3_CLIENT_KEY}</value>
-                        </query_field>
                         <query_field>
                             <name>operation</name>
                             <value>GetDatabaseVersion</value>
                         </query_field>
                     </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
                     <follow_redirects>NO</follow_redirects>
                     <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
                 </item>
                 <item>
-                    <name>TYPO3 Insecure Extensions</name>
+                    <name>TYPO3 insecure extensions</name>
                     <type>HTTP_AGENT</type>
                     <key>typo3_GetInsecureExtensionList</key>
                     <delay>1d</delay>
@@ -144,17 +137,14 @@
                             <params>$.value</params>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.HOST}/zabbixclient/</url>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
                     <query_fields>
-                        <query_field>
-                            <name>key</name>
-                            <value>{$TYPO3_CLIENT_KEY}</value>
-                        </query_field>
                         <query_field>
                             <name>operation</name>
                             <value>GetInsecureExtensionList</value>
                         </query_field>
                     </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
                     <follow_redirects>NO</follow_redirects>
                     <request_method>POST</request_method>
                     <verify_peer>YES</verify_peer>
@@ -168,7 +158,7 @@
                     </triggers>
                 </item>
                 <item>
-                    <name>TYPO3 Last Extension List Update</name>
+                    <name>TYPO3 last extension list update</name>
                     <type>HTTP_AGENT</type>
                     <key>typo3_GetLastExtensionListUpdate</key>
                     <delay>1d</delay>
@@ -183,19 +173,17 @@
                             <params>$.value</params>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.HOST}/zabbixclient/</url>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
                     <query_fields>
-                        <query_field>
-                            <name>key</name>
-                            <value>{$TYPO3_CLIENT_KEY}</value>
-                        </query_field>
                         <query_field>
                             <name>operation</name>
                             <value>GetLastExtensionListUpdate</value>
                         </query_field>
                     </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
                     <follow_redirects>NO</follow_redirects>
                     <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
                     <triggers>
                         <trigger>
                             <expression>{fuzzytime(172800)}=0</expression>
@@ -205,7 +193,7 @@
                     </triggers>
                 </item>
                 <item>
-                    <name>TYPO3 Last Scheduler Run</name>
+                    <name>TYPO3 last scheduler run</name>
                     <type>HTTP_AGENT</type>
                     <key>typo3_GetLastSchedulerRun</key>
                     <delay>1d</delay>
@@ -220,18 +208,16 @@
                             <params>$.value</params>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.HOST}/zabbixclient/</url>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
                     <query_fields>
-                        <query_field>
-                            <name>key</name>
-                            <value>{$TYPO3_CLIENT_KEY}</value>
-                        </query_field>
                         <query_field>
                             <name>operation</name>
                             <value>GetLastSchedulerRun</value>
                         </query_field>
                     </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
                     <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
                     <triggers>
                         <trigger>
                             <expression>{fuzzytime(172800)}=0</expression>
@@ -241,7 +227,7 @@
                     </triggers>
                 </item>
                 <item>
-                    <name>TYPO3 Outdated Extension</name>
+                    <name>TYPO3 outdated extensions</name>
                     <type>HTTP_AGENT</type>
                     <key>typo3_GetOutdatedExtensionList</key>
                     <delay>1d</delay>
@@ -258,17 +244,14 @@
                             <params>$.value</params>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.HOST}/zabbixclient/</url>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
                     <query_fields>
-                        <query_field>
-                            <name>key</name>
-                            <value>{$TYPO3_CLIENT_KEY}</value>
-                        </query_field>
                         <query_field>
                             <name>operation</name>
                             <value>GetOutdatedExtensionList</value>
                         </query_field>
                     </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
                     <follow_redirects>NO</follow_redirects>
                     <request_method>POST</request_method>
                     <verify_peer>YES</verify_peer>
@@ -281,7 +264,7 @@
                     </triggers>
                 </item>
                 <item>
-                    <name>PHP Version</name>
+                    <name>PHP version</name>
                     <type>HTTP_AGENT</type>
                     <key>typo3_GetPHPVersion</key>
                     <delay>30s</delay>
@@ -299,23 +282,20 @@
                         </step>
                     </preprocessing>
                     <timeout>5s</timeout>
-                    <url>https://{HOST.HOST}/zabbixclient/</url>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
                     <query_fields>
-                        <query_field>
-                            <name>key</name>
-                            <value>{$TYPO3_CLIENT_KEY}</value>
-                        </query_field>
                         <query_field>
                             <name>operation</name>
                             <value>GetPHPVersion</value>
                         </query_field>
                     </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
                     <follow_redirects>NO</follow_redirects>
                     <request_method>POST</request_method>
                     <verify_peer>YES</verify_peer>
                 </item>
                 <item>
-                    <name>TYPO3 Total Log Files Size (KB)</name>
+                    <name>TYPO3 total log files size (KB)</name>
                     <type>HTTP_AGENT</type>
                     <key>typo3_GetTotalLogFilesSize</key>
                     <delay>1h</delay>
@@ -330,17 +310,14 @@
                             <params>$.value</params>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.HOST}/zabbixclient/</url>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
                     <query_fields>
-                        <query_field>
-                            <name>key</name>
-                            <value>{$TYPO3_CLIENT_KEY}</value>
-                        </query_field>
                         <query_field>
                             <name>operation</name>
                             <value>GetTotalLogFilesSize</value>
                         </query_field>
                     </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
                     <follow_redirects>NO</follow_redirects>
                     <request_method>POST</request_method>
                     <verify_peer>YES</verify_peer>
@@ -353,7 +330,7 @@
                     </triggers>
                 </item>
                 <item>
-                    <name>TYPO3 Version</name>
+                    <name>TYPO3 version</name>
                     <type>HTTP_AGENT</type>
                     <key>typo3_GetTYPO3Version</key>
                     <delay>1h</delay>
@@ -370,22 +347,20 @@
                             <params>$.value</params>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.HOST}/zabbixclient/</url>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
                     <query_fields>
-                        <query_field>
-                            <name>key</name>
-                            <value>{$TYPO3_CLIENT_KEY}</value>
-                        </query_field>
                         <query_field>
                             <name>operation</name>
                             <value>GetTYPO3Version</value>
                         </query_field>
                     </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
                     <follow_redirects>NO</follow_redirects>
                     <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
                 </item>
                 <item>
-                    <name>TYPO3 Zabbix client log file</name>
+                    <name>TYPO3 zabbix client log file</name>
                     <type>HTTP_AGENT</type>
                     <key>typo3_GetZabbixLogFileSize</key>
                     <delay>5m</delay>
@@ -400,17 +375,14 @@
                             <params>$.value</params>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.HOST}/zabbixclient/</url>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
                     <query_fields>
-                        <query_field>
-                            <name>key</name>
-                            <value>{$TYPO3_CLIENT_KEY}</value>
-                        </query_field>
                         <query_field>
                             <name>operation</name>
                             <value>GetZabbixLogFileSize</value>
                         </query_field>
                     </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
                     <request_method>POST</request_method>
                     <verify_peer>YES</verify_peer>
                     <triggers>
@@ -423,7 +395,7 @@
                     </triggers>
                 </item>
                 <item>
-                    <name>TYPO3 Forbidden users</name>
+                    <name>TYPO3 forbidden users</name>
                     <type>HTTP_AGENT</type>
                     <key>typo3_HasForbiddenUsers</key>
                     <delay>1d</delay>
@@ -440,12 +412,8 @@
                             <params>$.value</params>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.HOST}/zabbixclient/</url>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
                     <query_fields>
-                        <query_field>
-                            <name>key</name>
-                            <value>{$TYPO3_CLIENT_KEY}</value>
-                        </query_field>
                         <query_field>
                             <name>operation</name>
                             <value>HasForbiddenUsers</value>
@@ -455,6 +423,7 @@
                             <value>admin</value>
                         </query_field>
                     </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
                     <follow_redirects>NO</follow_redirects>
                     <request_method>POST</request_method>
                     <verify_peer>YES</verify_peer>
@@ -467,7 +436,7 @@
                     </triggers>
                 </item>
                 <item>
-                    <name>TYPO3 Has remaining updates</name>
+                    <name>TYPO3 has remaining updates</name>
                     <type>HTTP_AGENT</type>
                     <key>typo3_HasRemainingUpdates</key>
                     <delay>8h</delay>
@@ -484,17 +453,14 @@
                             <params>$.value</params>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.HOST}/zabbixclient/</url>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
                     <query_fields>
-                        <query_field>
-                            <name>key</name>
-                            <value>{$TYPO3_CLIENT_KEY}</value>
-                        </query_field>
                         <query_field>
                             <name>operation</name>
                             <value>HasRemainingUpdates</value>
                         </query_field>
                     </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
                     <request_method>POST</request_method>
                     <verify_peer>YES</verify_peer>
                     <triggers>
@@ -506,7 +472,7 @@
                     </triggers>
                 </item>
                 <item>
-                    <name>TYPO3 Security Update available</name>
+                    <name>TYPO3 security update available</name>
                     <type>HTTP_AGENT</type>
                     <key>typo3_HasSecurityUpdate</key>
                     <delay>1h</delay>
@@ -523,19 +489,17 @@
                             <params>$.value</params>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.HOST}/zabbixclient/</url>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
                     <query_fields>
-                        <query_field>
-                            <name>key</name>
-                            <value>{$TYPO3_CLIENT_KEY}</value>
-                        </query_field>
                         <query_field>
                             <name>operation</name>
                             <value>HasSecurityUpdate</value>
                         </query_field>
                     </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
                     <follow_redirects>NO</follow_redirects>
                     <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
                     <triggers>
                         <trigger>
                             <expression>{str(true)}=1</expression>
@@ -545,7 +509,7 @@
                     </triggers>
                 </item>
                 <item>
-                    <name>TYPO3 Strict Syntax Check</name>
+                    <name>TYPO3 strict syntax check</name>
                     <type>HTTP_AGENT</type>
                     <key>typo3_HasStrictSyntaxEnabled</key>
                     <delay>1d</delay>
@@ -562,23 +526,20 @@
                             <params>$.value</params>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.HOST}/zabbixclient/</url>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
                     <query_fields>
-                        <query_field>
-                            <name>key</name>
-                            <value>{$TYPO3_CLIENT_KEY}</value>
-                        </query_field>
                         <query_field>
                             <name>operation</name>
                             <value>HasStrictSyntaxEnabled</value>
                         </query_field>
                     </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
                     <follow_redirects>NO</follow_redirects>
                     <request_method>POST</request_method>
                     <verify_peer>YES</verify_peer>
                 </item>
                 <item>
-                    <name>TYPO3 Update available</name>
+                    <name>TYPO3 update available</name>
                     <type>HTTP_AGENT</type>
                     <key>typo3_HasUpdate</key>
                     <delay>1h</delay>
@@ -595,19 +556,17 @@
                             <params>$.value</params>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.HOST}/zabbixclient/</url>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
                     <query_fields>
-                        <query_field>
-                            <name>key</name>
-                            <value>{$TYPO3_CLIENT_KEY}</value>
-                        </query_field>
                         <query_field>
                             <name>operation</name>
                             <value>HasUpdate</value>
                         </query_field>
                     </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
                     <follow_redirects>NO</follow_redirects>
                     <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
                     <triggers>
                         <trigger>
                             <expression>{str(true)}=1</expression>
@@ -617,10 +576,9 @@
                     </triggers>
                 </item>
                 <item>
-                    <name>TYPO3 Other Exceptions</name>
+                    <name>TYPO3 other exceptions</name>
                     <type>HTTP_AGENT</type>
                     <key>typo3_OtherExceptions</key>
-                    <delay>30s</delay>
                     <applications>
                         <application>
                             <name>TYPO3</name>
@@ -632,12 +590,8 @@
                             <params>$.value</params>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.HOST}/zabbixclient/</url>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
                     <query_fields>
-                        <query_field>
-                            <name>key</name>
-                            <value>{$TYPO3_CLIENT_KEY}</value>
-                        </query_field>
                         <query_field>
                             <name>operation</name>
                             <value>GetLogResults</value>
@@ -647,8 +601,10 @@
                             <value>OtherExceptions</value>
                         </query_field>
                     </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
                     <follow_redirects>NO</follow_redirects>
                     <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
                 </item>
                 <item>
                     <name>TYPO3 PageNotFoundExceptions</name>
@@ -666,12 +622,8 @@
                             <params>$.value</params>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.HOST}/zabbixclient/</url>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
                     <query_fields>
-                        <query_field>
-                            <name>key</name>
-                            <value>{$TYPO3_CLIENT_KEY}</value>
-                        </query_field>
                         <query_field>
                             <name>operation</name>
                             <value>GetLogResults</value>
@@ -681,8 +633,10 @@
                             <value>PageNotFoundException</value>
                         </query_field>
                     </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
                     <follow_redirects>NO</follow_redirects>
                     <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
                 </item>
                 <item>
                     <name>TYPO3 ServiceUnavailableExceptions</name>
@@ -700,12 +654,8 @@
                             <params>$.value</params>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.HOST}/zabbixclient/</url>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
                     <query_fields>
-                        <query_field>
-                            <name>key</name>
-                            <value>{$TYPO3_CLIENT_KEY}</value>
-                        </query_field>
                         <query_field>
                             <name>operation</name>
                             <value>GetLogResults</value>
@@ -715,8 +665,10 @@
                             <value>ServiceUnavailableException</value>
                         </query_field>
                     </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
                     <follow_redirects>NO</follow_redirects>
                     <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
                     <triggers>
                         <trigger>
                             <expression>{last()}&gt;0</expression>
