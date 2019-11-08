@@ -1,4 +1,4 @@
 
-# cat=basic/enable; type=string; label=API Key
+# cat=basic/enable; type=string; label=API Key:Allowed characters: 0-9 a-z A-Z
 apiKey =
 
