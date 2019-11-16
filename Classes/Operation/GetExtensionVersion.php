@@ -29,7 +29,7 @@ class GetExtensionVersion implements IOperation, SingletonInterface
      */
     public function execute($parameter = [])
     {
-        if (!isset($parameter['extensionKey'])) {
+        if (!isset($parameter['extensionKey']) || $parameter['extensionKey'] === '') {
             throw new InvalidArgumentException('no extensionKey set');
         }
 
