@@ -13,6 +13,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
+use WapplerSystems\ZabbixClient\Exception\InvalidArgumentException;
 use WapplerSystems\ZabbixClient\OperationResult;
 
 
@@ -29,6 +30,10 @@ class HasForbiddenUsers implements IOperation, SingletonInterface
      */
     public function execute($parameter = [])
     {
+
+        if (!isset($parameter['usernames'])) {
+            throw new InvalidArgumentException('no usernames set');
+        }
 
         $usernames = explode(',', $parameter['usernames']);
 

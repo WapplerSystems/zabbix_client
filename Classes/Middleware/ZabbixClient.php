@@ -48,6 +48,8 @@ class ZabbixClient implements MiddlewareInterface
 
     private function processRequest(ServerRequestInterface $request)
     {
+        /** @var Response $response */
+        $response = GeneralUtility::makeInstance(Response::class);
 
         $key = $request->getParsedBody()['key'] ?? $request->getQueryParams()['key'] ?? null;
 
@@ -65,22 +67,23 @@ class ZabbixClient implements MiddlewareInterface
         }
 
         $operation = $request->getParsedBody()['operation'] ?? $request->getQueryParams()['operation'] ?? null;
-        $params = $request->getParsedBody() ?? $request->getQueryParams();
-
+        $params = array_merge($request->getParsedBody() ?? [], $request->getQueryParams() ?? []);
 
         $managerFactory = ManagerFactory::getInstance();
 
         if ($operation !== null && $operation !== '') {
             $operationManager = $managerFactory->getOperationManager();
-            $result = $operationManager->executeOperation($operation, $params);
+            try {
+                $result = $operationManager->executeOperation($operation, $params);
+            } catch (\Exception $ex) {
+                return $response->withStatus(500,  substr(strrchr(get_class($ex), "\\"), 1) . ': '. $ex->getMessage());
+            }
         }
 
         if ($result !== null) {
             return new JsonResponse($result->toArray());
         }
 
-        /** @var Response $response */
-        $response = GeneralUtility::makeInstance(Response::class);
         return $response->withStatus(404, 'operation or service parameter not set');
     }
 }

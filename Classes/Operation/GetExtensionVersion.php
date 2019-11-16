@@ -11,16 +11,12 @@ namespace WapplerSystems\ZabbixClient\Operation;
 
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use WapplerSystems\ZabbixClient\Exception\InvalidArgumentException;
 use WapplerSystems\ZabbixClient\OperationResult;
 
 
 /**
  * An Operation that returns the version of an installed extension
- *
- * @author Martin Ficzel <martin@work.de>
- * @author Thomas Hempel <thomas@work.de>
- * @author Christopher Hlubek <hlubek@networkteam.com>
- * @author Tobias Liebig <liebig@networkteam.com>
  *
  */
 class GetExtensionVersion implements IOperation, SingletonInterface
@@ -33,6 +29,10 @@ class GetExtensionVersion implements IOperation, SingletonInterface
      */
     public function execute($parameter = [])
     {
+        if (!isset($parameter['extensionKey'])) {
+            throw new InvalidArgumentException('no extensionKey set');
+        }
+
         $extensionKey = $parameter['extensionKey'];
 
         if (!ExtensionManagementUtility::isLoaded($extensionKey)) {
