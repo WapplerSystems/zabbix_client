@@ -4,7 +4,10 @@ if (!defined('TYPO3_MODE')) {
     die('Access denied.');
 }
 
-$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'] = [
+if (!isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'])) {
+    $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'] = [];
+}
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'] = array_merge($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'],[
     'CheckPathExists' => \WapplerSystems\ZabbixClient\Operation\CheckPathExists::class,
     'GetDiskSpace' => \WapplerSystems\ZabbixClient\Operation\GetDiskSpace::class,
     'GetExtensionList' => \WapplerSystems\ZabbixClient\Operation\GetExtensionList::class,
@@ -27,7 +30,11 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'] = [
     'HasRemainingUpdates' => \WapplerSystems\ZabbixClient\Operation\HasRemainingUpdates::class,
     'GetZabbixLogFileSize' => \WapplerSystems\ZabbixClient\Operation\GetZabbixLogFileSize::class,
     'HasExtensionUpdate' => \WapplerSystems\ZabbixClient\Operation\HasExtensionUpdate::class,
-];
+]);
+
+if (\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('page_speed_insights')) {
+    $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations']['PageSpeedInsights_GetDegradedPageUids'] = \WapplerSystems\ZabbixClient\Operation\Extension\PageSpeedInsights\GetDegradedPageUids::class;
+}
 
 
 $GLOBALS['TYPO3_CONF_VARS']['LOG']['WapplerSystems']['ZabbixClient']['Middleware']['ZabbixClient']['writerConfiguration'] = [
