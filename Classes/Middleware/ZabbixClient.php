@@ -21,6 +21,7 @@ use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use WapplerSystems\ZabbixClient\Authentication\KeyAuthenticationProvider;
+use WapplerSystems\ZabbixClient\Exception\InvalidOperationException;
 use WapplerSystems\ZabbixClient\ManagerFactory;
 
 
@@ -75,6 +76,8 @@ class ZabbixClient implements MiddlewareInterface
             $operationManager = $managerFactory->getOperationManager();
             try {
                 $result = $operationManager->executeOperation($operation, $params);
+            } catch (InvalidOperationException $ex){
+                return $response->withStatus(404,  $ex->getMessage());
             } catch (\Exception $ex) {
                 return $response->withStatus(500,  substr(strrchr(get_class($ex), "\\"), 1) . ': '. $ex->getMessage());
             }

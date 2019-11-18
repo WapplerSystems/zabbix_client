@@ -10,6 +10,7 @@ namespace WapplerSystems\ZabbixClient;
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use WapplerSystems\ZabbixClient\Exception\InvalidOperationException;
 use WapplerSystems\ZabbixClient\Operation\IOperation;
 
 
@@ -56,13 +57,13 @@ class OperationManager implements IOperationManager
      * @param array|null $parameter
      * @return OperationResult
      */
-    public function executeOperation($operationKey, $parameter = [])
+    public function executeOperation($operationKey, $parameter = []) : OperationResult
     {
         $operation = $this->getOperation($operationKey);
-        if ($operation) {
-            return $operation->execute($parameter);
+        if (!$operation) {
+            throw new InvalidOperationException('Operation [' . $operationKey . '] unknown');
         }
-        return new OperationResult(false, 'Operation [' . $operationKey . '] unknown');
+        return $operation->execute($parameter);
     }
 
 

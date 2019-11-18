@@ -100,7 +100,7 @@ class GetDegradedPageUids implements IOperation, SingletonInterface
             ->where(...$conditions)
             ->execute()
             ->fetch();
-        $maxValue = (float)$data['max'];
+        $maxValue = (int)$data['max'];
 
 
         // get the last value
@@ -125,7 +125,7 @@ class GetDegradedPageUids implements IOperation, SingletonInterface
             ->execute()
             ->fetch();
 
-        $currentValue = (float)$data['value'];
+        $currentValue = (int)$data['value'];
 
         if ($maxValue === $currentValue) {
             return 0;
