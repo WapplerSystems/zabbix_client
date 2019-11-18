@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>4.4</version>
-    <date>2019-11-08T23:48:43Z</date>
+    <date>2019-11-18T10:39:49Z</date>
     <groups>
         <group>
             <name>Templates/Applications</name>
@@ -360,6 +360,40 @@
                     <verify_peer>YES</verify_peer>
                 </item>
                 <item>
+                    <name>TYPO3 Zabbix extension version</name>
+                    <type>HTTP_AGENT</type>
+                    <key>typo3_GetZabbixExtensionVersion</key>
+                    <delay>1d</delay>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.value</params>
+                        </step>
+                    </preprocessing>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>operation</name>
+                            <value>GetExtensionVersion</value>
+                        </query_field>
+                        <query_field>
+                            <name>extensionKey</name>
+                            <value>zabbix_client</value>
+                        </query_field>
+                    </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
+                    <follow_redirects>NO</follow_redirects>
+                    <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
+                </item>
+                <item>
                     <name>TYPO3 zabbix client log file</name>
                     <type>HTTP_AGENT</type>
                     <key>typo3_GetZabbixLogFileSize</key>
@@ -420,7 +454,7 @@
                         </query_field>
                         <query_field>
                             <name>usernames</name>
-                            <value>admin</value>
+                            <value>{$TYPO3_FORBIDDEN_USERS}</value>
                         </query_field>
                     </query_fields>
                     <posts>key={$TYPO3_CLIENT_KEY}</posts>
@@ -639,6 +673,365 @@
                     <verify_peer>YES</verify_peer>
                 </item>
                 <item>
+                    <name>TYPO3 PSI Accessibility worsened pages [Desktop]</name>
+                    <type>HTTP_AGENT</type>
+                    <key>typo3_PageSpeedInsights_accessibility_desktop</key>
+                    <delay>1d</delay>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.value</params>
+                        </step>
+                    </preprocessing>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>operation</name>
+                            <value>PageSpeedInsights_GetDegradedPageUids</value>
+                        </query_field>
+                        <query_field>
+                            <name>strategy</name>
+                            <value>desktop</value>
+                        </query_field>
+                        <query_field>
+                            <name>field</name>
+                            <value>accessibility_score</value>
+                        </query_field>
+                    </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
+                    <follow_redirects>NO</follow_redirects>
+                    <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
+                    <triggers>
+                        <trigger>
+                            <expression>{strlen()}&gt;0</expression>
+                            <name>TYPO3 PSI accessibility worsened pages [desktop]</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>TYPO3 PSI Accessibility worsened pages [Mobile]</name>
+                    <type>HTTP_AGENT</type>
+                    <key>typo3_PageSpeedInsights_accessibility_mobile</key>
+                    <delay>1d</delay>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.value</params>
+                        </step>
+                    </preprocessing>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>operation</name>
+                            <value>PageSpeedInsights_GetDegradedPageUids</value>
+                        </query_field>
+                        <query_field>
+                            <name>strategy</name>
+                            <value>mobile</value>
+                        </query_field>
+                        <query_field>
+                            <name>field</name>
+                            <value>accessibility_score</value>
+                        </query_field>
+                    </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
+                    <follow_redirects>NO</follow_redirects>
+                    <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
+                    <triggers>
+                        <trigger>
+                            <expression>{strlen()}&gt;0</expression>
+                            <name>TYPO3 PSI accessibility worsened pages [mobile]</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>TYPO3 PSI Best Practices worsened pages [Desktop]</name>
+                    <type>HTTP_AGENT</type>
+                    <key>typo3_PageSpeedInsights_bestpractices_desktop</key>
+                    <delay>1d</delay>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.value</params>
+                        </step>
+                    </preprocessing>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>operation</name>
+                            <value>PageSpeedInsights_GetDegradedPageUids</value>
+                        </query_field>
+                        <query_field>
+                            <name>strategy</name>
+                            <value>desktop</value>
+                        </query_field>
+                        <query_field>
+                            <name>field</name>
+                            <value>bestpractices_score</value>
+                        </query_field>
+                    </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
+                    <follow_redirects>NO</follow_redirects>
+                    <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
+                    <triggers>
+                        <trigger>
+                            <expression>{strlen()}&gt;0</expression>
+                            <name>TYPO3 PSI best practices worsened pages [desktop]</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>TYPO3 PSI Best Practices worsened pages [Mobile]</name>
+                    <type>HTTP_AGENT</type>
+                    <key>typo3_PageSpeedInsights_bestpractices_mobile</key>
+                    <delay>1d</delay>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.value</params>
+                        </step>
+                    </preprocessing>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>operation</name>
+                            <value>PageSpeedInsights_GetDegradedPageUids</value>
+                        </query_field>
+                        <query_field>
+                            <name>strategy</name>
+                            <value>mobile</value>
+                        </query_field>
+                        <query_field>
+                            <name>field</name>
+                            <value>bestpractices_score</value>
+                        </query_field>
+                    </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
+                    <follow_redirects>NO</follow_redirects>
+                    <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
+                    <triggers>
+                        <trigger>
+                            <expression>{strlen()}&gt;0</expression>
+                            <name>TYPO3 PSI best practices worsened pages [mobile]</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>TYPO3 PSI Performace worsened pages [Desktop]</name>
+                    <type>HTTP_AGENT</type>
+                    <key>typo3_PageSpeedInsights_performance_desktop</key>
+                    <delay>1d</delay>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.value</params>
+                        </step>
+                    </preprocessing>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>operation</name>
+                            <value>PageSpeedInsights_GetDegradedPageUids</value>
+                        </query_field>
+                        <query_field>
+                            <name>strategy</name>
+                            <value>desktop</value>
+                        </query_field>
+                        <query_field>
+                            <name>field</name>
+                            <value>performance_score</value>
+                        </query_field>
+                    </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
+                    <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
+                    <triggers>
+                        <trigger>
+                            <expression>{strlen()}&gt;0</expression>
+                            <name>TYPO3 PSI performance worsened pages [desktop]</name>
+                            <priority>WARNING</priority>
+                            <type>MULTIPLE</type>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>TYPO3 PSI Performace worsened pages [Mobile]</name>
+                    <type>HTTP_AGENT</type>
+                    <key>typo3_PageSpeedInsights_performance_mobile</key>
+                    <delay>1d</delay>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.value</params>
+                        </step>
+                    </preprocessing>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>operation</name>
+                            <value>PageSpeedInsights_GetDegradedPageUids</value>
+                        </query_field>
+                        <query_field>
+                            <name>strategy</name>
+                            <value>desktop</value>
+                        </query_field>
+                        <query_field>
+                            <name>field</name>
+                            <value>performance_score</value>
+                        </query_field>
+                    </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
+                    <follow_redirects>NO</follow_redirects>
+                    <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
+                    <triggers>
+                        <trigger>
+                            <expression>{strlen()}&gt;0</expression>
+                            <name>TYPO3 PSI performance worsened pages [mobile]</name>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>TYPO3 PSI SEO worsened pages [Desktop]</name>
+                    <type>HTTP_AGENT</type>
+                    <key>typo3_PageSpeedInsights_seo_desktop</key>
+                    <delay>1d</delay>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.value</params>
+                        </step>
+                    </preprocessing>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>operation</name>
+                            <value>PageSpeedInsights_GetDegradedPageUids</value>
+                        </query_field>
+                        <query_field>
+                            <name>strategy</name>
+                            <value>desktop</value>
+                        </query_field>
+                        <query_field>
+                            <name>field</name>
+                            <value>seo_score</value>
+                        </query_field>
+                    </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
+                    <follow_redirects>NO</follow_redirects>
+                    <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
+                    <triggers>
+                        <trigger>
+                            <expression>{strlen()}&gt;0</expression>
+                            <name>TYPO3 PSI SEO worsened pages [desktop]</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>TYPO3 PSI SEO worsened pages [Mobile]</name>
+                    <type>HTTP_AGENT</type>
+                    <key>typo3_PageSpeedInsights_seo_mobile</key>
+                    <delay>1d</delay>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.value</params>
+                        </step>
+                    </preprocessing>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>operation</name>
+                            <value>PageSpeedInsights_GetDegradedPageUids</value>
+                        </query_field>
+                        <query_field>
+                            <name>strategy</name>
+                            <value>mobile</value>
+                        </query_field>
+                        <query_field>
+                            <name>field</name>
+                            <value>seo_score</value>
+                        </query_field>
+                    </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
+                    <follow_redirects>NO</follow_redirects>
+                    <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
+                    <triggers>
+                        <trigger>
+                            <expression>{strlen()}&gt;0</expression>
+                            <name>TYPO3 PSI SEO worsened pages [mobile]</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
                     <name>TYPO3 ServiceUnavailableExceptions</name>
                     <type>HTTP_AGENT</type>
                     <key>typo3_ServiceUnavailableException</key>
@@ -674,6 +1067,48 @@
                             <expression>{last()}&gt;0</expression>
                             <name>TYPO3 ServiceUnavailableExceptions increased</name>
                             <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>TYPO3 Zabbix extension update available</name>
+                    <type>HTTP_AGENT</type>
+                    <key>typo3_ZabbixExtensionUpdateAvailable</key>
+                    <delay>1d</delay>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.value</params>
+                        </step>
+                    </preprocessing>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>operation</name>
+                            <value>HasExtensionUpdate</value>
+                        </query_field>
+                        <query_field>
+                            <name>extensionKey</name>
+                            <value>zabbix_client</value>
+                        </query_field>
+                    </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
+                    <follow_redirects>NO</follow_redirects>
+                    <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
+                    <triggers>
+                        <trigger>
+                            <expression>{str(false)}&lt;&gt;0</expression>
+                            <name>TYPO3 Zabbix extension update available</name>
+                            <priority>HIGH</priority>
+                            <type>MULTIPLE</type>
                         </trigger>
                     </triggers>
                 </item>
