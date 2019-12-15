@@ -48,8 +48,6 @@ class GetProgramVersion implements IOperation, SingletonInterface
                     return new OperationResult(true, explode(' ', $firstResultLine)[1]);
                 }
                 break;
-
-                break;
             case 'gm':
                 $path = $paths['gm'] ?? '';
                 if ($path !== '' && @is_file($path)) {
