@@ -9,9 +9,7 @@ namespace WapplerSystems\ZabbixClient\Authentication;
  * LICENSE.txt file that was distributed with this source code.
  */
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use WapplerSystems\ZabbixClient\Utility\Configuration;
 
 
 class KeyAuthenticationProvider
@@ -23,40 +21,8 @@ class KeyAuthenticationProvider
      */
     public function hasValidKey($key)
     {
-        $config = $this->getExtConfiguration();
+        $config = Configuration::getExtConfiguration();
         return $config['apiKey'] === $key;
-    }
-
-
-    /**
-     * @return array
-     */
-    private function getExtConfiguration()
-    {
-
-        if (isset($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['zabbix_client'])) {
-            $extensionConfiguration = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['zabbix_client']);
-
-            return $extensionConfiguration;
-
-        }
-        return [];
-    }
-
-
-    /**
-     * Get the whole typoscript array
-     * @return array
-     */
-    private function getTypoScriptConfiguration(): array
-    {
-        $configurationManager = GeneralUtility::makeInstance(ObjectManager::class)
-            ->get(ConfigurationManagerInterface::class);
-
-        return $configurationManager->getConfiguration(
-            ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
-            'zabbix_client'
-        );
     }
 
 

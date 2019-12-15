@@ -31,7 +31,7 @@ class OperationResult
      * @param bool $status
      * @param mixed $value
      */
-    public function __construct($status, $value)
+    public function __construct($status, $value = null)
     {
         $this->status = $status;
         $this->value = $value;
@@ -46,7 +46,7 @@ class OperationResult
     }
 
     /**
-     * @return array|string The operation value
+     * @return array|string|null The operation value
      */
     public function getValue()
     {

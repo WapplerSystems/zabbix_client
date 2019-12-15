@@ -2,3 +2,17 @@
 # cat=basic/enable; type=string; label=API Key:Allowed characters: 0-9 a-z A-Z
 apiKey =
 
+# cat=basic/enable; type=string; label=Path to GraphicsMagick
+program.gm = /usr/bin/gm
+
+# cat=basic/enable; type=string; label=Path to ImageMagick
+program.im = /usr/bin/convert
+
+# cat=basic/enable; type=string; label=Path to OpenSSL
+program.openssl = /usr/bin/openssl
+
+# cat=basic/enable; type=string; label=Path to OptiPNG
+program.optipng = /usr/bin/optipng
+
+# cat=basic/enable; type=string; label=Path to WebP
+program.webp = /usr/bin/cwebp
