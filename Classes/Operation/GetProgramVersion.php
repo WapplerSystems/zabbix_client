@@ -58,7 +58,7 @@ class GetProgramVersion implements IOperation, SingletonInterface
                     CommandUtility::exec($command, $executingResult);
                     $firstResultLine = array_shift($executingResult);
                     if (strpos($firstResultLine, 'GraphicsMagick') !== false) {
-                        return new OperationResult(true, explode(' ', $firstResultLine)[2]);
+                        return new OperationResult(true, explode(' ', $firstResultLine)[1]);
                     }
                 }
                 break;
@@ -84,10 +84,20 @@ class GetProgramVersion implements IOperation, SingletonInterface
                     return new OperationResult(true, explode(' ', $firstResultLine)[2]);
                 }
                 break;
+            case 'jpegoptim':
+                $path = $paths['jpegoptim'] ?? '';
+                if ($path !== '' && @is_file($path)) {
+                    $command = escapeshellarg($path) . ' --version';
+                    $executingResult = [];
+                    CommandUtility::exec($command, $executingResult);
+                    $firstResultLine = array_shift($executingResult);
+                    return new OperationResult(true, explode(' ', $firstResultLine)[1]);
+                }
+                break;
             case 'webp':
                 $path = $paths['webp'] ?? '';
                 if ($path !== '' && @is_file($path)) {
-                    $command = escapeshellarg($path) . ' -v';
+                    $command = escapeshellarg($path) . ' -version';
                     $executingResult = [];
                     CommandUtility::exec($command, $executingResult);
                     $firstResultLine = array_shift($executingResult);

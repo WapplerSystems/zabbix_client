@@ -14,5 +14,8 @@ program.openssl = /usr/bin/openssl
 # cat=basic/enable; type=string; label=Path to OptiPNG
 program.optipng = /usr/bin/optipng
 
+# cat=basic/enable; type=string; label=Path to jpegoptim
+program.jpegoptim = /usr/bin/jpegoptim
+
 # cat=basic/enable; type=string; label=Path to WebP
 program.webp = /usr/bin/cwebp
