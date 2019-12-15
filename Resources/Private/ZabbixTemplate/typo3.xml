@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>4.4</version>
-    <date>2019-11-18T10:39:49Z</date>
+    <date>2019-12-15T21:05:48Z</date>
     <groups>
         <group>
             <name>Templates/Applications</name>
@@ -120,6 +120,74 @@
                     <verify_peer>YES</verify_peer>
                 </item>
                 <item>
+                    <name>TYPO3 GraphicsMagick version</name>
+                    <type>HTTP_AGENT</type>
+                    <key>typo3_GetGraphicsMagickVersion</key>
+                    <delay>1d</delay>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.value</params>
+                        </step>
+                    </preprocessing>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>operation</name>
+                            <value>GetProgramVersion</value>
+                        </query_field>
+                        <query_field>
+                            <name>program</name>
+                            <value>gm</value>
+                        </query_field>
+                    </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
+                    <follow_redirects>NO</follow_redirects>
+                    <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
+                </item>
+                <item>
+                    <name>TYPO3 ImageMagick version</name>
+                    <type>HTTP_AGENT</type>
+                    <key>typo3_GetImageMagickVersion</key>
+                    <delay>1d</delay>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.value</params>
+                        </step>
+                    </preprocessing>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>operation</name>
+                            <value>GetProgramVersion</value>
+                        </query_field>
+                        <query_field>
+                            <name>program</name>
+                            <value>im</value>
+                        </query_field>
+                    </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
+                    <follow_redirects>NO</follow_redirects>
+                    <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
+                </item>
+                <item>
                     <name>TYPO3 insecure extensions</name>
                     <type>HTTP_AGENT</type>
                     <key>typo3_GetInsecureExtensionList</key>
@@ -156,6 +224,40 @@
                             <type>MULTIPLE</type>
                         </trigger>
                     </triggers>
+                </item>
+                <item>
+                    <name>TYPO3 jpegoptim version</name>
+                    <type>HTTP_AGENT</type>
+                    <key>typo3_GetJpegoptimVersion</key>
+                    <delay>1d</delay>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.value</params>
+                        </step>
+                    </preprocessing>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>operation</name>
+                            <value>GetProgramVersion</value>
+                        </query_field>
+                        <query_field>
+                            <name>program</name>
+                            <value>jpegoptim</value>
+                        </query_field>
+                    </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
+                    <follow_redirects>NO</follow_redirects>
+                    <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
                 </item>
                 <item>
                     <name>TYPO3 last extension list update</name>
@@ -225,6 +327,74 @@
                             <priority>AVERAGE</priority>
                         </trigger>
                     </triggers>
+                </item>
+                <item>
+                    <name>TYPO3 OpenSSL version</name>
+                    <type>HTTP_AGENT</type>
+                    <key>typo3_GetOpenSSLVersion</key>
+                    <delay>1d</delay>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.value</params>
+                        </step>
+                    </preprocessing>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>operation</name>
+                            <value>GetProgramVersion</value>
+                        </query_field>
+                        <query_field>
+                            <name>program</name>
+                            <value>openssl</value>
+                        </query_field>
+                    </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
+                    <follow_redirects>NO</follow_redirects>
+                    <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
+                </item>
+                <item>
+                    <name>TYPO3 OptiPNG version</name>
+                    <type>HTTP_AGENT</type>
+                    <key>typo3_GetOptiPNGVersion</key>
+                    <delay>1d</delay>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.value</params>
+                        </step>
+                    </preprocessing>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>operation</name>
+                            <value>GetProgramVersion</value>
+                        </query_field>
+                        <query_field>
+                            <name>program</name>
+                            <value>optipng</value>
+                        </query_field>
+                    </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
+                    <follow_redirects>NO</follow_redirects>
+                    <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
                 </item>
                 <item>
                     <name>TYPO3 outdated extensions</name>
@@ -352,6 +522,40 @@
                         <query_field>
                             <name>operation</name>
                             <value>GetTYPO3Version</value>
+                        </query_field>
+                    </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
+                    <follow_redirects>NO</follow_redirects>
+                    <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
+                </item>
+                <item>
+                    <name>TYPO3 WebP version</name>
+                    <type>HTTP_AGENT</type>
+                    <key>typo3_GetWebPVersion</key>
+                    <delay>1d</delay>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.value</params>
+                        </step>
+                    </preprocessing>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>operation</name>
+                            <value>GetProgramVersion</value>
+                        </query_field>
+                        <query_field>
+                            <name>program</name>
+                            <value>webp</value>
                         </query_field>
                     </query_fields>
                     <posts>key={$TYPO3_CLIENT_KEY}</posts>
@@ -1105,7 +1309,7 @@
                     <verify_peer>YES</verify_peer>
                     <triggers>
                         <trigger>
-                            <expression>{str(false)}&lt;&gt;0</expression>
+                            <expression>{str(true)}&lt;&gt;0</expression>
                             <name>TYPO3 Zabbix extension update available</name>
                             <priority>HIGH</priority>
                             <type>MULTIPLE</type>
