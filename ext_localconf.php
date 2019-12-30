@@ -32,6 +32,7 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'] = array_me
     'HasExtensionUpdate' => \WapplerSystems\ZabbixClient\Operation\HasExtensionUpdate::class,
     'GetProgramVersion' => \WapplerSystems\ZabbixClient\Operation\GetProgramVersion::class,
     'GetFeatureValue' => \WapplerSystems\ZabbixClient\Operation\GetFeatureValue::class,
+    'GetOpCacheStatus' => \WapplerSystems\ZabbixClient\Operation\GetOpCacheStatus::class,
 ]);
 
 if (\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('page_speed_insights')) {
