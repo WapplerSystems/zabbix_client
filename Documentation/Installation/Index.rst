@@ -30,6 +30,8 @@ Zabbix setup
     .. figure:: ../Images/template_add2.png
         :alt: Add the template
 
+    Important: You have to enter a DNS name / Domain / Subdomain (and set "Connect to" to DNS) or a IP address at "Agent interfaces".
+
 3. Macro
 
     Add a macro in this host. The key is named {$TYPO3_CLIENT_KEY}. Set a long user-defined key.
