@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>4.4</version>
-    <date>2019-12-15T21:05:48Z</date>
+    <date>2019-12-30T23:14:50Z</date>
     <groups>
         <group>
             <name>Templates/Applications</name>
@@ -192,6 +192,7 @@
                     <type>HTTP_AGENT</type>
                     <key>typo3_GetInsecureExtensionList</key>
                     <delay>1d</delay>
+                    <history>30d</history>
                     <trends>0</trends>
                     <value_type>TEXT</value_type>
                     <applications>
@@ -221,7 +222,6 @@
                             <expression>{str(false)}=0</expression>
                             <name>TYPO3 Insecure Extensions detected</name>
                             <priority>HIGH</priority>
-                            <type>MULTIPLE</type>
                         </trigger>
                     </triggers>
                 </item>
@@ -324,6 +324,42 @@
                         <trigger>
                             <expression>{fuzzytime(172800)}=0</expression>
                             <name>TYPO3 Scheduler is more than 2 days overdue</name>
+                            <priority>AVERAGE</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>TYPO3 OpCache active</name>
+                    <type>HTTP_AGENT</type>
+                    <key>typo3_GetOpCacheStatus</key>
+                    <delay>1h</delay>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.value.OPcache.active</params>
+                        </step>
+                    </preprocessing>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>operation</name>
+                            <value>GetOpCacheStatus</value>
+                        </query_field>
+                    </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
+                    <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
+                    <triggers>
+                        <trigger>
+                            <expression>{str(true)}=0</expression>
+                            <name>TYPO3 OpCache is not available</name>
                             <priority>AVERAGE</priority>
                         </trigger>
                     </triggers>
@@ -503,7 +539,6 @@
                     <name>TYPO3 version</name>
                     <type>HTTP_AGENT</type>
                     <key>typo3_GetTYPO3Version</key>
-                    <delay>1h</delay>
                     <trends>0</trends>
                     <value_type>TEXT</value_type>
                     <applications>
@@ -528,6 +563,13 @@
                     <follow_redirects>NO</follow_redirects>
                     <request_method>POST</request_method>
                     <verify_peer>YES</verify_peer>
+                    <triggers>
+                        <trigger>
+                            <expression>{nodata(300)}=1</expression>
+                            <name>TYPO3 Zabbix client malfunction</name>
+                            <priority>HIGH</priority>
+                        </trigger>
+                    </triggers>
                 </item>
                 <item>
                     <name>TYPO3 WebP version</name>
@@ -1234,6 +1276,153 @@
                             <priority>WARNING</priority>
                         </trigger>
                     </triggers>
+                </item>
+                <item>
+                    <name>TYPO3 preset context value</name>
+                    <type>HTTP_AGENT</type>
+                    <key>typo3_preset_context</key>
+                    <delay>1h</delay>
+                    <history>30d</history>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.value</params>
+                        </step>
+                    </preprocessing>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>operation</name>
+                            <value>GetFeatureValue</value>
+                        </query_field>
+                        <query_field>
+                            <name>feature</name>
+                            <value>Context</value>
+                        </query_field>
+                    </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
+                    <follow_redirects>NO</follow_redirects>
+                    <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
+                    <triggers>
+                        <trigger>
+                            <expression>{str(Live)}=0</expression>
+                            <name>TYPO3 context present is not Live</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>TYPO3 preset image processor value</name>
+                    <type>HTTP_AGENT</type>
+                    <key>typo3_preset_image</key>
+                    <delay>1h</delay>
+                    <history>30d</history>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.value</params>
+                        </step>
+                    </preprocessing>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>operation</name>
+                            <value>GetFeatureValue</value>
+                        </query_field>
+                        <query_field>
+                            <name>feature</name>
+                            <value>Image</value>
+                        </query_field>
+                    </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
+                    <follow_redirects>NO</follow_redirects>
+                    <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
+                </item>
+                <item>
+                    <name>TYPO3 preset mail value</name>
+                    <type>HTTP_AGENT</type>
+                    <key>typo3_preset_mail</key>
+                    <delay>1h</delay>
+                    <history>30d</history>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.value</params>
+                        </step>
+                    </preprocessing>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>operation</name>
+                            <value>GetFeatureValue</value>
+                        </query_field>
+                        <query_field>
+                            <name>feature</name>
+                            <value>Mail</value>
+                        </query_field>
+                    </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
+                    <follow_redirects>NO</follow_redirects>
+                    <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
+                </item>
+                <item>
+                    <name>TYPO3 preset password hashing value</name>
+                    <type>HTTP_AGENT</type>
+                    <key>typo3_preset_passwordhashing</key>
+                    <delay>1h</delay>
+                    <history>30d</history>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>TYPO3</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.value</params>
+                        </step>
+                    </preprocessing>
+                    <url>https://{HOST.CONN}/zabbixclient/</url>
+                    <query_fields>
+                        <query_field>
+                            <name>operation</name>
+                            <value>GetFeatureValue</value>
+                        </query_field>
+                        <query_field>
+                            <name>feature</name>
+                            <value>passwordhashing</value>
+                        </query_field>
+                    </query_fields>
+                    <posts>key={$TYPO3_CLIENT_KEY}</posts>
+                    <follow_redirects>NO</follow_redirects>
+                    <request_method>POST</request_method>
+                    <verify_peer>YES</verify_peer>
                 </item>
                 <item>
                     <name>TYPO3 ServiceUnavailableExceptions</name>
