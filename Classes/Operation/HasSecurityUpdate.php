@@ -32,6 +32,13 @@ class HasSecurityUpdate implements IOperation, SingletonInterface
         /** @var \TYPO3\CMS\Install\Service\CoreVersionService $coreVersionService */
         $coreVersionService = GeneralUtility::makeInstance(\TYPO3\CMS\Install\Service\CoreVersionService::class);
 
+        if (version_compare(TYPO3_version, '9.0.0', '<')) {
+            try {
+                $coreVersionService->updateVersionMatrix();
+            } catch (RemoteFetchException $e) {
+            }
+        }
+
         try {
             return new OperationResult(true, $coreVersionService->isUpdateSecurityRelevant());
         } catch (RemoteFetchException $e) {

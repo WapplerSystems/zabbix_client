@@ -51,3 +51,4 @@ Zabbix Client
 
     Introduction/Index
     Installation/Index
+    HowTos/Index

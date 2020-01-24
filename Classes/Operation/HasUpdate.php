@@ -11,6 +11,7 @@ namespace WapplerSystems\ZabbixClient\Operation;
 
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Install\Service\Exception\CoreVersionServiceException;
 use TYPO3\CMS\Install\Service\Exception\RemoteFetchException;
 use WapplerSystems\ZabbixClient\OperationResult;
 
@@ -32,9 +33,17 @@ class HasUpdate implements IOperation, SingletonInterface
         /** @var \TYPO3\CMS\Install\Service\CoreVersionService $coreVersionService */
         $coreVersionService = GeneralUtility::makeInstance(\TYPO3\CMS\Install\Service\CoreVersionService::class);
 
+        if (version_compare(TYPO3_version, '9.0.0', '<')) {
+            try {
+                $coreVersionService->updateVersionMatrix();
+            } catch (RemoteFetchException $e) {
+            }
+        }
+
         try {
             return new OperationResult(true, $coreVersionService->isYoungerPatchReleaseAvailable());
-        } catch (RemoteFetchException $e) {
+        } catch (CoreVersionServiceException $e) {
+
         }
 
         return new OperationResult(false, false);

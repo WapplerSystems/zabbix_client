@@ -30,10 +30,18 @@ class GetTotalLogFilesSize implements IOperation, SingletonInterface
     {
         $totalSize = 0;
 
-        $files = GeneralUtility::getFilesInDir(Environment::getVarPath() . '/log/', 'log');
-        foreach ($files as $file) {
-            $totalSize += filesize(Environment::getVarPath() . '/log/' . $file);
+        if (version_compare(TYPO3_version, '9.0.0', '<')) {
+            $files = GeneralUtility::getFilesInDir(PATH_site . 'typo3temp/var/log/', 'log');
+            foreach ($files as $file) {
+                $totalSize += filesize(PATH_site . 'typo3temp/var/log/' . $file);
+            }
+        } else {
+            $files = GeneralUtility::getFilesInDir(Environment::getVarPath() . '/log/', 'log');
+            foreach ($files as $file) {
+                $totalSize += filesize(Environment::getVarPath() . '/log/' . $file);
+            }
         }
+
         $totalSize /= 1024;
 
         return new OperationResult(true, (int)$totalSize);

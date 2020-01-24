@@ -26,7 +26,6 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'] = array_me
     'GetInsecureExtensionList' => \WapplerSystems\ZabbixClient\Operation\GetInsecureExtensionList::class,
     'GetOutdatedExtensionList' => \WapplerSystems\ZabbixClient\Operation\GetOutdatedExtensionList::class,
     'GetTotalLogFilesSize' => \WapplerSystems\ZabbixClient\Operation\GetTotalLogFilesSize::class,
-    'HasStrictSyntaxEnabled' => \WapplerSystems\ZabbixClient\Operation\HasStrictSyntaxEnabled::class,
     'HasRemainingUpdates' => \WapplerSystems\ZabbixClient\Operation\HasRemainingUpdates::class,
     'GetZabbixLogFileSize' => \WapplerSystems\ZabbixClient\Operation\GetZabbixLogFileSize::class,
     'HasExtensionUpdate' => \WapplerSystems\ZabbixClient\Operation\HasExtensionUpdate::class,
@@ -34,6 +33,12 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'] = array_me
     'GetFeatureValue' => \WapplerSystems\ZabbixClient\Operation\GetFeatureValue::class,
     'GetOpCacheStatus' => \WapplerSystems\ZabbixClient\Operation\GetOpCacheStatus::class,
 ]);
+
+if (version_compare(TYPO3_version, '9.0.0', '>=')) {
+    $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'] = array_merge($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'],[
+        'HasStrictSyntaxEnabled' => \WapplerSystems\ZabbixClient\Operation\HasStrictSyntaxEnabled::class,
+    ]);
+}
 
 if (\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('page_speed_insights')) {
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations']['PageSpeedInsights_GetDegradedPageUids'] = \WapplerSystems\ZabbixClient\Operation\Extension\PageSpeedInsights\GetDegradedPageUids::class;
@@ -47,3 +52,7 @@ $GLOBALS['TYPO3_CONF_VARS']['LOG']['WapplerSystems']['ZabbixClient']['Middleware
         ],
     ],
 ];
+
+if (version_compare(TYPO3_version, '9.0.0', '<') && version_compare(TYPO3_version, '7.4.0', '>=')) {
+    $GLOBALS['TYPO3_CONF_VARS']['FE']['eID_include']['zabbixclient'] = \WapplerSystems\ZabbixClient\Middleware\Eid::class . '::processRequest';
+}
