@@ -9,9 +9,11 @@ namespace WapplerSystems\ZabbixClient\Operation;
  * LICENSE.txt file that was distributed with this source code.
  */
 
+use TYPO3\CMS\Core\Database\Schema\Exception\StatementException;
 use TYPO3\CMS\Core\Registry;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 use TYPO3\CMS\Install\Service\UpgradeWizardsService;
 use WapplerSystems\ZabbixClient\OperationResult;
 
@@ -30,21 +32,47 @@ class HasRemainingUpdates implements IOperation, SingletonInterface
     public function execute($parameter = [])
     {
 
+
         if (version_compare(TYPO3_version, '9.0.0', '<')) {
 
-            if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/install']['update'])) {
-                $versionAsInt = \TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger(TYPO3_version);
-                $registry = GeneralUtility::makeInstance(Registry::class);
+            \TYPO3\CMS\Core\Core\Bootstrap::getInstance()
+                ->ensureClassLoadingInformationExists()
+                ->loadTypo3LoadedExtAndExtLocalconf(false)
+                ->defineLoggingAndExceptionConstants()
+                ->unsetReservedGlobalVariables()
+                ->initializeTypo3DbGlobal()
+                ->loadBaseTca(false)
+                ->loadExtTables(false);
+
+            if (!is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/install']['update'])) {
+                $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/install']['update'] = [];
+            }
+
+            $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/install']['update'] = array_merge($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/install']['update'],
+                [
+                    'databaseCharsetUpdate' => \TYPO3\CMS\Install\Updates\DatabaseCharsetUpdate::class,
+                    'initialUpdateDatabaseSchema' => \TYPO3\CMS\Install\Updates\InitialDatabaseSchemaUpdate::class,
+                    'finalUpdateDatabaseSchema' => \TYPO3\CMS\Install\Updates\FinalDatabaseSchemaUpdate::class,
+                ]
+            );
+
+            $versionAsInt = VersionNumberUtility::convertVersionNumberToInteger(TYPO3_version);
+            $registry = GeneralUtility::makeInstance(Registry::class);
+
+            try {
                 foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/install']['update'] as $identifier => $className) {
                     $updateObject = GeneralUtility::makeInstance($className, $identifier, $versionAsInt, null, $this);
                     $markedDoneInRegistry = $registry->get('installUpdate', $className, false);
                     if (!$markedDoneInRegistry && $updateObject->shouldRenderWizard()) {
                         // at least one wizard was found
                         return new OperationResult(true, true);
-                        break;
                     }
                 }
+
+            } catch (StatementException $exception) {
+                return new OperationResult(false, 'error 4325534583');
             }
+
             return new OperationResult(true, false);
         }
 
@@ -58,4 +86,5 @@ class HasRemainingUpdates implements IOperation, SingletonInterface
         );
         return new OperationResult(true, count($incompleteWizards) > 0);
     }
+
 }
