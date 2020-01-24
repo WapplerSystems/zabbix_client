@@ -47,11 +47,13 @@ class GetLastExtensionListUpdate implements IOperation, SingletonInterface
                 'tx_scheduler_task_group',
                 'g',
                 $queryBuilder->expr()->eq('t.task_group', $queryBuilder->quoteIdentifier('g.uid'))
-            )
-            ->where(
+            );
+        if (version_compare(TYPO3_version, '9.0.0', '>=')) {
+            $result = $result->where(
                 $queryBuilder->expr()->eq('t.deleted', 0)
-            )
-            ->orderBy('g.sorting')
+            );
+        }
+        $result = $result->orderBy('g.sorting')
             ->execute();
 
         while ($task = $result->fetch()) {
