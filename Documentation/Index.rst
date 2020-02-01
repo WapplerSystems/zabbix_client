@@ -21,7 +21,6 @@ Zabbix Client
     :Description:
        Zabbix monitoring client
 
-
     :Keywords:
        zabbix monitoring
 
@@ -52,3 +51,4 @@ Zabbix Client
     Introduction/Index
     Installation/Index
     HowTos/Index
+    TroubleShooting/Index

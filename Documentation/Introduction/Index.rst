@@ -12,9 +12,14 @@ Introduction
 What does it do?
 ----------------
 
-
-
 The ``zabbix_client`` extension provides a JSON API for the Zabbix monitoring software.
+With the help of this extension, the following goals will be achieved more closely:
+
+* Improvement of the quality of TYPO3 websites (less errors)
+* Preservation of quality
+* Give agencies an overview of which customers use which systems
+* Improvement of performance
+* Improvement of security
 
 Here you can see some examples of data.
 
