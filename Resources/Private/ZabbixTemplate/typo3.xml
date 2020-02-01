@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>4.4</version>
-    <date>2019-12-30T23:14:50Z</date>
+    <date>2020-02-01T22:17:53Z</date>
     <groups>
         <group>
             <name>Templates/Applications</name>
@@ -329,7 +329,7 @@
                     </triggers>
                 </item>
                 <item>
-                    <name>TYPO3 OpCache active</name>
+                    <name>TYPO3 OPcache active</name>
                     <type>HTTP_AGENT</type>
                     <key>typo3_GetOpCacheStatus</key>
                     <delay>1h</delay>
@@ -359,7 +359,7 @@
                     <triggers>
                         <trigger>
                             <expression>{str(true)}=0</expression>
-                            <name>TYPO3 OpCache is not available</name>
+                            <name>TYPO3 OPcache not available</name>
                             <priority>AVERAGE</priority>
                         </trigger>
                     </triggers>
@@ -504,7 +504,7 @@
                     <name>TYPO3 total log files size (KB)</name>
                     <type>HTTP_AGENT</type>
                     <key>typo3_GetTotalLogFilesSize</key>
-                    <delay>1h</delay>
+                    <delay>15m</delay>
                     <applications>
                         <application>
                             <name>TYPO3</name>
@@ -565,7 +565,7 @@
                     <verify_peer>YES</verify_peer>
                     <triggers>
                         <trigger>
-                            <expression>{nodata(300)}=1</expression>
+                            <expression>{nodata(500)}=1</expression>
                             <name>TYPO3 Zabbix client malfunction</name>
                             <priority>HIGH</priority>
                         </trigger>
@@ -1506,9 +1506,36 @@
                     </triggers>
                 </item>
             </items>
+            <httptests>
+                <httptest>
+                    <name>Frontend</name>
+                    <application>
+                        <name>TYPO3</name>
+                    </application>
+                    <steps>
+                        <step>
+                            <name>Home</name>
+                            <url>https://{HOST.HOST}/</url>
+                            <status_codes>200</status_codes>
+                        </step>
+                    </steps>
+                </httptest>
+            </httptests>
         </template>
     </templates>
     <graphs>
+        <graph>
+            <name>Download Speed</name>
+            <graph_items>
+                <graph_item>
+                    <color>1A7C11</color>
+                    <item>
+                        <host>Template TYPO3</host>
+                        <key>web.test.in[Frontend,,bps]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
         <graph>
             <name>Errors</name>
             <type>STACKED</type>
