@@ -22,7 +22,7 @@ class KeyAuthenticationProvider
     public function hasValidKey($key)
     {
         $config = Configuration::getExtConfiguration();
-        return $config['apiKey'] === $key;
+        return trim($config['apiKey']) === trim($key);
     }
 
 

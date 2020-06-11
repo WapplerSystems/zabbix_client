@@ -12,6 +12,7 @@ namespace WapplerSystems\ZabbixClient\Operation;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use WapplerSystems\ZabbixClient\Exception\InvalidArgumentException;
 use WapplerSystems\ZabbixClient\OperationResult;
@@ -37,10 +38,8 @@ class HasForbiddenUsers implements IOperation, SingletonInterface
 
         $usernames = explode(',', $parameter['usernames']);
 
-        $objectManager = new ObjectManager();
-
         /** @var QueryBuilder $queryBuilder */
-        $queryBuilder = $objectManager->get(ConnectionPool::class)->getQueryBuilderForTable('be_users');
+        $queryBuilder = GeneralUtility::makeInstance(ObjectManager::class)->get(ConnectionPool::class)->getQueryBuilderForTable('be_users');
         $queryBuilder->select('uid')->from('be_users');
 
         foreach ($usernames as $username) {

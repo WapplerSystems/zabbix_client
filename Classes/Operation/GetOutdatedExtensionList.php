@@ -33,10 +33,8 @@ class GetOutdatedExtensionList implements IOperation, SingletonInterface
     {
         $scope = $parameter['scope'];
 
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-
         /** @var ListUtility $listUtility */
-        $listUtility = $objectManager->get(ListUtility::class);
+        $listUtility = GeneralUtility::makeInstance(ObjectManager::class)->get(ListUtility::class);
         $extensionInformation = $listUtility->getAvailableAndInstalledExtensionsWithAdditionalInformation();
         $loadedOutdated = [];
         $existingOutdated = [];

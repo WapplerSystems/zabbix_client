@@ -12,6 +12,7 @@ namespace WapplerSystems\ZabbixClient\Operation;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use WapplerSystems\ZabbixClient\OperationResult;
 
@@ -79,11 +80,8 @@ class GetLogResults implements IOperation, SingletonInterface
                 break;
         }
 
-
-        $objectManager = new ObjectManager();
-
         /** @var QueryBuilder $queryBuilder */
-        $queryBuilder = $objectManager->get(ConnectionPool::class)->getQueryBuilderForTable('sys_log');
+        $queryBuilder = GeneralUtility::makeInstance(ObjectManager::class)->get(ConnectionPool::class)->getQueryBuilderForTable('sys_log');
         $queryBuilder->resetRestrictions();
         $queryBuilder->select('uid')->from('sys_log')->where(
             $queryBuilder->expr()->eq(

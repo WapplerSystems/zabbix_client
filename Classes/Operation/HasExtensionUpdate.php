@@ -42,10 +42,8 @@ class HasExtensionUpdate implements IOperation, SingletonInterface
             return new OperationResult(false, 'Extension [' . $extensionKey . '] is not loaded');
         }
 
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-
         /** @var ListUtility $listUtility */
-        $listUtility = $objectManager->get(ListUtility::class);
+        $listUtility = GeneralUtility::makeInstance(ObjectManager::class)->get(ListUtility::class);
         $extensionInformation = $listUtility->getAvailableAndInstalledExtensionsWithAdditionalInformation();
 
         if (isset($extensionInformation[$extensionKey]['updateAvailable'])) {
