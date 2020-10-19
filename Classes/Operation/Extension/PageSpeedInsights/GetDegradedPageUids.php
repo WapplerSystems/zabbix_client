@@ -11,6 +11,7 @@ namespace WapplerSystems\ZabbixClient\Operation\Extension\PageSpeedInsights;
 
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use WapplerSystems\ZabbixClient\Exception\InvalidArgumentException;
 use WapplerSystems\ZabbixClient\Operation\IOperation;
@@ -30,6 +31,11 @@ class GetDegradedPageUids implements IOperation, SingletonInterface
      */
     public function execute($parameter = [])
     {
+        if (!ExtensionManagementUtility::isLoaded('pagespeedinsights')) {
+            return new OperationResult(false, '');
+        }
+
+
         if (!isset($parameter['strategy']) || $parameter['strategy'] === '') {
             throw new InvalidArgumentException('no strategy set');
         }
