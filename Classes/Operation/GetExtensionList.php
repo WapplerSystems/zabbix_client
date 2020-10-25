@@ -9,6 +9,7 @@ namespace WapplerSystems\ZabbixClient\Operation;
  * LICENSE.txt file that was distributed with this source code.
  */
 
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\SingletonInterface;
 use WapplerSystems\ZabbixClient\OperationResult;
 
@@ -20,6 +21,7 @@ use WapplerSystems\ZabbixClient\OperationResult;
  * @author Thomas Hempel <thomas@work.de>
  * @author Christopher Hlubek <hlubek@networkteam.com>
  * @author Tobias Liebig <liebig@networkteam.com>
+ * @author Sven Wappler <typo3YYYY@wappler.systems>
  *
  */
 class GetExtensionList implements IOperation, SingletonInterface
@@ -27,7 +29,7 @@ class GetExtensionList implements IOperation, SingletonInterface
     /**
      * @var array Available extension scopes
      */
-    protected $scopes = ['system', 'global', 'local'];
+    protected $scopes = ['system', 'local'];
 
     /**
      *
@@ -60,14 +62,19 @@ class GetExtensionList implements IOperation, SingletonInterface
     {
         switch ($scope) {
             case 'system':
-                $path = PATH_typo3 . 'sysext/';
-                break;
-            case 'global':
-                $path = PATH_typo3 . 'ext/';
+                if (version_compare(TYPO3_version, '9.0.0', '<')) {
+                    $path = PATH_typo3 . 'sysext/';
+                } else {
+                    $path = Environment::getPublicPath() . '/typo3/sysext/';
+                }
                 break;
             case 'local':
             default:
-                $path = PATH_typo3conf . 'ext/';
+                if (version_compare(TYPO3_version, '9.0.0', '<')) {
+                    $path = PATH_typo3conf . 'ext/';
+                } else {
+                    $path = Environment::getPublicPath() . '/typo3conf/ext/';
+                }
                 break;
         }
 
