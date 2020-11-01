@@ -2,6 +2,9 @@
 # cat=basic/enable; type=string; label=API Key:Allowed characters: 0-9 a-z A-Z
 apiKey =
 
+# cat=basic/enable; type=string; label=Allowed IPs:Restrict the endpoint to specific IPs. Comma separated lists are possible.
+allowedIps = *
+
 # cat=basic/enable; type=string; label=Path to GraphicsMagick
 program.gm = /usr/bin/gm
 

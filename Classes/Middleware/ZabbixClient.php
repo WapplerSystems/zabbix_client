@@ -11,18 +11,19 @@ namespace WapplerSystems\ZabbixClient\Middleware;
  */
 
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\MiddlewareInterface;
-use Psr\Http\Server\RequestHandlerInterface;
-use TYPO3\CMS\Core\Http\JsonResponse;
-use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Log\Logger;
+use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Log\LogManager;
+use TYPO3\CMS\Core\Http\JsonResponse;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Server\MiddlewareInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use WapplerSystems\ZabbixClient\Authentication\KeyAuthenticationProvider;
-use WapplerSystems\ZabbixClient\Exception\InvalidOperationException;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use WapplerSystems\ZabbixClient\ManagerFactory;
+use WapplerSystems\ZabbixClient\Exception\InvalidOperationException;
+use WapplerSystems\ZabbixClient\Authorization\IpAuthorizationProvider;
+use WapplerSystems\ZabbixClient\Authentication\KeyAuthenticationProvider;
 
 
 class ZabbixClient implements MiddlewareInterface
@@ -52,9 +53,13 @@ class ZabbixClient implements MiddlewareInterface
         /** @var Response $response */
         $response = GeneralUtility::makeInstance(Response::class);
 
+        $ip = GeneralUtility::getIndpEnv('REMOTE_ADDR');
+        $ipAuthorizationProvider = new IpAuthorizationProvider();
+        if (!$ipAuthorizationProvider->isAuthorized($ip)) {
+            return $response->withStatus(403, 'Not allowed');
+        }
+
         $key = $request->getParsedBody()['key'] ?? $request->getQueryParams()['key'] ?? null;
-
-
         $keyAuthenticationProvider = new KeyAuthenticationProvider();
         if (!$keyAuthenticationProvider->hasValidKey($key)) {
             /** @var Response $response */

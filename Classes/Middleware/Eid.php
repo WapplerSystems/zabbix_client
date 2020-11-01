@@ -11,15 +11,16 @@ namespace WapplerSystems\ZabbixClient\Middleware;
  */
 
 
-use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Extbase\Mvc\ResponseInterface;
-use WapplerSystems\ZabbixClient\Authentication\KeyAuthenticationProvider;
-use WapplerSystems\ZabbixClient\Exception\InvalidOperationException;
 use WapplerSystems\ZabbixClient\ManagerFactory;
 use WapplerSystems\ZabbixClient\Response\JsonResponse;
+use WapplerSystems\ZabbixClient\Exception\InvalidOperationException;
+use WapplerSystems\ZabbixClient\Authorization\IpAuthorizationProvider;
+use WapplerSystems\ZabbixClient\Authentication\KeyAuthenticationProvider;
 
 
 class Eid
@@ -31,10 +32,13 @@ class Eid
      */
     public function processRequest(ServerRequestInterface $request, \TYPO3\CMS\Core\Http\Response $response)
     {
+        $ip = GeneralUtility::getIndpEnv('REMOTE_ADDR');
+        $ipAuthorizationProvider = new IpAuthorizationProvider();
+        if (!$ipAuthorizationProvider->isAuthorized($ip)) {
+            return $response->withStatus(403, 'Not allowed');
+        }
 
         $key = $request->getParsedBody()['key'] ?? $request->getQueryParams()['key'] ?? null;
-
-
         $keyAuthenticationProvider = new KeyAuthenticationProvider();
         if (!$keyAuthenticationProvider->hasValidKey($key)) {
 
