@@ -32,6 +32,7 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'] = array_me
     'GetProgramVersion' => \WapplerSystems\ZabbixClient\Operation\GetProgramVersion::class,
     'GetFeatureValue' => \WapplerSystems\ZabbixClient\Operation\GetFeatureValue::class,
     'GetOpCacheStatus' => \WapplerSystems\ZabbixClient\Operation\GetOpCacheStatus::class,
+    'HasFailedSchedulerTask' => \WapplerSystems\ZabbixClient\Operation\HasFailedSchedulerTask::class,
 ]);
 
 if (version_compare(TYPO3_version, '9.0.0', '>=')) {
