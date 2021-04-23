@@ -50,16 +50,16 @@ class GetDatabaseAnalyzerSummary implements IOperation, SingletonInterface
             // Difference from current to expected
             $dropRename = $schemaMigrationService->getUpdateSuggestions($sqlStatements, true);
             $dropRename = array_merge_recursive(...array_values($dropRename));
-            if (!empty($addCreateChange['change'])) {
+            if (!empty($dropRename['change'])) {
                 $values[] = 'UnusedField';
             }
-            if (!empty($addCreateChange['change_table'])) {
+            if (!empty($dropRename['change_table'])) {
                 $values[] = 'UnusedTable';
             }
-            if (!empty($addCreateChange['drop'])) {
+            if (!empty($dropRename['drop'])) {
                 $values[] = 'DropTable';
             }
-            if (!empty($addCreateChange['drop_table'])) {
+            if (!empty($dropRename['drop_table'])) {
                 $values[] = 'DropField';
             }
 
