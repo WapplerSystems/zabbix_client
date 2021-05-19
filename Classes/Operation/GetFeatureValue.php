@@ -12,6 +12,7 @@ namespace WapplerSystems\ZabbixClient\Operation;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Install\Configuration\AbstractPreset;
+use TYPO3\CMS\Install\Configuration\Cache\CacheFeature;
 use TYPO3\CMS\Install\Configuration\Context\ContextFeature;
 use TYPO3\CMS\Install\Configuration\Exception;
 use TYPO3\CMS\Install\Configuration\Image\ImageFeature;
@@ -41,6 +42,10 @@ class GetFeatureValue implements IOperation, SingletonInterface
         }
 
         switch (strtolower($parameter['feature'])) {
+            case 'cache':
+                /** @var ContextFeature $feature */
+                $feature = GeneralUtility::makeInstance(CacheFeature::class);
+                break;
             case 'context':
                 /** @var ContextFeature $feature */
                 $feature = GeneralUtility::makeInstance(ContextFeature::class);
