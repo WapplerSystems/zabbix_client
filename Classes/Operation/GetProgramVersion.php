@@ -35,7 +35,7 @@ class GetProgramVersion implements IOperation, SingletonInterface
         $programName = $parameter['program'];
 
         $config = Configuration::getExtConfiguration();
-        $paths = $config['program.'];
+        $paths = $config['program.'] ?? $config['program'];
 
         switch ($programName) {
             case 'openssl':
