@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
-    <version>4.4</version>
-    <date>2020-02-01T22:18:32Z</date>
+    <version>5.2</version>
+    <date>2021-07-19T01:25:46Z</date>
     <groups>
         <group>
             <name>Templates/Applications</name>
@@ -11,6 +11,11 @@
         <template>
             <template>Template TYPO3 8</template>
             <name>Template TYPO3 8</name>
+            <templates>
+                <template>
+                    <name>Template App HTTP Service</name>
+                </template>
+            </templates>
             <groups>
                 <group>
                     <name>Templates/Applications</name>
@@ -34,10 +39,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -68,10 +75,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -86,6 +95,7 @@
                         <trigger>
                             <expression>{str(Production)}=0</expression>
                             <name>TYPO3 Application Context is not Production</name>
+                            <event_name>TYPO3 Application Context is not Production on {HOST.HOST}</event_name>
                             <priority>WARNING</priority>
                         </trigger>
                     </triggers>
@@ -104,10 +114,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value[0]</params>
+                            <parameters>
+                                <parameter>$.value[0]</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -134,10 +146,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -168,10 +182,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -203,10 +219,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -221,6 +239,7 @@
                         <trigger>
                             <expression>{str(false)}=0</expression>
                             <name>TYPO3 Insecure Extensions detected</name>
+                            <event_name>TYPO3 Insecure Extensions detected on {HOST.HOST}</event_name>
                             <priority>HIGH</priority>
                         </trigger>
                     </triggers>
@@ -240,10 +259,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -272,10 +293,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -290,6 +313,7 @@
                         <trigger>
                             <expression>{fuzzytime(172800)}=0</expression>
                             <name>TYPO3 Extension List Update is more than 2 days overdue</name>
+                            <event_name>TYPO3 Extension List Update is more than 2 days overdue on {HOST.HOST}</event_name>
                             <priority>AVERAGE</priority>
                         </trigger>
                     </triggers>
@@ -307,10 +331,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -324,6 +350,7 @@
                         <trigger>
                             <expression>{fuzzytime(172800)}=0</expression>
                             <name>TYPO3 Scheduler is more than 2 days overdue</name>
+                            <event_name>TYPO3 Scheduler is more than 2 days overdue on {HOST.HOST}</event_name>
                             <priority>AVERAGE</priority>
                         </trigger>
                     </triggers>
@@ -343,10 +370,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value.OPcache.active</params>
+                            <parameters>
+                                <parameter>$.value.OPcache.active</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -360,6 +389,7 @@
                         <trigger>
                             <expression>{str(true)}=0</expression>
                             <name>TYPO3 OPcache not available</name>
+                            <event_name>TYPO3 OPcache not available on {HOST.HOST}</event_name>
                             <priority>AVERAGE</priority>
                         </trigger>
                     </triggers>
@@ -379,10 +409,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -413,10 +445,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -447,10 +481,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -465,6 +501,7 @@
                         <trigger>
                             <expression>{str(false)}=0</expression>
                             <name>TYPO3 Outdated Extensions detected</name>
+                            <event_name>TYPO3 Outdated Extensions detected on {HOST.HOST}</event_name>
                             <priority>INFO</priority>
                         </trigger>
                     </triggers>
@@ -484,11 +521,13 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
                     <timeout>5s</timeout>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -499,6 +538,14 @@
                     <follow_redirects>NO</follow_redirects>
                     <request_method>POST</request_method>
                     <verify_peer>YES</verify_peer>
+                    <triggers>
+                        <trigger>
+                            <expression>{nodata(1000)}=1</expression>
+                            <name>TYPO3 Zabbix client malfunction</name>
+                            <event_name>TYPO3 Zabbix client malfunction on {HOST.HOST}</event_name>
+                            <priority>HIGH</priority>
+                        </trigger>
+                    </triggers>
                 </item>
                 <item>
                     <name>TYPO3 total log files size (KB)</name>
@@ -513,10 +560,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -529,9 +578,16 @@
                     <verify_peer>YES</verify_peer>
                     <triggers>
                         <trigger>
-                            <expression>{last()}&gt;10000</expression>
-                            <name>TYPO3 log files size is too big</name>
+                            <expression>{last()}&gt;10240</expression>
+                            <name>TYPO3 log files are bigger than 10MB</name>
+                            <event_name>TYPO3 log files are bigger than 10MB {HOST.HOST}</event_name>
                             <priority>WARNING</priority>
+                        </trigger>
+                        <trigger>
+                            <expression>{last()}&gt;102400</expression>
+                            <name>TYPO3 log files are bigger than 100MB</name>
+                            <event_name>TYPO3 log files are bigger than 100MB {HOST.HOST}</event_name>
+                            <priority>HIGH</priority>
                         </trigger>
                     </triggers>
                 </item>
@@ -539,6 +595,7 @@
                     <name>TYPO3 version</name>
                     <type>HTTP_AGENT</type>
                     <key>typo3_GetTYPO3Version</key>
+                    <delay>1h</delay>
                     <trends>0</trends>
                     <value_type>TEXT</value_type>
                     <applications>
@@ -549,10 +606,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -563,13 +622,6 @@
                     <follow_redirects>NO</follow_redirects>
                     <request_method>POST</request_method>
                     <verify_peer>YES</verify_peer>
-                    <triggers>
-                        <trigger>
-                            <expression>{nodata(1000)}=1</expression>
-                            <name>TYPO3 Zabbix client malfunction</name>
-                            <priority>HIGH</priority>
-                        </trigger>
-                    </triggers>
                 </item>
                 <item>
                     <name>TYPO3 WebP version</name>
@@ -586,10 +638,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -620,10 +674,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -652,10 +708,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -669,6 +727,7 @@
                         <trigger>
                             <expression>{last()}&gt;0</expression>
                             <name>TYPO3 Zabbix log file increased</name>
+                            <event_name>TYPO3 Zabbix log file increased on {HOST.HOST}</event_name>
                             <priority>HIGH</priority>
                             <description>An indicator of unauthorized access to the interface</description>
                         </trigger>
@@ -689,10 +748,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -711,6 +772,7 @@
                         <trigger>
                             <expression>{str(false)}=0</expression>
                             <name>TYPO3 Has forbidden user</name>
+                            <event_name>TYPO3 Has forbidden user on {HOST.HOST}</event_name>
                             <priority>HIGH</priority>
                         </trigger>
                     </triggers>
@@ -730,10 +792,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -747,6 +811,7 @@
                         <trigger>
                             <expression>{str(false)}=0</expression>
                             <name>TYPO3 Has remaining updates</name>
+                            <event_name>TYPO3 Has remaining updates on {HOST.HOST}</event_name>
                             <priority>HIGH</priority>
                         </trigger>
                     </triggers>
@@ -766,10 +831,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -784,6 +851,7 @@
                         <trigger>
                             <expression>{str(true)}=1</expression>
                             <name>TYPO3 Security Update available</name>
+                            <event_name>TYPO3 Security Update available on {HOST.HOST}</event_name>
                             <priority>HIGH</priority>
                         </trigger>
                     </triggers>
@@ -803,10 +871,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -821,6 +891,7 @@
                         <trigger>
                             <expression>{str(true)}=1</expression>
                             <name>TYPO3 Update available</name>
+                            <event_name>TYPO3 Update available on {HOST.HOST}</event_name>
                             <priority>INFO</priority>
                         </trigger>
                     </triggers>
@@ -837,10 +908,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -869,10 +942,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -903,10 +978,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -929,6 +1006,7 @@
                         <trigger>
                             <expression>{strlen()}&gt;0</expression>
                             <name>TYPO3 PSI accessibility worsened pages [desktop]</name>
+                            <event_name>TYPO3 PSI accessibility worsened pages [desktop] on {HOST.HOST}</event_name>
                             <priority>WARNING</priority>
                         </trigger>
                     </triggers>
@@ -948,10 +1026,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -974,6 +1054,7 @@
                         <trigger>
                             <expression>{strlen()}&gt;0</expression>
                             <name>TYPO3 PSI accessibility worsened pages [mobile]</name>
+                            <event_name>TYPO3 PSI accessibility worsened pages [mobile] on {HOST.HOST}</event_name>
                             <priority>WARNING</priority>
                         </trigger>
                     </triggers>
@@ -993,10 +1074,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -1019,6 +1102,7 @@
                         <trigger>
                             <expression>{strlen()}&gt;0</expression>
                             <name>TYPO3 PSI best practices worsened pages [desktop]</name>
+                            <event_name>TYPO3 PSI best practices worsened pages [desktop] on {HOST.HOST}</event_name>
                             <priority>WARNING</priority>
                         </trigger>
                     </triggers>
@@ -1038,10 +1122,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -1064,6 +1150,7 @@
                         <trigger>
                             <expression>{strlen()}&gt;0</expression>
                             <name>TYPO3 PSI best practices worsened pages [mobile]</name>
+                            <event_name>TYPO3 PSI best practices worsened pages [mobile] on {HOST.HOST}</event_name>
                             <priority>WARNING</priority>
                         </trigger>
                     </triggers>
@@ -1083,10 +1170,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -1108,6 +1197,7 @@
                         <trigger>
                             <expression>{strlen()}&gt;0</expression>
                             <name>TYPO3 PSI performance worsened pages [desktop]</name>
+                            <event_name>TYPO3 PSI performance worsened pages [desktop] on {HOST.HOST}</event_name>
                             <priority>WARNING</priority>
                             <type>MULTIPLE</type>
                         </trigger>
@@ -1128,10 +1218,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -1154,6 +1246,7 @@
                         <trigger>
                             <expression>{strlen()}&gt;0</expression>
                             <name>TYPO3 PSI performance worsened pages [mobile]</name>
+                            <event_name>TYPO3 PSI performance worsened pages [mobile] on {HOST.HOST}</event_name>
                         </trigger>
                     </triggers>
                 </item>
@@ -1172,10 +1265,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -1198,6 +1293,7 @@
                         <trigger>
                             <expression>{strlen()}&gt;0</expression>
                             <name>TYPO3 PSI SEO worsened pages [desktop]</name>
+                            <event_name>TYPO3 PSI SEO worsened pages [desktop] on {HOST.HOST}</event_name>
                             <priority>WARNING</priority>
                         </trigger>
                     </triggers>
@@ -1217,10 +1313,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -1243,6 +1341,7 @@
                         <trigger>
                             <expression>{strlen()}&gt;0</expression>
                             <name>TYPO3 PSI SEO worsened pages [mobile]</name>
+                            <event_name>TYPO3 PSI SEO worsened pages [mobile] on {HOST.HOST}</event_name>
                             <priority>WARNING</priority>
                         </trigger>
                     </triggers>
@@ -1263,10 +1362,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -1285,6 +1386,7 @@
                         <trigger>
                             <expression>{str(Live)}=0</expression>
                             <name>TYPO3 context present is not Live</name>
+                            <event_name>TYPO3 context present is not Live on {HOST.HOST}</event_name>
                             <priority>WARNING</priority>
                         </trigger>
                     </triggers>
@@ -1305,10 +1407,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -1340,10 +1444,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -1375,10 +1481,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -1407,10 +1515,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -1429,6 +1539,7 @@
                         <trigger>
                             <expression>{last()}&gt;0</expression>
                             <name>TYPO3 ServiceUnavailableExceptions increased</name>
+                            <event_name>TYPO3 ServiceUnavailableExceptions increased on {HOST.HOST}</event_name>
                             <priority>WARNING</priority>
                         </trigger>
                     </triggers>
@@ -1448,10 +1559,12 @@
                     <preprocessing>
                         <step>
                             <type>JSONPATH</type>
-                            <params>$.value</params>
+                            <parameters>
+                                <parameter>$.value</parameter>
+                            </parameters>
                         </step>
                     </preprocessing>
-                    <url>https://{HOST.CONN}/index.php?eID=zabbixclient</url>
+                    <url>https://{HOST.HOST}/index.php?eID=zabbixclient</url>
                     <query_fields>
                         <query_field>
                             <name>operation</name>
@@ -1470,8 +1583,8 @@
                         <trigger>
                             <expression>{str(true)}&lt;&gt;0</expression>
                             <name>TYPO3 Zabbix extension update available</name>
+                            <event_name>TYPO3 Zabbix extension update available on {HOST.HOST}</event_name>
                             <priority>HIGH</priority>
-                            <type>MULTIPLE</type>
                         </trigger>
                     </triggers>
                 </item>
@@ -1493,4 +1606,18 @@
             </httptests>
         </template>
     </templates>
+    <triggers>
+        <trigger>
+            <expression>{Template TYPO3 8:web.test.error[Frontend].strlen()}&gt;0 and {Template TYPO3 8:web.test.fail[Frontend].last()}&gt;0</expression>
+            <name>Frontend failed</name>
+            <event_name>Frontend failed on {HOST.NAME}</event_name>
+            <priority>HIGH</priority>
+        </trigger>
+        <trigger>
+            <expression>{Template TYPO3 8:web.test.rspcode[Frontend,Home].last()}&lt;&gt;200</expression>
+            <name>Homepage not returns 200 response code</name>
+            <event_name>Homepage not returns 200 response code on {HOST.HOST}</event_name>
+            <priority>HIGH</priority>
+        </trigger>
+    </triggers>
 </zabbix_export>
