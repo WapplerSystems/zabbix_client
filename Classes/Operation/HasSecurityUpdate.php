@@ -13,6 +13,7 @@ use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Install\Service\Exception\RemoteFetchException;
 use WapplerSystems\ZabbixClient\OperationResult;
+use WapplerSystems\ZabbixClient\Service\CoreVersionService;
 
 
 /**
@@ -28,20 +29,55 @@ class HasSecurityUpdate implements IOperation, SingletonInterface
      */
     public function execute($parameter = [])
     {
+        /** @var CoreVersionService $coreVersionService */
+        $coreVersionService = GeneralUtility::makeInstance(CoreVersionService::class);
 
-        /** @var \TYPO3\CMS\Install\Service\CoreVersionService $coreVersionService */
-        $coreVersionService = GeneralUtility::makeInstance(\TYPO3\CMS\Install\Service\CoreVersionService::class);
-
-        if (version_compare(TYPO3_version, '9.0.0', '<')) {
-            try {
-                $coreVersionService->updateVersionMatrix();
-            } catch (RemoteFetchException $e) {
-            }
+        // No updates for development versions
+        if (!$coreVersionService->isInstalledVersionAReleasedVersion()) {
+            return new OperationResult(true, false);
         }
 
         try {
-            return new OperationResult(true, $coreVersionService->isUpdateSecurityRelevant());
-        } catch (RemoteFetchException $e) {
+            $versionMaintenanceWindow = $coreVersionService->getMaintenanceWindow();
+        } catch (RemoteFetchException $remoteFetchException) {
+            return new OperationResult(false, false);
+        }
+
+        if (!$versionMaintenanceWindow->isSupportedByCommunity() && !$versionMaintenanceWindow->isSupportedByElts()) {
+            // Version is not maintained -> see outdated operation
+            return new OperationResult(true, false);
+        }
+
+        // There is an update available
+        $availableReleases = [];
+        $latestRelease = $coreVersionService->getYoungestPatchRelease();
+        $isCurrentVersionElts = $coreVersionService->isCurrentInstalledVersionElts();
+
+        if ($coreVersionService->isPatchReleaseSuitableForUpdate($latestRelease)) {
+            $availableReleases[] = $latestRelease;
+        }
+
+        if (!$versionMaintenanceWindow->isSupportedByCommunity() && $latestRelease->isElts()) {
+            $latestCommunityDrivenRelease = $coreVersionService->getYoungestCommunityPatchRelease();
+            if ($coreVersionService->isPatchReleaseSuitableForUpdate($latestCommunityDrivenRelease)) {
+                $availableReleases[] = $latestCommunityDrivenRelease;
+            }
+        }
+        if ($availableReleases === []) {
+            // Everything is fine, working with the latest version
+            return new OperationResult(true, false);
+        }
+
+        foreach ($availableReleases as $availableRelease) {
+            if (($availableRelease->isElts() && $isCurrentVersionElts) || (!$availableRelease->isElts() && !$isCurrentVersionElts) ) {
+                try {
+                    if ($coreVersionService->isUpdateSecurityRelevant($availableRelease)) {
+                        return new OperationResult(true, true);
+                    }
+                } catch (RemoteFetchException $e) {
+                    return new OperationResult(false, false);
+                }
+            }
         }
 
         return new OperationResult(false, false);
