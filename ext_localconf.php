@@ -36,6 +36,7 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'] = array_me
     'GetDatabaseAnalyzerSummary' => \WapplerSystems\ZabbixClient\Operation\GetDatabaseAnalyzerSummary::class,
     'HasFailedSchedulerTask' => \WapplerSystems\ZabbixClient\Operation\HasFailedSchedulerTask::class,
     'HasMissingDefaultMailSettings' => \WapplerSystems\ZabbixClient\Operation\HasMissingDefaultMailSettings::class,
+    'HasOutdatedVersion' => \WapplerSystems\ZabbixClient\Operation\HasOutdatedVersion::class,
 ]);
 
 if (version_compare(TYPO3_version, '9.0.0', '>=')) {
