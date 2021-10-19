@@ -77,6 +77,10 @@ class GetInsecureExtensionList implements IOperation, SingletonInterface
             }
         }
 
+        if (count($exts) === 0) {
+            return new OperationResult(true, false);
+        }
+
         $out = '';
         foreach ($exts as $ext) {
             $out .= $ext['extensionKey'] . ',';
