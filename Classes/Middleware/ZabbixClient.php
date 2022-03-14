@@ -88,7 +88,7 @@ class ZabbixClient implements MiddlewareInterface
             }
         }
 
-        if ($result !== null) {
+        if (isset($result)) {
             return new JsonResponse($result->toArray());
         }
 
