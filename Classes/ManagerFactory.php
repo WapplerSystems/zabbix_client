@@ -9,6 +9,7 @@ namespace WapplerSystems\ZabbixClient;
  * LICENSE.txt file that was distributed with this source code.
  */
 
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use WapplerSystems\ZabbixClient\Operation\IOperation;
 
@@ -38,7 +39,13 @@ class ManagerFactory
      */
     public function __construct()
     {
-        $this->extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['zabbix_client']);
+        if (version_compare(TYPO3_version, '9.0.0', '>=')) {
+            $this->extConf = GeneralUtility::makeInstance(
+                ExtensionConfiguration::class
+            )->get('zabbix_client');
+        } else {
+            $this->extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['zabbix_client']);
+        }
     }
 
     /**
