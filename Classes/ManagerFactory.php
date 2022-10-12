@@ -28,18 +28,6 @@ class ManagerFactory
      */
     protected $operationManager;
 
-    /**
-     * @var array
-     */
-    private $extConf;
-
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $this->extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['zabbix_client']);
-    }
 
     /**
      * @static
