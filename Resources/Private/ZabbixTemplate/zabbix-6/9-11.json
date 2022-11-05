@@ -1,0 +1,1988 @@
+{
+    "zabbix_export": {
+        "version": "6.2",
+        "date": "2022-11-05T21:40:37Z",
+        "template_groups": [
+            {
+                "uuid": "a571c0d144b14fd4a87a9d9b2aa9fcd6",
+                "name": "Templates/Applications"
+            }
+        ],
+        "templates": [
+            {
+                "uuid": "b19712d20f9344d3a057e0e0585e4cce",
+                "template": "Template TYPO3 9-11",
+                "name": "Template TYPO3 9-11",
+                "templates": [
+                    {
+                        "name": "HTTP Service"
+                    }
+                ],
+                "groups": [
+                    {
+                        "name": "Templates/Applications"
+                    }
+                ],
+                "items": [
+                    {
+                        "uuid": "fc4202fb1e4f4f61be40f85b1c968ebd",
+                        "name": "TYPO3 failed logins",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_FailedLogins",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetLogResults"
+                            },
+                            {
+                                "name": "filter",
+                                "value": "FailedLogins"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "288079f825d54758800387dd717edd80",
+                                "expression": "(max(/Template TYPO3 9-11/typo3_FailedLogins,1h)-min(/Template TYPO3 9-11/typo3_FailedLogins,1h))>100 and last(/Template TYPO3 9-11/typo3_FailedLogins) > 0",
+                                "name": "TYPO3 Number of failed login attempts increases",
+                                "event_name": "TYPO3 Number of failed login attempts increases on {HOST.HOST}",
+                                "priority": "HIGH",
+                                "tags": [
+                                    {
+                                        "tag": "Application",
+                                        "value": "TYPO3"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "a12e15caeffd4ae9b9e0598c744f70d7",
+                        "name": "TYPO3 application context",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_GetApplicationContext",
+                        "delay": "5m",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetApplicationContext"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "1813556432ac435c8d1cff8a16fb4e1d",
+                                "expression": "find(/Template TYPO3 9-11/typo3_GetApplicationContext,,\"like\",\"Production\")=0",
+                                "name": "TYPO3 Application Context is not Production",
+                                "event_name": "TYPO3 Application Context is not Production on {HOST.HOST}",
+                                "priority": "WARNING",
+                                "tags": [
+                                    {
+                                        "tag": "Application",
+                                        "value": "TYPO3"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "3028289f308142efb0fb954c65893361",
+                        "name": "TYPO3 database version",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_GetDatabaseVersion",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value[0]"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetDatabaseVersion"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "7220cab50434424a987ac3badaaba246",
+                        "name": "TYPO3 GraphicsMagick version",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_GetGraphicsMagickVersion",
+                        "delay": "1d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetProgramVersion"
+                            },
+                            {
+                                "name": "program",
+                                "value": "gm"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "cc8b106ca306437fa296b49e3cf4594d",
+                        "name": "TYPO3 ImageMagick version",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_GetImageMagickVersion",
+                        "delay": "1d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetProgramVersion"
+                            },
+                            {
+                                "name": "program",
+                                "value": "im"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "c3292dbea083433eac17e72806a3bb02",
+                        "name": "TYPO3 insecure extensions",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_GetInsecureExtensionList",
+                        "delay": "1d",
+                        "history": "30d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetInsecureExtensionList"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "07b0deefad394483bb2d130941c43dac",
+                                "expression": "find(/Template TYPO3 9-11/typo3_GetInsecureExtensionList,,\"like\",\"false\")=0",
+                                "name": "TYPO3 Insecure Extensions detected",
+                                "event_name": "TYPO3 Insecure Extensions detected on {HOST.HOST}",
+                                "priority": "HIGH",
+                                "tags": [
+                                    {
+                                        "tag": "Application",
+                                        "value": "TYPO3"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "570c9355ad5f44b0827fb873e96c35ff",
+                        "name": "TYPO3 jpegoptim version",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_GetJpegoptimVersion",
+                        "delay": "1d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetProgramVersion"
+                            },
+                            {
+                                "name": "program",
+                                "value": "jpegoptim"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "c2cb1d8b803e4a94b8127ab996c2bcd2",
+                        "name": "TYPO3 last extension list update",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_GetLastExtensionListUpdate",
+                        "delay": "1d",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetLastExtensionListUpdate"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "d0f3b67dbf8a486dae2dfb569e06e672",
+                                "expression": "fuzzytime(/Template TYPO3 9-11/typo3_GetLastExtensionListUpdate,172800s)=0",
+                                "name": "TYPO3 Extension List Update is more than 2 days overdue",
+                                "event_name": "TYPO3 Extension List Update is more than 2 days overdue on {HOST.HOST}",
+                                "priority": "AVERAGE",
+                                "tags": [
+                                    {
+                                        "tag": "Application",
+                                        "value": "TYPO3"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "27e8d5bdc06246869146c3e4a9268f42",
+                        "name": "TYPO3 last scheduler run",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_GetLastSchedulerRun",
+                        "delay": "1d",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetLastSchedulerRun"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "96ac41b8ea3d4c459c4b3df8d7061aab",
+                                "expression": "fuzzytime(/Template TYPO3 9-11/typo3_GetLastSchedulerRun,172800s)=0",
+                                "name": "TYPO3 Scheduler is more than 2 days overdue",
+                                "event_name": "TYPO3 Scheduler is more than 2 days overdue on {HOST.HOST}",
+                                "priority": "AVERAGE"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "49554c76b24f4b2cbcae260d3fb059f3",
+                        "name": "TYPO3 OPcache active",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_GetOpCacheStatus",
+                        "delay": "1h",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value.OPcache.active"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetOpCacheStatus"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "ce7d936443734d95be961709a6099f93",
+                                "expression": "find(/Template TYPO3 9-11/typo3_GetOpCacheStatus,,\"like\",\"true\")=0",
+                                "name": "TYPO3 OPcache not available",
+                                "event_name": "TYPO3 OPcache not available on {HOST.HOST}",
+                                "priority": "AVERAGE"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "119d571706194bb2914e8c46b3cd6337",
+                        "name": "TYPO3 OpenSSL version",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_GetOpenSSLVersion",
+                        "delay": "1d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetProgramVersion"
+                            },
+                            {
+                                "name": "program",
+                                "value": "openssl"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "1211032e5e854bfb92918348bfdffe73",
+                        "name": "TYPO3 OptiPNG version",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_GetOptiPNGVersion",
+                        "delay": "1d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetProgramVersion"
+                            },
+                            {
+                                "name": "program",
+                                "value": "optipng"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "9c01949a62bd43028080d4ba129d7700",
+                        "name": "TYPO3 outdated extensions",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_GetOutdatedExtensionList",
+                        "delay": "1d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetOutdatedExtensionList"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "24634351fae5432f98f84e2c2bd61873",
+                                "expression": "find(/Template TYPO3 9-11/typo3_GetOutdatedExtensionList,,\"like\",\"false\")=0",
+                                "name": "TYPO3 Outdated Extensions detected",
+                                "event_name": "TYPO3 Outdated Extensions detected on {HOST.HOST}",
+                                "priority": "INFO"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "514cba52fc1b418299a7fc534ada9f3b",
+                        "name": "PHP version",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_GetPHPVersion",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "timeout": "5s",
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetPHPVersion"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "9db85766e49a4a209c8f01f04830e7bf",
+                                "expression": "nodata(/Template TYPO3 9-11/typo3_GetPHPVersion,1000s)=1",
+                                "name": "TYPO3 Zabbix client malfunction",
+                                "event_name": "TYPO3 Zabbix client malfunction on {HOST.HOST}",
+                                "priority": "HIGH"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "42b69e3370c8462ca75674a17a283d4e",
+                        "name": "TYPO3 total log files size (KB)",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_GetTotalLogFilesSize",
+                        "delay": "15m",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetTotalLogFilesSize"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "5314cc9ed24944b7bee9e03fae013664",
+                                "expression": "last(/Template TYPO3 9-11/typo3_GetTotalLogFilesSize)>10240",
+                                "name": "TYPO3 log files are bigger than 10MB",
+                                "event_name": "TYPO3 log files are bigger than 10MB on {HOST.HOST}",
+                                "priority": "WARNING",
+                                "tags": [
+                                    {
+                                        "tag": "Application",
+                                        "value": "TYPO3"
+                                    }
+                                ]
+                            },
+                            {
+                                "uuid": "1cdeb759c3324e0aa42e54b4d15bb581",
+                                "expression": "last(/Template TYPO3 9-11/typo3_GetTotalLogFilesSize)>102400",
+                                "name": "TYPO3 log files are bigger than 100MB",
+                                "event_name": "TYPO3 log files are bigger than 100MB on {HOST.HOST}",
+                                "priority": "HIGH",
+                                "tags": [
+                                    {
+                                        "tag": "Application",
+                                        "value": "TYPO3"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "43d6378bf102466c9f29816e8573b0c8",
+                        "name": "TYPO3 version",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_GetTYPO3Version",
+                        "delay": "1h",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetTYPO3Version"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "7d5e3d28854d4ebfb479172ad2d338f6",
+                        "name": "TYPO3 WebP version",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_GetWebPVersion",
+                        "delay": "1d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetProgramVersion"
+                            },
+                            {
+                                "name": "program",
+                                "value": "webp"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "b5eb8fa07f454785aabffab4521c9b90",
+                        "name": "TYPO3 Zabbix extension version",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_GetZabbixExtensionVersion",
+                        "delay": "1d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetExtensionVersion"
+                            },
+                            {
+                                "name": "extensionKey",
+                                "value": "zabbix_client"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "5393d023b84f41219364c9e794d27abe",
+                        "name": "TYPO3 zabbix client log file",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_GetZabbixLogFileSize",
+                        "delay": "5m",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetZabbixLogFileSize"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "9a81893e78b64fa2a151b13d26271399",
+                                "expression": "last(/Template TYPO3 9-11/typo3_GetZabbixLogFileSize)>0",
+                                "name": "TYPO3 Zabbix log file increased",
+                                "event_name": "TYPO3 Zabbix log file increased on {HOST.HOST}",
+                                "priority": "HIGH",
+                                "description": "An indicator of unauthorized access to the interface"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "21f90edf52f34f3aa029664fc431830d",
+                        "name": "TYPO3 forbidden users",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_HasForbiddenUsers",
+                        "delay": "1d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "HasForbiddenUsers"
+                            },
+                            {
+                                "name": "usernames",
+                                "value": "{$TYPO3_FORBIDDEN_USERS}"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "52026e9a8bda420b863badc194c76b78",
+                                "expression": "find(/Template TYPO3 9-11/typo3_HasForbiddenUsers,,\"like\",\"false\")=0",
+                                "name": "TYPO3 Has forbidden user",
+                                "event_name": "TYPO3 Has forbidden user on {HOST.HOST}",
+                                "priority": "HIGH",
+                                "tags": [
+                                    {
+                                        "tag": "Application",
+                                        "value": "TYPO3"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "30c445b6dedf48558d3b07c3220f5ee5",
+                        "name": "TYPO3 IPTC preservation",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_HasIPTCPreservation",
+                        "delay": "1d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "HasIPTCPreservation"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "9999342a921843ba8618f81bb37e3931",
+                                "expression": "find(/Template TYPO3 9-11/typo3_HasIPTCPreservation,,\"like\",\"true\")=0",
+                                "name": "TYPO3 Has missing IPTC preservation",
+                                "event_name": "TYPO3 Missing IPTC preservation on {HOST.HOST}",
+                                "priority": "WARNING",
+                                "tags": [
+                                    {
+                                        "tag": "Application",
+                                        "value": "TYPO3"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "b6e2fa87e45a40549a89f4560f9ce5cb",
+                        "name": "TYPO3 missing default mail settings",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_HasMissingDefaultMailSettings",
+                        "delay": "1d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "HasMissingDefaultMailSettings"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "e748a8f796dd4d2f80bd96dc7e76402f",
+                                "expression": "find(/Template TYPO3 9-11/typo3_HasMissingDefaultMailSettings,,\"like\",\"false\")=0",
+                                "name": "TYPO3 Has missing default mail settings",
+                                "event_name": "TYPO3 Has missing default mail settings {HOST.HOST}",
+                                "priority": "WARNING",
+                                "tags": [
+                                    {
+                                        "tag": "Application",
+                                        "value": "TYPO3"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "405d6dcff24e4d96bc720b9e354b449b",
+                        "name": "TYPO3 has remaining updates",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_HasRemainingUpdates",
+                        "delay": "8h",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "timeout": "10s",
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "HasRemainingUpdates"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "ca452d15a27446cc90faa1fa03f1ebbb",
+                                "expression": "find(/Template TYPO3 9-11/typo3_HasRemainingUpdates,,\"like\",\"false\")=0",
+                                "name": "TYPO3 Has remaining updates",
+                                "event_name": "TYPO3 Has remaining updates on {HOST.HOST}",
+                                "priority": "HIGH",
+                                "tags": [
+                                    {
+                                        "tag": "Application",
+                                        "value": "TYPO3"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "372409dec18c496daa5b6f87613c2a82",
+                        "name": "TYPO3 security update available",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_HasSecurityUpdate",
+                        "delay": "1h",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "HasSecurityUpdate"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "ded05ea0b1244f59a1ee96c69c7269b6",
+                                "expression": "find(/Template TYPO3 9-11/typo3_HasSecurityUpdate,,\"like\",\"true\")=1",
+                                "name": "TYPO3 Security Update available",
+                                "event_name": "TYPO3 Security Update available on {HOST.HOST}",
+                                "priority": "HIGH"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "894eba7c9ff4415a8a8ba89fc70b3450",
+                        "name": "TYPO3 strict syntax check",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_HasStrictSyntaxEnabled",
+                        "delay": "1d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "HasStrictSyntaxEnabled"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "b49dc96bd4924e27bdee778eb5f97341",
+                        "name": "TYPO3 update available",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_HasUpdate",
+                        "delay": "1h",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "HasUpdate"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "8562739e19e946f198311e90725e9cd8",
+                                "expression": "find(/Template TYPO3 9-11/typo3_HasUpdate,,\"like\",\"true\")=1",
+                                "name": "TYPO3 Update available",
+                                "event_name": "TYPO3 Update available on {HOST.HOST}",
+                                "priority": "INFO"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "b1fc99ef0c3e410e964abc55e68ec5fd",
+                        "name": "TYPO3 other exceptions",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_OtherExceptions",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetLogResults"
+                            },
+                            {
+                                "name": "filter",
+                                "value": "OtherExceptions"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "78a14a06152b4cf9874aacde7a1f7630",
+                        "name": "TYPO3 PageNotFoundExceptions",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_PageNotFoundException",
+                        "delay": "30s",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetLogResults"
+                            },
+                            {
+                                "name": "filter",
+                                "value": "PageNotFoundException"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "91775617e6874e1a87710c4289fcd521",
+                        "name": "TYPO3 PSI Accessibility worsened pages [Desktop]",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_PageSpeedInsights_accessibility_desktop",
+                        "delay": "1d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "PageSpeedInsights_GetDegradedPageUids"
+                            },
+                            {
+                                "name": "strategy",
+                                "value": "desktop"
+                            },
+                            {
+                                "name": "field",
+                                "value": "accessibility_score"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "9708738d713a4e44aa67ec8550a35ea4",
+                                "expression": "length(last(/Template TYPO3 9-11/typo3_PageSpeedInsights_accessibility_desktop))>0",
+                                "name": "TYPO3 PSI accessibility worsened pages [desktop]",
+                                "event_name": "TYPO3 PSI accessibility worsened pages [desktop] on {HOST.HOST}",
+                                "priority": "WARNING"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "3bfa29ba0c7f419eb284e597d9422bd7",
+                        "name": "TYPO3 PSI Accessibility worsened pages [Mobile]",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_PageSpeedInsights_accessibility_mobile",
+                        "delay": "1d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "PageSpeedInsights_GetDegradedPageUids"
+                            },
+                            {
+                                "name": "strategy",
+                                "value": "mobile"
+                            },
+                            {
+                                "name": "field",
+                                "value": "accessibility_score"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "53a5eb2c097c41a6be2874870b8f8b13",
+                                "expression": "length(last(/Template TYPO3 9-11/typo3_PageSpeedInsights_accessibility_mobile))>0",
+                                "name": "TYPO3 PSI accessibility worsened pages [mobile]",
+                                "event_name": "TYPO3 PSI accessibility worsened pages [mobile] on {HOST.HOST}",
+                                "priority": "WARNING"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "6624e3ada5e3413485dd595d41b88010",
+                        "name": "TYPO3 PSI Best Practices worsened pages [Desktop]",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_PageSpeedInsights_bestpractices_desktop",
+                        "delay": "1d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "PageSpeedInsights_GetDegradedPageUids"
+                            },
+                            {
+                                "name": "strategy",
+                                "value": "desktop"
+                            },
+                            {
+                                "name": "field",
+                                "value": "bestpractices_score"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "90844ca677544da4a3a931429cf2c474",
+                                "expression": "length(last(/Template TYPO3 9-11/typo3_PageSpeedInsights_bestpractices_desktop))>0",
+                                "name": "TYPO3 PSI best practices worsened pages [desktop]",
+                                "event_name": "TYPO3 PSI best practices worsened pages [desktop] on {HOST.HOST}",
+                                "priority": "WARNING"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "bb004716bf1641d99989dcec17e6b83c",
+                        "name": "TYPO3 PSI Best Practices worsened pages [Mobile]",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_PageSpeedInsights_bestpractices_mobile",
+                        "delay": "1d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "PageSpeedInsights_GetDegradedPageUids"
+                            },
+                            {
+                                "name": "strategy",
+                                "value": "mobile"
+                            },
+                            {
+                                "name": "field",
+                                "value": "bestpractices_score"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "349f48512a854ac7894b6db55c1ede75",
+                                "expression": "length(last(/Template TYPO3 9-11/typo3_PageSpeedInsights_bestpractices_mobile))>0",
+                                "name": "TYPO3 PSI best practices worsened pages [mobile]",
+                                "event_name": "TYPO3 PSI best practices worsened pages [mobile] on {HOST.HOST}",
+                                "priority": "WARNING"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "ead04d5c46c04d63a29050b7fb167b21",
+                        "name": "TYPO3 PSI Performace worsened pages [Desktop]",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_PageSpeedInsights_performance_desktop",
+                        "delay": "1d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "PageSpeedInsights_GetDegradedPageUids"
+                            },
+                            {
+                                "name": "strategy",
+                                "value": "desktop"
+                            },
+                            {
+                                "name": "field",
+                                "value": "performance_score"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "93d6f666983541ecb86e0423e08d55bc",
+                                "expression": "length(last(/Template TYPO3 9-11/typo3_PageSpeedInsights_performance_desktop))>0",
+                                "name": "TYPO3 PSI performance worsened pages [desktop]",
+                                "event_name": "TYPO3 PSI performance worsened pages [desktop] on {HOST.HOST}",
+                                "priority": "WARNING",
+                                "type": "MULTIPLE"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "d6901666c58f4ea682e2fadc8dc198dd",
+                        "name": "TYPO3 PSI Performace worsened pages [Mobile]",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_PageSpeedInsights_performance_mobile",
+                        "delay": "1d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "PageSpeedInsights_GetDegradedPageUids"
+                            },
+                            {
+                                "name": "strategy",
+                                "value": "desktop"
+                            },
+                            {
+                                "name": "field",
+                                "value": "performance_score"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "6ba81d726ce04ac9aa017a1a3176d9ea",
+                                "expression": "length(last(/Template TYPO3 9-11/typo3_PageSpeedInsights_performance_mobile))>0",
+                                "name": "TYPO3 PSI performance worsened pages [mobile]",
+                                "event_name": "TYPO3 PSI performance worsened pages [mobile] on {HOST.HOST}"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "a50d3664e85b4224a8b02f591e09ca34",
+                        "name": "TYPO3 PSI SEO worsened pages [Desktop]",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_PageSpeedInsights_seo_desktop",
+                        "delay": "1d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "PageSpeedInsights_GetDegradedPageUids"
+                            },
+                            {
+                                "name": "strategy",
+                                "value": "desktop"
+                            },
+                            {
+                                "name": "field",
+                                "value": "seo_score"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "66f2187e47e341d9a14803c8f612e47d",
+                                "expression": "length(last(/Template TYPO3 9-11/typo3_PageSpeedInsights_seo_desktop))>0",
+                                "name": "TYPO3 PSI SEO worsened pages [desktop]",
+                                "event_name": "TYPO3 PSI SEO worsened pages [desktop] on {HOST.HOST}",
+                                "priority": "WARNING"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "b6ebe1423a5444eea4fce04ba3e83163",
+                        "name": "TYPO3 PSI SEO worsened pages [Mobile]",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_PageSpeedInsights_seo_mobile",
+                        "delay": "1d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "PageSpeedInsights_GetDegradedPageUids"
+                            },
+                            {
+                                "name": "strategy",
+                                "value": "mobile"
+                            },
+                            {
+                                "name": "field",
+                                "value": "seo_score"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "864c6d41705a44e4a9e0c5034b25b8e2",
+                                "expression": "length(last(/Template TYPO3 9-11/typo3_PageSpeedInsights_seo_mobile))>0",
+                                "name": "TYPO3 PSI SEO worsened pages [mobile]",
+                                "event_name": "TYPO3 PSI SEO worsened pages [mobile] on {HOST.HOST}",
+                                "priority": "WARNING"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "961ea019a13d44dc8f0b2030980098d7",
+                        "name": "TYPO3 preset context value",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_preset_context",
+                        "delay": "1h",
+                        "history": "30d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetFeatureValue"
+                            },
+                            {
+                                "name": "feature",
+                                "value": "Context"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "403e0f22a637403a98e03df068e97dff",
+                                "expression": "find(/Template TYPO3 9-11/typo3_preset_context,,\"like\",\"Live\")=0",
+                                "name": "TYPO3 context present is not Live",
+                                "event_name": "TYPO3 context present is not Live on {HOST.HOST}",
+                                "priority": "WARNING",
+                                "tags": [
+                                    {
+                                        "tag": "Application",
+                                        "value": "TYPO3"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "3ade41ce43bc4de79b54cf07be139d4a",
+                        "name": "TYPO3 preset image processor value",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_preset_image",
+                        "delay": "1h",
+                        "history": "30d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetFeatureValue"
+                            },
+                            {
+                                "name": "feature",
+                                "value": "Image"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "364d3e1ca81a40cd9267dc7f8c5f1adc",
+                        "name": "TYPO3 preset mail value",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_preset_mail",
+                        "delay": "1h",
+                        "history": "30d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetFeatureValue"
+                            },
+                            {
+                                "name": "feature",
+                                "value": "Mail"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "81645f199e054f47951032f988edc5a7",
+                        "name": "TYPO3 preset password hashing value",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_preset_passwordhashing",
+                        "delay": "1h",
+                        "history": "30d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetFeatureValue"
+                            },
+                            {
+                                "name": "feature",
+                                "value": "passwordhashing"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "7e8bcc5b6fb841d5b5f5115c08ca4722",
+                        "name": "TYPO3 ServiceUnavailableExceptions",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_ServiceUnavailableException",
+                        "delay": "30s",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetLogResults"
+                            },
+                            {
+                                "name": "filter",
+                                "value": "ServiceUnavailableException"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "3c96ab2f87e34cebacb8b2e134341887",
+                                "expression": "last(/Template TYPO3 9-11/typo3_ServiceUnavailableException)>0",
+                                "name": "TYPO3 ServiceUnavailableExceptions increased",
+                                "event_name": "TYPO3 ServiceUnavailableExceptions increased on {HOST.HOST}",
+                                "priority": "WARNING"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "39b7ab817cc24c159b4e7814316e3035",
+                        "name": "TYPO3 Zabbix extension update available",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3_ZabbixExtensionUpdateAvailable",
+                        "delay": "1d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "HasExtensionUpdate"
+                            },
+                            {
+                                "name": "extensionKey",
+                                "value": "zabbix_client"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "a869aa0258dd490788f47fdf2cf3caaf",
+                                "expression": "find(/Template TYPO3 9-11/typo3_ZabbixExtensionUpdateAvailable,,\"like\",\"true\")<>0",
+                                "name": "TYPO3 Zabbix extension update available",
+                                "event_name": "TYPO3 Zabbix extension update available on {HOST.HOST}",
+                                "priority": "WARNING"
+                            }
+                        ]
+                    }
+                ],
+                "httptests": [
+                    {
+                        "uuid": "1e419a8dc6e84a6bae2f75acd68d2d53",
+                        "name": "Frontend",
+                        "steps": [
+                            {
+                                "name": "Home",
+                                "url": "https://{HOST.HOST}/",
+                                "status_codes": "200"
+                            }
+                        ],
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    }
+                ],
+                "tags": [
+                    {
+                        "tag": "Application",
+                        "value": "TYPO3"
+                    }
+                ]
+            }
+        ],
+        "triggers": [
+            {
+                "uuid": "e04aaedcc10c4b8594dc4522f580541b",
+                "expression": "length(last(/Template TYPO3 9-11/web.test.error[Frontend]))>0 and min(/Template TYPO3 9-11/web.test.fail[Frontend],5m)>0",
+                "name": "Frontend failed",
+                "event_name": "Frontend failed on {HOST.HOST}",
+                "priority": "HIGH",
+                "tags": [
+                    {
+                        "tag": "Application",
+                        "value": "TYPO3"
+                    }
+                ]
+            },
+            {
+                "uuid": "518f2512983b4256b107b3ffd17663c5",
+                "expression": "last(/Template TYPO3 9-11/web.test.rspcode[Frontend,Home])<>200",
+                "name": "Homepage not returns 200 response code",
+                "event_name": "Homepage not returns 200 response code on {HOST.HOST}",
+                "priority": "HIGH",
+                "tags": [
+                    {
+                        "tag": "Application",
+                        "value": "TYPO3"
+                    }
+                ]
+            }
+        ],
+        "graphs": [
+            {
+                "uuid": "9c492fbf74dd4909a6deec6c580a0b57",
+                "name": "Download Speed",
+                "graph_items": [
+                    {
+                        "color": "1A7C11",
+                        "item": {
+                            "host": "Template TYPO3 9-11",
+                            "key": "web.test.in[Frontend,,bps]"
+                        }
+                    }
+                ]
+            },
+            {
+                "uuid": "b8e80ecb1e3f4110ae045b1802d55142",
+                "name": "Errors",
+                "type": "STACKED",
+                "graph_items": [
+                    {
+                        "color": "4527A0",
+                        "item": {
+                            "host": "Template TYPO3 9-11",
+                            "key": "typo3_ServiceUnavailableException"
+                        }
+                    },
+                    {
+                        "sortorder": "1",
+                        "color": "8E24AA",
+                        "item": {
+                            "host": "Template TYPO3 9-11",
+                            "key": "typo3_PageNotFoundException"
+                        }
+                    },
+                    {
+                        "sortorder": "2",
+                        "color": "C62828",
+                        "item": {
+                            "host": "Template TYPO3 9-11",
+                            "key": "typo3_OtherExceptions"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

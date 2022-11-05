@@ -1,0 +1,1319 @@
+zabbix_export:
+  version: '6.2'
+  date: '2022-11-05T21:40:58Z'
+  template_groups:
+    -
+      uuid: a571c0d144b14fd4a87a9d9b2aa9fcd6
+      name: Templates/Applications
+  templates:
+    -
+      uuid: 2a3b175c6c6947048644d8894880c6d9
+      template: 'Template TYPO3 8'
+      name: 'Template TYPO3 8'
+      templates:
+        -
+          name: 'HTTP Service'
+      groups:
+        -
+          name: Templates/Applications
+      items:
+        -
+          uuid: 72926aa304654602ba7077d1ba8e3c89
+          name: 'TYPO3 failed logins'
+          type: HTTP_AGENT
+          key: typo3_FailedLogins
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetLogResults
+            -
+              name: filter
+              value: FailedLogins
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+        -
+          uuid: 0664f72f66184a00b6cbcb815bf4aa5a
+          name: 'TYPO3 application context'
+          type: HTTP_AGENT
+          key: typo3_GetApplicationContext
+          delay: 5m
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetApplicationContext
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: 5dc1d6f391e14c47ac5fe8be50dead50
+              expression: 'find(/Template TYPO3 8/typo3_GetApplicationContext,,"like","Production")=0'
+              name: 'TYPO3 Application Context is not Production'
+              event_name: 'TYPO3 Application Context is not Production on {HOST.HOST}'
+              priority: WARNING
+        -
+          uuid: a4973e23811d483dbcd0e957674ec9ba
+          name: 'TYPO3 database version'
+          type: HTTP_AGENT
+          key: typo3_GetDatabaseVersion
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.value[0]'
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetDatabaseVersion
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+        -
+          uuid: 3ba496bee2e3426b993f39b4eec79f1b
+          name: 'TYPO3 GraphicsMagick version'
+          type: HTTP_AGENT
+          key: typo3_GetGraphicsMagickVersion
+          delay: 1d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetProgramVersion
+            -
+              name: program
+              value: gm
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+        -
+          uuid: 94b8910d9bbc4702984f65712c957756
+          name: 'TYPO3 ImageMagick version'
+          type: HTTP_AGENT
+          key: typo3_GetImageMagickVersion
+          delay: 1d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetProgramVersion
+            -
+              name: program
+              value: im
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+        -
+          uuid: becb08d1caa748a386c3b4aa8fa93e42
+          name: 'TYPO3 insecure extensions'
+          type: HTTP_AGENT
+          key: typo3_GetInsecureExtensionList
+          delay: 1d
+          history: 30d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetInsecureExtensionList
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: 2b76cdf9ea73422098aed06071398c98
+              expression: 'find(/Template TYPO3 8/typo3_GetInsecureExtensionList,,"like","false")=0'
+              name: 'TYPO3 Insecure Extensions detected'
+              event_name: 'TYPO3 Insecure Extensions detected on {HOST.HOST}'
+              priority: HIGH
+        -
+          uuid: 1addfffb75b944ddbd1ac00c22a00be2
+          name: 'TYPO3 jpegoptim version'
+          type: HTTP_AGENT
+          key: typo3_GetJpegoptimVersion
+          delay: 1d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetProgramVersion
+            -
+              name: program
+              value: jpegoptim
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+        -
+          uuid: 92fc68c822dc4221b3d88f0558295822
+          name: 'TYPO3 last extension list update'
+          type: HTTP_AGENT
+          key: typo3_GetLastExtensionListUpdate
+          delay: 1d
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetLastExtensionListUpdate
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: d00e6b5bb9b9401e9a216c6fd0c87f74
+              expression: 'fuzzytime(/Template TYPO3 8/typo3_GetLastExtensionListUpdate,172800s)=0'
+              name: 'TYPO3 Extension List Update is more than 2 days overdue'
+              event_name: 'TYPO3 Extension List Update is more than 2 days overdue on {HOST.HOST}'
+              priority: AVERAGE
+        -
+          uuid: 3404e93f1811456396e894e92c61d202
+          name: 'TYPO3 last scheduler run'
+          type: HTTP_AGENT
+          key: typo3_GetLastSchedulerRun
+          delay: 1d
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetLastSchedulerRun
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: e9ba7ce736cd4ba9a7dcef9655422a57
+              expression: 'fuzzytime(/Template TYPO3 8/typo3_GetLastSchedulerRun,172800s)=0'
+              name: 'TYPO3 Scheduler is more than 2 days overdue'
+              event_name: 'TYPO3 Scheduler is more than 2 days overdue on {HOST.HOST}'
+              priority: AVERAGE
+        -
+          uuid: 836bcd77d9be44f08304274aeda5d557
+          name: 'TYPO3 OPcache active'
+          type: HTTP_AGENT
+          key: typo3_GetOpCacheStatus
+          delay: 1h
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value.OPcache.active
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetOpCacheStatus
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: 3ee22ba927f34c21a533b437559e8d7d
+              expression: 'find(/Template TYPO3 8/typo3_GetOpCacheStatus,,"like","true")=0'
+              name: 'TYPO3 OPcache not available'
+              event_name: 'TYPO3 OPcache not available on {HOST.HOST}'
+              priority: AVERAGE
+        -
+          uuid: 29b468e00063409d8ded501bca03ac22
+          name: 'TYPO3 OpenSSL version'
+          type: HTTP_AGENT
+          key: typo3_GetOpenSSLVersion
+          delay: 1d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetProgramVersion
+            -
+              name: program
+              value: openssl
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+        -
+          uuid: 3be24447c32942988e0e8b027ef0c6b9
+          name: 'TYPO3 OptiPNG version'
+          type: HTTP_AGENT
+          key: typo3_GetOptiPNGVersion
+          delay: 1d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetProgramVersion
+            -
+              name: program
+              value: optipng
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+        -
+          uuid: 58364ef5cbac4326b31d0edc5d11bd6d
+          name: 'TYPO3 outdated extensions'
+          type: HTTP_AGENT
+          key: typo3_GetOutdatedExtensionList
+          delay: 1d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetOutdatedExtensionList
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: 635d010b9b014f3188f706c4a5d66670
+              expression: 'find(/Template TYPO3 8/typo3_GetOutdatedExtensionList,,"like","false")=0'
+              name: 'TYPO3 Outdated Extensions detected'
+              event_name: 'TYPO3 Outdated Extensions detected on {HOST.HOST}'
+              priority: INFO
+        -
+          uuid: 4dca6839018849f387dba9f5032e7f23
+          name: 'PHP version'
+          type: HTTP_AGENT
+          key: typo3_GetPHPVersion
+          delay: 30s
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          timeout: 5s
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetPHPVersion
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: 6181b22cc3f6405bb4b572d916bda295
+              expression: 'nodata(/Template TYPO3 8/typo3_GetPHPVersion,1000s)=1'
+              name: 'TYPO3 Zabbix client malfunction'
+              event_name: 'TYPO3 Zabbix client malfunction on {HOST.HOST}'
+              priority: HIGH
+        -
+          uuid: 99fcba75794f48fba58d29295b4d4124
+          name: 'TYPO3 total log files size (KB)'
+          type: HTTP_AGENT
+          key: typo3_GetTotalLogFilesSize
+          delay: 15m
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetTotalLogFilesSize
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: 94c96af9559d4b299cbefc4ad90b35b4
+              expression: 'last(/Template TYPO3 8/typo3_GetTotalLogFilesSize)>10240'
+              name: 'TYPO3 log files are bigger than 10MB'
+              event_name: 'TYPO3 log files are bigger than 10MB {HOST.HOST}'
+              priority: WARNING
+            -
+              uuid: 799dd3a6214c4ba987127c3639684a77
+              expression: 'last(/Template TYPO3 8/typo3_GetTotalLogFilesSize)>102400'
+              name: 'TYPO3 log files are bigger than 100MB'
+              event_name: 'TYPO3 log files are bigger than 100MB {HOST.HOST}'
+              priority: HIGH
+        -
+          uuid: 0be39c8522074ecf8b6dcc048f55e02c
+          name: 'TYPO3 version'
+          type: HTTP_AGENT
+          key: typo3_GetTYPO3Version
+          delay: 1h
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetTYPO3Version
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+        -
+          uuid: 29fa2334d8984c2ebc0239519822a563
+          name: 'TYPO3 WebP version'
+          type: HTTP_AGENT
+          key: typo3_GetWebPVersion
+          delay: 1d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetProgramVersion
+            -
+              name: program
+              value: webp
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+        -
+          uuid: e338c57aa59f49b4995326a5fb6a823a
+          name: 'TYPO3 Zabbix extension version'
+          type: HTTP_AGENT
+          key: typo3_GetZabbixExtensionVersion
+          delay: 1d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetExtensionVersion
+            -
+              name: extensionKey
+              value: zabbix_client
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+        -
+          uuid: 5527e3f4d4a34e5890de5227a957efa5
+          name: 'TYPO3 zabbix client log file'
+          type: HTTP_AGENT
+          key: typo3_GetZabbixLogFileSize
+          delay: 5m
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetZabbixLogFileSize
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: eaaea36be1cd47c4bd175900d706f6b7
+              expression: 'last(/Template TYPO3 8/typo3_GetZabbixLogFileSize)>0'
+              name: 'TYPO3 Zabbix log file increased'
+              event_name: 'TYPO3 Zabbix log file increased on {HOST.HOST}'
+              priority: HIGH
+              description: 'An indicator of unauthorized access to the interface'
+        -
+          uuid: e3995a6c47414036b8211390247c528f
+          name: 'TYPO3 forbidden users'
+          type: HTTP_AGENT
+          key: typo3_HasForbiddenUsers
+          delay: 1d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: HasForbiddenUsers
+            -
+              name: usernames
+              value: '{$TYPO3_FORBIDDEN_USERS}'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: 5057e5a4a4414606b75baa86dd8fb4ff
+              expression: 'find(/Template TYPO3 8/typo3_HasForbiddenUsers,,"like","false")=0'
+              name: 'TYPO3 Has forbidden user'
+              event_name: 'TYPO3 Has forbidden user on {HOST.HOST}'
+              priority: HIGH
+        -
+          uuid: c702eb3e6e784fe3a3eab11ccf838c4c
+          name: 'TYPO3 has remaining updates'
+          type: HTTP_AGENT
+          key: typo3_HasRemainingUpdates
+          delay: 8h
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: HasRemainingUpdates
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: b4ab924926874ff6af4a7f13bff2a6ad
+              expression: 'find(/Template TYPO3 8/typo3_HasRemainingUpdates,,"like","false")=0'
+              name: 'TYPO3 Has remaining updates'
+              event_name: 'TYPO3 Has remaining updates on {HOST.HOST}'
+              priority: HIGH
+        -
+          uuid: 0bee3d6c2a264c34b508ef951b661ff4
+          name: 'TYPO3 security update available'
+          type: HTTP_AGENT
+          key: typo3_HasSecurityUpdate
+          delay: 1h
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: HasSecurityUpdate
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: 56bac8c08b3b4e4ca723275ba20a4f91
+              expression: 'find(/Template TYPO3 8/typo3_HasSecurityUpdate,,"like","true")=1'
+              name: 'TYPO3 Security Update available'
+              event_name: 'TYPO3 Security Update available on {HOST.HOST}'
+              priority: HIGH
+        -
+          uuid: 1babe270521943858ba91caa1a70cfdc
+          name: 'TYPO3 update available'
+          type: HTTP_AGENT
+          key: typo3_HasUpdate
+          delay: 1h
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: HasUpdate
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: af2a3ec6de2247a08431858458b84ea7
+              expression: 'find(/Template TYPO3 8/typo3_HasUpdate,,"like","true")=1'
+              name: 'TYPO3 Update available'
+              event_name: 'TYPO3 Update available on {HOST.HOST}'
+              priority: INFO
+        -
+          uuid: 2f1c9d7b0ee44ca68c32661debced40d
+          name: 'TYPO3 other exceptions'
+          type: HTTP_AGENT
+          key: typo3_OtherExceptions
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetLogResults
+            -
+              name: filter
+              value: OtherExceptions
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+        -
+          uuid: 474d45eb05164a4f98c353e455e79629
+          name: 'TYPO3 PageNotFoundExceptions'
+          type: HTTP_AGENT
+          key: typo3_PageNotFoundException
+          delay: 30s
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetLogResults
+            -
+              name: filter
+              value: PageNotFoundException
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+        -
+          uuid: 4a7bbf96843b4204986ed797574396c1
+          name: 'TYPO3 PSI Accessibility worsened pages [Desktop]'
+          type: HTTP_AGENT
+          key: typo3_PageSpeedInsights_accessibility_desktop
+          delay: 1d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: PageSpeedInsights_GetDegradedPageUids
+            -
+              name: strategy
+              value: desktop
+            -
+              name: field
+              value: accessibility_score
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: 9161d8dd083a424e8be3f12f6b01dd15
+              expression: 'length(last(/Template TYPO3 8/typo3_PageSpeedInsights_accessibility_desktop))>0'
+              name: 'TYPO3 PSI accessibility worsened pages [desktop]'
+              event_name: 'TYPO3 PSI accessibility worsened pages [desktop] on {HOST.HOST}'
+              priority: WARNING
+        -
+          uuid: 81c4b472052a4482b12a42e8918d8bac
+          name: 'TYPO3 PSI Accessibility worsened pages [Mobile]'
+          type: HTTP_AGENT
+          key: typo3_PageSpeedInsights_accessibility_mobile
+          delay: 1d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: PageSpeedInsights_GetDegradedPageUids
+            -
+              name: strategy
+              value: mobile
+            -
+              name: field
+              value: accessibility_score
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: f24702eb62a648f4a8d0a04f2f0afe13
+              expression: 'length(last(/Template TYPO3 8/typo3_PageSpeedInsights_accessibility_mobile))>0'
+              name: 'TYPO3 PSI accessibility worsened pages [mobile]'
+              event_name: 'TYPO3 PSI accessibility worsened pages [mobile] on {HOST.HOST}'
+              priority: WARNING
+        -
+          uuid: 4f6f6c6f389c4c258c393bb3d19e93d9
+          name: 'TYPO3 PSI Best Practices worsened pages [Desktop]'
+          type: HTTP_AGENT
+          key: typo3_PageSpeedInsights_bestpractices_desktop
+          delay: 1d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: PageSpeedInsights_GetDegradedPageUids
+            -
+              name: strategy
+              value: desktop
+            -
+              name: field
+              value: bestpractices_score
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: 47fafc634f0a4b939c1420d58319f50d
+              expression: 'length(last(/Template TYPO3 8/typo3_PageSpeedInsights_bestpractices_desktop))>0'
+              name: 'TYPO3 PSI best practices worsened pages [desktop]'
+              event_name: 'TYPO3 PSI best practices worsened pages [desktop] on {HOST.HOST}'
+              priority: WARNING
+        -
+          uuid: 6c4605c550f34c89be787f9d02d56b36
+          name: 'TYPO3 PSI Best Practices worsened pages [Mobile]'
+          type: HTTP_AGENT
+          key: typo3_PageSpeedInsights_bestpractices_mobile
+          delay: 1d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: PageSpeedInsights_GetDegradedPageUids
+            -
+              name: strategy
+              value: mobile
+            -
+              name: field
+              value: bestpractices_score
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: 506a4ea947534e60b90aa0cf6f3742ba
+              expression: 'length(last(/Template TYPO3 8/typo3_PageSpeedInsights_bestpractices_mobile))>0'
+              name: 'TYPO3 PSI best practices worsened pages [mobile]'
+              event_name: 'TYPO3 PSI best practices worsened pages [mobile] on {HOST.HOST}'
+              priority: WARNING
+        -
+          uuid: 335f8ef46f8a424983898aefcc6b4924
+          name: 'TYPO3 PSI Performace worsened pages [Desktop]'
+          type: HTTP_AGENT
+          key: typo3_PageSpeedInsights_performance_desktop
+          delay: 1d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: PageSpeedInsights_GetDegradedPageUids
+            -
+              name: strategy
+              value: desktop
+            -
+              name: field
+              value: performance_score
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: 0a50661f705d4d979f3b9f14bc15dd87
+              expression: 'length(last(/Template TYPO3 8/typo3_PageSpeedInsights_performance_desktop))>0'
+              name: 'TYPO3 PSI performance worsened pages [desktop]'
+              event_name: 'TYPO3 PSI performance worsened pages [desktop] on {HOST.HOST}'
+              priority: WARNING
+              type: MULTIPLE
+        -
+          uuid: c499fba1546644bca223247b5e857396
+          name: 'TYPO3 PSI Performace worsened pages [Mobile]'
+          type: HTTP_AGENT
+          key: typo3_PageSpeedInsights_performance_mobile
+          delay: 1d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: PageSpeedInsights_GetDegradedPageUids
+            -
+              name: strategy
+              value: desktop
+            -
+              name: field
+              value: performance_score
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: 36472964c73641ba8edd85b4f4d6dd63
+              expression: 'length(last(/Template TYPO3 8/typo3_PageSpeedInsights_performance_mobile))>0'
+              name: 'TYPO3 PSI performance worsened pages [mobile]'
+              event_name: 'TYPO3 PSI performance worsened pages [mobile] on {HOST.HOST}'
+        -
+          uuid: f9d1429a0deb420c92fa4ce0ccd5e4c5
+          name: 'TYPO3 PSI SEO worsened pages [Desktop]'
+          type: HTTP_AGENT
+          key: typo3_PageSpeedInsights_seo_desktop
+          delay: 1d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: PageSpeedInsights_GetDegradedPageUids
+            -
+              name: strategy
+              value: desktop
+            -
+              name: field
+              value: seo_score
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: 120050d917054113827300789a365e55
+              expression: 'length(last(/Template TYPO3 8/typo3_PageSpeedInsights_seo_desktop))>0'
+              name: 'TYPO3 PSI SEO worsened pages [desktop]'
+              event_name: 'TYPO3 PSI SEO worsened pages [desktop] on {HOST.HOST}'
+              priority: WARNING
+        -
+          uuid: 15ae0c10dde442879460e3870ce2d4ba
+          name: 'TYPO3 PSI SEO worsened pages [Mobile]'
+          type: HTTP_AGENT
+          key: typo3_PageSpeedInsights_seo_mobile
+          delay: 1d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: PageSpeedInsights_GetDegradedPageUids
+            -
+              name: strategy
+              value: mobile
+            -
+              name: field
+              value: seo_score
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: 5650f1d7d6a54b1789c4190836e4af3b
+              expression: 'length(last(/Template TYPO3 8/typo3_PageSpeedInsights_seo_mobile))>0'
+              name: 'TYPO3 PSI SEO worsened pages [mobile]'
+              event_name: 'TYPO3 PSI SEO worsened pages [mobile] on {HOST.HOST}'
+              priority: WARNING
+        -
+          uuid: 60ac7cb15f2b4a6194fd6ecba82fbdbd
+          name: 'TYPO3 preset context value'
+          type: HTTP_AGENT
+          key: typo3_preset_context
+          delay: 1h
+          history: 30d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetFeatureValue
+            -
+              name: feature
+              value: Context
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: ac28e5154323425785208c9cff62ae7e
+              expression: 'find(/Template TYPO3 8/typo3_preset_context,,"like","Live")=0'
+              name: 'TYPO3 context present is not Live'
+              event_name: 'TYPO3 context present is not Live on {HOST.HOST}'
+              priority: WARNING
+        -
+          uuid: 460d0b16f6264fd28366e2a9874accad
+          name: 'TYPO3 preset image processor value'
+          type: HTTP_AGENT
+          key: typo3_preset_image
+          delay: 1h
+          history: 30d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetFeatureValue
+            -
+              name: feature
+              value: Image
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+        -
+          uuid: 411dc523685b42089e567ccf429bf69c
+          name: 'TYPO3 preset mail value'
+          type: HTTP_AGENT
+          key: typo3_preset_mail
+          delay: 1h
+          history: 30d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetFeatureValue
+            -
+              name: feature
+              value: Mail
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+        -
+          uuid: 4266bec1da8f47d883e06b8aec52d118
+          name: 'TYPO3 preset password hashing value'
+          type: HTTP_AGENT
+          key: typo3_preset_passwordhashing
+          delay: 1h
+          history: 30d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetFeatureValue
+            -
+              name: feature
+              value: passwordhashing
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+        -
+          uuid: 9dcd41fa896849febcae1482e47e68f9
+          name: 'TYPO3 ServiceUnavailableExceptions'
+          type: HTTP_AGENT
+          key: typo3_ServiceUnavailableException
+          delay: 30s
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: GetLogResults
+            -
+              name: filter
+              value: ServiceUnavailableException
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: 9b9f62ffdf71415c85b98f48f420c788
+              expression: 'last(/Template TYPO3 8/typo3_ServiceUnavailableException)>0'
+              name: 'TYPO3 ServiceUnavailableExceptions increased'
+              event_name: 'TYPO3 ServiceUnavailableExceptions increased on {HOST.HOST}'
+              priority: WARNING
+        -
+          uuid: 181c7f1e9a454a2f90c0df23630d7a4f
+          name: 'TYPO3 Zabbix extension update available'
+          type: HTTP_AGENT
+          key: typo3_ZabbixExtensionUpdateAvailable
+          delay: 1d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          url: 'https://{HOST.HOST}/index.php?eID=zabbixclient'
+          query_fields:
+            -
+              name: operation
+              value: HasExtensionUpdate
+            -
+              name: extensionKey
+              value: zabbix_client
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: c6d7ab9870384896960372f388c2c5b3
+              expression: 'find(/Template TYPO3 8/typo3_ZabbixExtensionUpdateAvailable,,"like","true")<>0'
+              name: 'TYPO3 Zabbix extension update available'
+              event_name: 'TYPO3 Zabbix extension update available on {HOST.HOST}'
+              priority: HIGH
+      httptests:
+        -
+          uuid: c271e7260d60429f92d65f085027a5ea
+          name: Frontend
+          steps:
+            -
+              name: Home
+              url: 'https://{HOST.HOST}/'
+              status_codes: '200'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+      tags:
+        -
+          tag: Application
+          value: TYPO3
+  triggers:
+    -
+      uuid: 985865219e834ed3afd3c580f0ff8f94
+      expression: 'length(last(/Template TYPO3 8/web.test.error[Frontend]))>0 and last(/Template TYPO3 8/web.test.fail[Frontend])>0'
+      name: 'Frontend failed'
+      event_name: 'Frontend failed on {HOST.NAME}'
+      priority: HIGH
+    -
+      uuid: f0ed1037188847c69366ce37e7287cdf
+      expression: 'last(/Template TYPO3 8/web.test.rspcode[Frontend,Home])<>200'
+      name: 'Homepage not returns 200 response code'
+      event_name: 'Homepage not returns 200 response code on {HOST.HOST}'
+      priority: HIGH
