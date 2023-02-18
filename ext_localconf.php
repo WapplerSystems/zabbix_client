@@ -1,8 +1,6 @@
 <?php
 
-if (!defined('TYPO3_MODE')) {
-    die('Access denied.');
-}
+defined('TYPO3') or die();
 
 if (!isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'])) {
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'] = [];
@@ -40,7 +38,7 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'] = array_me
     'HasIPTCPreservation' => \WapplerSystems\ZabbixClient\Operation\HasIPTCPreservation::class,
 ]);
 
-if (version_compare(TYPO3_version, '9.0.0', '>=')) {
+if (defined('TYPO3_version') && version_compare(TYPO3_version, '9.0.0', '>=')) {
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'] = array_merge($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'],[
         'HasStrictSyntaxEnabled' => \WapplerSystems\ZabbixClient\Operation\HasStrictSyntaxEnabled::class,
     ]);
@@ -59,6 +57,6 @@ $GLOBALS['TYPO3_CONF_VARS']['LOG']['WapplerSystems']['ZabbixClient']['Middleware
     ],
 ];
 
-if (version_compare(TYPO3_version, '9.0.0', '<') && version_compare(TYPO3_version, '7.4.0', '>=')) {
+if (defined('TYPO3_version') && version_compare(TYPO3_version, '9.0.0', '<') && version_compare(TYPO3_version, '7.4.0', '>=')) {
     $GLOBALS['TYPO3_CONF_VARS']['FE']['eID_include']['zabbixclient'] = \WapplerSystems\ZabbixClient\Middleware\Eid::class . '::processRequest';
 }

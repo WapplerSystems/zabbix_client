@@ -2,6 +2,7 @@
 namespace WapplerSystems\ZabbixClient\Utility;
 
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
@@ -14,6 +15,11 @@ class Configuration
      */
     public static function getExtConfiguration()
     {
+        if (class_exists(Typo3Version::class)) {
+            return \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(ExtensionConfiguration::class)
+                ->get('zabbix_client');
+        }
+
         if (version_compare(TYPO3_version, '9.0.0', '>=')) {
 
             return \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(ExtensionConfiguration::class)
