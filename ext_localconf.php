@@ -35,6 +35,7 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'] = array_me
     'GetFileSpoolValue' => \WapplerSystems\ZabbixClient\Operation\GetFileSpoolValue::class,
     'GetDatabaseAnalyzerSummary' => \WapplerSystems\ZabbixClient\Operation\GetDatabaseAnalyzerSummary::class,
     'HasFailedSchedulerTask' => \WapplerSystems\ZabbixClient\Operation\HasFailedSchedulerTask::class,
+    'HasStuckSchedulerTask' => \WapplerSystems\ZabbixClient\Operation\HasStuckSchedulerTask::class,
     'HasMissingDefaultMailSettings' => \WapplerSystems\ZabbixClient\Operation\HasMissingDefaultMailSettings::class,
     'HasOutdatedVersion' => \WapplerSystems\ZabbixClient\Operation\HasOutdatedVersion::class,
     'HasIPTCPreservation' => \WapplerSystems\ZabbixClient\Operation\HasIPTCPreservation::class,
