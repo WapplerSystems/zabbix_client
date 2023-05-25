@@ -29,6 +29,7 @@ class GetTotalLogFilesSize implements IOperation, SingletonInterface
     public function execute($parameter = [])
     {
         $totalSize = 0;
+        $typo3Version = GeneralUtility::makeInstance(Typo3Version::class);
 
         if (version_compare($typo3Version->getVersion(), '9.0.0', '<')) {
             $files = GeneralUtility::getFilesInDir(PATH_site . 'typo3temp/var/log/', 'log');

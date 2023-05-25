@@ -27,6 +27,6 @@ class GetTYPO3Version implements IOperation, SingletonInterface
     {
         $typo3Version = GeneralUtility::makeInstance(Typo3Version::class);
 
-        return new OperationResult(true, $typo3Version->getVersion);
+        return new OperationResult(true, $typo3Version->getVersion());
     }
 }

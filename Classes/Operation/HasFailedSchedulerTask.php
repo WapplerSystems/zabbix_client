@@ -14,6 +14,7 @@ use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use WapplerSystems\ZabbixClient\OperationResult;
+use TYPO3\CMS\Core\Information\Typo3Version;
 
 /**
  *

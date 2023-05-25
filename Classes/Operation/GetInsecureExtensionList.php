@@ -10,6 +10,7 @@ namespace WapplerSystems\ZabbixClient\Operation;
  */
 
 use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extensionmanager\Domain\Model\Extension;
 use TYPO3\CMS\Extensionmanager\Utility\ListUtility;
 use WapplerSystems\ZabbixClient\OperationResult;
@@ -23,17 +24,6 @@ class GetInsecureExtensionList implements IOperation, SingletonInterface
 {
 
     /**
-     * @var ListUtility
-     */
-    private $listUtility;
-
-
-    public function injectListUtility(ListUtility $listUtility)
-    {
-        $this->listUtility = $listUtility;
-    }
-
-    /**
      *
      * @param array $parameter Array of extension locations as string (loaded, existing)
      * @return OperationResult The extension list
@@ -42,7 +32,11 @@ class GetInsecureExtensionList implements IOperation, SingletonInterface
     {
         $scope = $parameter['scope'];
 
-        $extensionInformation = $this->listUtility->getAvailableAndInstalledExtensionsWithAdditionalInformation();
+        /**
+         * @var ListUtility
+         */
+        $listUtility = GeneralUtility::makeInstance(ListUtility::class);
+        $extensionInformation = $listUtility->getAvailableAndInstalledExtensionsWithAdditionalInformation();
         $loadedInsecure = [];
         $existingInsecure = [];
 
