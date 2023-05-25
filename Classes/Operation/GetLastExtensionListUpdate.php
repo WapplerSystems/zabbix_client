@@ -18,14 +18,14 @@ use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
 use TYPO3\CMS\Extensionmanager\Task\UpdateExtensionListTask;
 use TYPO3\CMS\Scheduler\Task\AbstractTask;
 use WapplerSystems\ZabbixClient\OperationResult;
-
+use TYPO3\CMS\Core\Information\Typo3Version;
 
 class GetLastExtensionListUpdate implements IOperation, SingletonInterface
 {
 
     public function execute($parameter = [])
     {
-
+        $typo3Version = GeneralUtility::makeInstance(Typo3Version::class);
         if (!ExtensionManagementUtility::isLoaded('scheduler')) {
             return new OperationResult(true, 0);
         }
@@ -48,15 +48,15 @@ class GetLastExtensionListUpdate implements IOperation, SingletonInterface
                 'g',
                 $queryBuilder->expr()->eq('t.task_group', $queryBuilder->quoteIdentifier('g.uid'))
             );
-        if (version_compare(TYPO3_version, '9.0.0', '>=')) {
+        if (version_compare($typo3Version->getVersion(), '9.0.0', '>=')) {
             $result = $result->where(
                 $queryBuilder->expr()->eq('t.deleted', 0)
             );
         }
         $result = $result->orderBy('g.sorting')
-            ->execute();
+            ->executeQuery();
 
-        while ($task = $result->fetch()) {
+        while ($task = $result->fetchAssociative()) {
 
             $taskObj = unserialize($task['serialized_task_object'], [AbstractTask::class]);
             if (get_class($taskObj) === UpdateExtensionListTask::class) {

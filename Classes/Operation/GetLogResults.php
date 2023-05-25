@@ -110,7 +110,7 @@ class GetLogResults implements IOperation, SingletonInterface
             }
         }
 
-        $logCount = $queryBuilder->execute()->rowCount();
+        $logCount = $queryBuilder->executeQuery()->rowCount();
 
         return new OperationResult(true, $logCount);
     }

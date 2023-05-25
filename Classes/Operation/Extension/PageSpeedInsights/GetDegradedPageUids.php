@@ -62,8 +62,8 @@ class GetDegradedPageUids implements IOperation, SingletonInterface
             ->select('uid')
             ->from('pages')
             ->where(...$conditions)
-            ->execute()
-            ->fetchAll();
+            ->executeQuery()
+            ->fetchAllNumeric();
 
         foreach ($pages as $page) {
             $trend = self::getTrendOfPage($page['uid'], $strategy, $field);
@@ -104,8 +104,8 @@ class GetDegradedPageUids implements IOperation, SingletonInterface
             )
             ->from('tx_pagespeedinsights_results')
             ->where(...$conditions)
-            ->execute()
-            ->fetch();
+            ->executeQuery()
+            ->fetchNumeric();
         $maxValue = (int)$data['max'];
 
 
@@ -128,8 +128,8 @@ class GetDegradedPageUids implements IOperation, SingletonInterface
             ->where(...$constraints)
             ->orderBy('tstamp', 'DESC')
             ->setMaxResults(1)
-            ->execute()
-            ->fetch();
+            ->executeQuery()
+            ->fetchNumeric();
 
         $currentValue = (int)$data['value'];
 

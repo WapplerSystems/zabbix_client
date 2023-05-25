@@ -50,7 +50,6 @@ class GetRecord implements IOperation, SingletonInterface
         $field = $parameter['field'];
         $value = $parameter['value'];
         $checkEnableFields = $parameter['checkEnableFields'] == true;
-        \TYPO3\CMS\Frontend\Utility\EidUtility::initTCA();
         if (!isset($GLOBALS['TCA'][$table])) {
             return new OperationResult(false, 'Table [' . $table . '] not found in the TCA');
         }
