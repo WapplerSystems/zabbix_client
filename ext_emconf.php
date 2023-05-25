@@ -18,10 +18,10 @@ $EM_CONF[$_EXTKEY] = [
     'clearCacheOnLoad' => 0,
     'lockType' => '',
     'author_company' => 'WapplerSystems',
-    'version' => '0.2.14',
+    'version' => '0.3.0',
     'constraints' => [
         'depends' => [
-            'typo3' => '8.7.0-12.5.99',
+            'typo3' => '8.7.0-12.4.99',
         ],
         'conflicts' => [
         ],
