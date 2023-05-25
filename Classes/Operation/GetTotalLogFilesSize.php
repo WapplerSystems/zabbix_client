@@ -13,7 +13,7 @@ use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use WapplerSystems\ZabbixClient\OperationResult;
-
+use TYPO3\CMS\Core\Information\Typo3Version;
 
 /**
  * Return total log files size in KB
@@ -30,7 +30,7 @@ class GetTotalLogFilesSize implements IOperation, SingletonInterface
     {
         $totalSize = 0;
 
-        if (version_compare(TYPO3_version, '9.0.0', '<')) {
+        if (version_compare($typo3Version->getVersion(), '9.0.0', '<')) {
             $files = GeneralUtility::getFilesInDir(PATH_site . 'typo3temp/var/log/', 'log');
             foreach ($files as $file) {
                 $totalSize += filesize(PATH_site . 'typo3temp/var/log/' . $file);

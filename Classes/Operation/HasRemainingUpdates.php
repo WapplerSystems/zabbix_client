@@ -16,8 +16,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 use TYPO3\CMS\Install\Service\UpgradeWizardsService;
 use WapplerSystems\ZabbixClient\OperationResult;
-
-
+use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Core\Bootstrap;
 /**
  *
  */
@@ -31,9 +31,11 @@ class HasRemainingUpdates implements IOperation, SingletonInterface
      */
     public function execute($parameter = [])
     {
+        $typo3Version = GeneralUtility::makeInstance(Typo3Version::class);
 
+        if (version_compare($typo3Version->getVersion(), '9.0.0', '<')) {
 
-        if (version_compare(TYPO3_version, '9.0.0', '<')) {
+        if (version_compare($typo3Version->getVersion(), '9.0.0', '<')) {
 
             \TYPO3\CMS\Core\Core\Bootstrap::getInstance()
                 ->ensureClassLoadingInformationExists()
@@ -55,8 +57,9 @@ class HasRemainingUpdates implements IOperation, SingletonInterface
                     'finalUpdateDatabaseSchema' => \TYPO3\CMS\Install\Updates\FinalDatabaseSchemaUpdate::class,
                 ]
             );
+            $typo3Version = GeneralUtility::makeInstance(Typo3Version::class);
 
-            $versionAsInt = VersionNumberUtility::convertVersionNumberToInteger(TYPO3_version);
+            $versionAsInt = VersionNumberUtility::convertVersionNumberToInteger($typo3Version->getVersion());
             $registry = GeneralUtility::makeInstance(Registry::class);
 
             try {

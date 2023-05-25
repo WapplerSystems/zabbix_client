@@ -10,8 +10,6 @@ namespace WapplerSystems\ZabbixClient\Operation;
  */
 
 use TYPO3\CMS\Core\SingletonInterface;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extensionmanager\Domain\Model\Extension;
 use TYPO3\CMS\Extensionmanager\Utility\ListUtility;
 use WapplerSystems\ZabbixClient\OperationResult;
@@ -25,6 +23,15 @@ class GetOutdatedExtensionList implements IOperation, SingletonInterface
 {
 
     /**
+     * @var ListUtility
+     */
+    private $listUtility;
+
+    public function injectListUtility(ListUtility $listUtility)
+    {
+        $this->listUtility = $listUtility;
+    }
+    /**
      *
      * @param array $parameter Array of extension locations as string (system, global, local)
      * @return OperationResult The extension list
@@ -33,9 +40,7 @@ class GetOutdatedExtensionList implements IOperation, SingletonInterface
     {
         $scope = $parameter['scope'];
 
-        /** @var ListUtility $listUtility */
-        $listUtility = GeneralUtility::makeInstance(ObjectManager::class)->get(ListUtility::class);
-        $extensionInformation = $listUtility->getAvailableAndInstalledExtensionsWithAdditionalInformation();
+        $extensionInformation = $this->listUtility->getAvailableAndInstalledExtensionsWithAdditionalInformation();
         $loadedOutdated = [];
         $existingOutdated = [];
 
