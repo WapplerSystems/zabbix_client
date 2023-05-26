@@ -34,9 +34,9 @@ class HasRemainingUpdates implements IOperation, SingletonInterface
     {
         $typo3Version = GeneralUtility::makeInstance(Typo3Version::class);
 
-        if (version_compare($typo3Version->getVersion(), '9.0.0', '<')) {
+        if (version_compare($typo3Version->getVersion(), '10.0.0', '<')) {
 
-            if (version_compare($typo3Version->getVersion(), '9.0.0', '<')) {
+            if (version_compare($typo3Version->getVersion(), '10.0.0', '<')) {
 
                 \TYPO3\CMS\Core\Core\Bootstrap::getInstance()
                     ->ensureClassLoadingInformationExists()
@@ -89,6 +89,8 @@ class HasRemainingUpdates implements IOperation, SingletonInterface
                 }
             );
             return new OperationResult(true, count($incompleteWizards) > 0);
+        } else {
+            return new OperationResult(true, 0);
         }
     }
 }
