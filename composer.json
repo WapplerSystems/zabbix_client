@@ -2,7 +2,7 @@
 	"name": "wapplersystems/zabbix_client",
 	"description": "TYPO3 Zabbix Client",
 	"type": "typo3-cms-extension",
-	"homepage": "https://github.com/svewap/zabbix_client",
+	"homepage": "https://github.com/wapplersystems/zabbix_client",
 	"license": "GPL-2.0-or-later",
 	"authors": [
 		{
