@@ -15,12 +15,15 @@ use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 use TYPO3\CMS\Install\Service\UpgradeWizardsService;
+use WapplerSystems\ZabbixClient\Attribute\MonitoringOperation;
 use WapplerSystems\ZabbixClient\OperationResult;
-
+use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Core\Bootstrap;
 
 /**
  *
  */
+#[MonitoringOperation('HasRemainingUpdates')]
 class HasRemainingUpdates implements IOperation, SingletonInterface
 {
 
@@ -56,8 +59,8 @@ class HasRemainingUpdates implements IOperation, SingletonInterface
                 ]
             );
 
-            $versionAsInt = VersionNumberUtility::convertVersionNumberToInteger(TYPO3_version);
-            $registry = GeneralUtility::makeInstance(Registry::class);
+                $versionAsInt = VersionNumberUtility::convertVersionNumberToInteger($typo3Version->getVersion());
+                $registry = GeneralUtility::makeInstance(Registry::class);
 
             try {
                 foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/install']['update'] as $identifier => $className) {

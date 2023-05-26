@@ -13,6 +13,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use WapplerSystems\ZabbixClient\Attribute\MonitoringOperation;
 use WapplerSystems\ZabbixClient\Exception\InvalidArgumentException;
 use WapplerSystems\ZabbixClient\Operation\IOperation;
 use WapplerSystems\ZabbixClient\OperationResult;
@@ -22,6 +23,7 @@ use WapplerSystems\ZabbixClient\OperationResult;
  * An Operation that returns the version of an installed extension
  *
  */
+#[MonitoringOperation('GetDegradedPageUids')]
 class GetDegradedPageUids implements IOperation, SingletonInterface
 {
     /**
@@ -62,8 +64,8 @@ class GetDegradedPageUids implements IOperation, SingletonInterface
             ->select('uid')
             ->from('pages')
             ->where(...$conditions)
-            ->execute()
-            ->fetchAll();
+            ->executeQuery()
+            ->fetchAllNumeric();
 
         foreach ($pages as $page) {
             $trend = self::getTrendOfPage($page['uid'], $strategy, $field);
@@ -104,8 +106,8 @@ class GetDegradedPageUids implements IOperation, SingletonInterface
             )
             ->from('tx_pagespeedinsights_results')
             ->where(...$conditions)
-            ->execute()
-            ->fetch();
+            ->executeQuery()
+            ->fetchNumeric();
         $maxValue = (int)$data['max'];
 
 
@@ -128,8 +130,8 @@ class GetDegradedPageUids implements IOperation, SingletonInterface
             ->where(...$constraints)
             ->orderBy('tstamp', 'DESC')
             ->setMaxResults(1)
-            ->execute()
-            ->fetch();
+            ->executeQuery()
+            ->fetchNumeric();
 
         $currentValue = (int)$data['value'];
 

@@ -13,7 +13,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use WapplerSystems\ZabbixClient\Attribute\MonitoringOperation;
 use WapplerSystems\ZabbixClient\Exception\InvalidArgumentException;
 use WapplerSystems\ZabbixClient\OperationResult;
 
@@ -21,6 +21,7 @@ use WapplerSystems\ZabbixClient\OperationResult;
 /**
  *
  */
+#[MonitoringOperation('HasForbiddenUsers')]
 class HasForbiddenUsers implements IOperation, SingletonInterface
 {
 
@@ -39,7 +40,7 @@ class HasForbiddenUsers implements IOperation, SingletonInterface
         $usernames = explode(',', $parameter['usernames']);
 
         /** @var QueryBuilder $queryBuilder */
-        $queryBuilder = GeneralUtility::makeInstance(ObjectManager::class)->get(ConnectionPool::class)->getQueryBuilderForTable('be_users');
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('be_users');
         $queryBuilder->select('uid')->from('be_users');
 
         foreach ($usernames as $username) {
@@ -48,6 +49,6 @@ class HasForbiddenUsers implements IOperation, SingletonInterface
                 $queryBuilder->quote($username)
             ));
         }
-        return new OperationResult(true, $queryBuilder->execute()->rowCount() > 0);
+        return new OperationResult(true, $queryBuilder->executeQuery()->rowCount() > 0);
     }
 }

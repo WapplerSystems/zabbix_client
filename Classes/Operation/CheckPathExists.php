@@ -11,6 +11,7 @@ namespace WapplerSystems\ZabbixClient\Operation;
 
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use WapplerSystems\ZabbixClient\Attribute\MonitoringOperation;
 use WapplerSystems\ZabbixClient\OperationResult;
 
 
@@ -20,6 +21,7 @@ use WapplerSystems\ZabbixClient\OperationResult;
  * @author Felix Oertel <oertel@networkteam.com>
  *
  */
+#[MonitoringOperation('CheckPathExists')]
 class CheckPathExists implements IOperation, SingletonInterface
 {
     /**
@@ -30,7 +32,7 @@ class CheckPathExists implements IOperation, SingletonInterface
      */
     public function execute($parameter = null)
     {
-        $path = $this->getPath($parameter);
+        $path = $this->getPath($parameter['path']);
         list($path) = glob($path);
 
         if (is_file($path)) {
@@ -44,7 +46,9 @@ class CheckPathExists implements IOperation, SingletonInterface
                 'time' => $time,
                 'size' => $size,
             ]);
-        } elseif (is_dir($path)) {
+        }
+
+        if (is_dir($path)) {
             return new OperationResult(true, [
                 'type' => 'folder',
                 'path' => $parameter,

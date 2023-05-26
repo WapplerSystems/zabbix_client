@@ -9,61 +9,75 @@ namespace WapplerSystems\ZabbixClient;
  * LICENSE.txt file that was distributed with this source code.
  */
 
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use WapplerSystems\ZabbixClient\Exception\InvalidOperationException;
 use WapplerSystems\ZabbixClient\Operation\IOperation;
 
 
-class OperationManager implements IOperationManager
+class OperationManager
 {
-    /**
-     * @var array of IOperation
-     */
-    protected $operations;
+
+    public function __construct(
+        private readonly ServiceLocator $operations
+    ) {
+    }
 
     /**
-     * Register a new operation
-     *
-     * @param string $operationKey The key of the operation (All lowercase, underscores)
-     * @param string|object $operation Operation instance or class
+     * Whether a registered upgrade wizard exists for the given identifier
      */
-    public function registerOperation($operationKey, $operation)
+    public function hasOperation(string $identifier): bool
     {
-        $this->operations[strtolower($operationKey)] = $operation;
+        return $this->operations->has($identifier) || $this->getLegacyOperationClassName($identifier) !== null;
     }
 
     /**
      * Get a registered operation as instance
-     *
-     * @param string $operationKey
-     * @return IOperation|bool The operation instance or FALSE if not registered
+     * @param $identifier
+     * @return IOperation
+     * @throws \UnexpectedValueException
      */
-    public function getOperation($operationKey)
+    public function getOperation($identifier) : IOperation
     {
-        $operationKey = strtolower($operationKey);
-        if (is_string($this->operations[$operationKey])) {
-            return GeneralUtility::makeInstance($this->operations[$operationKey]);
+        if (!$this->hasOperation($identifier)) {
+            throw new \UnexpectedValueException('Monitoring operation with identifier ' . $identifier . ' is not registered.', 1685139937);
         }
-        if (is_object($this->operations[$operationKey])) {
-            return $this->operations[$operationKey];
-        }
-        return false;
+
+        return $this->getLegacyOperation($identifier) ?? $this->operations->get($identifier);
     }
 
     /**
      * Execute an Operation by key with optional parameters
      *
-     * @param string $operationKey
+     * @param string $identifier
      * @param array|null $parameter
      * @return OperationResult
+     * @throws \UnexpectedValueException
      */
-    public function executeOperation($operationKey, $parameter = []) : OperationResult
+    public function executeOperation($identifier, $parameter = []) : OperationResult
     {
-        $operation = $this->getOperation($operationKey);
-        if (!$operation) {
-            throw new InvalidOperationException('Operation [' . $operationKey . '] unknown');
+        return $this->getOperation($identifier)->execute($parameter);
+    }
+
+
+    private function getLegacyOperationClassName(string $identifier): ?string
+    {
+        if (isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'][$identifier])
+            && class_exists($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'][$identifier])
+        ) {
+            return $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'][$identifier];
         }
-        return $operation->execute($parameter);
+        return null;
+    }
+
+    private function getLegacyOperation(string $identifier): ?IOperation
+    {
+        $className = $this->getLegacyOperationClassName($identifier);
+        if ($className === null) {
+            return null;
+        }
+
+        $instance = GeneralUtility::makeInstance($className);
+        return $instance instanceof IOperation ? $instance : null;
     }
 
 

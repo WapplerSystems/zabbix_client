@@ -1,0 +1,12 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  WapplerSystems\ZabbixClient\:
+    resource: '../Classes/*'
+
+  WapplerSystems\ZabbixClient\OperationManager:
+    arguments:
+      $operations: !tagged_locator { tag: 'zabbix_client.operation', index_by: 'identifier' }

@@ -10,6 +10,7 @@ namespace WapplerSystems\ZabbixClient\Operation;
  */
 
 use TYPO3\CMS\Core\SingletonInterface;
+use WapplerSystems\ZabbixClient\Attribute\MonitoringOperation;
 use WapplerSystems\ZabbixClient\OperationResult;
 
 
@@ -19,6 +20,7 @@ use WapplerSystems\ZabbixClient\OperationResult;
  * @author Tobias Liebig <tobias.liebig@typo3.org>
  *
  */
+#[MonitoringOperation('GetDiskSpace')]
 class GetDiskSpace implements IOperation, SingletonInterface
 {
     /**

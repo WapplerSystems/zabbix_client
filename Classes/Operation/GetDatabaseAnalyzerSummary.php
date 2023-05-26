@@ -12,6 +12,7 @@ namespace WapplerSystems\ZabbixClient\Operation;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Database\Schema\SqlReader;
+use WapplerSystems\ZabbixClient\Attribute\MonitoringOperation;
 use WapplerSystems\ZabbixClient\OperationResult;
 use TYPO3\CMS\Core\Database\Schema\SchemaMigrator;
 use TYPO3\CMS\Core\Database\Schema\Exception\StatementException;
@@ -19,6 +20,7 @@ use TYPO3\CMS\Core\Database\Schema\Exception\StatementException;
 /**
  * Information about database schema updates.
  */
+#[MonitoringOperation('GetDatabaseAnalyzerSummary')]
 class GetDatabaseAnalyzerSummary implements IOperation, SingletonInterface
 {
     /**

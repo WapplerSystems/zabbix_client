@@ -11,6 +11,7 @@ namespace WapplerSystems\ZabbixClient\Operation;
 
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
+use WapplerSystems\ZabbixClient\Attribute\MonitoringOperation;
 use WapplerSystems\ZabbixClient\OperationResult;
 
 
@@ -24,6 +25,7 @@ use WapplerSystems\ZabbixClient\OperationResult;
  * @author Tobias Liebig <liebig@networkteam.com>
  *
  */
+#[MonitoringOperation('GetRecord')]
 class GetRecord implements IOperation, SingletonInterface
 {
     /**
@@ -50,7 +52,6 @@ class GetRecord implements IOperation, SingletonInterface
         $field = $parameter['field'];
         $value = $parameter['value'];
         $checkEnableFields = $parameter['checkEnableFields'] == true;
-        \TYPO3\CMS\Frontend\Utility\EidUtility::initTCA();
         if (!isset($GLOBALS['TCA'][$table])) {
             return new OperationResult(false, 'Table [' . $table . '] not found in the TCA');
         }

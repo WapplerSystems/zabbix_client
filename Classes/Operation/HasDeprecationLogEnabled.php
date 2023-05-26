@@ -10,6 +10,7 @@ namespace WapplerSystems\ZabbixClient\Operation;
  */
 
 use TYPO3\CMS\Core\SingletonInterface;
+use WapplerSystems\ZabbixClient\Attribute\MonitoringOperation;
 use WapplerSystems\ZabbixClient\OperationResult;
 
 
@@ -21,6 +22,7 @@ use WapplerSystems\ZabbixClient\OperationResult;
  * E_USER_DEPRECATED
  *
  */
+#[MonitoringOperation('HasDeprecationLogEnabled')]
 class HasDeprecationLogEnabled implements IOperation, SingletonInterface
 {
 

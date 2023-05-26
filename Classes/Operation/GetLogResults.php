@@ -13,13 +13,14 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use WapplerSystems\ZabbixClient\Attribute\MonitoringOperation;
 use WapplerSystems\ZabbixClient\OperationResult;
 
 
 /**
  *
  */
+#[MonitoringOperation('GetLogResults')]
 class GetLogResults implements IOperation, SingletonInterface
 {
 
@@ -81,7 +82,7 @@ class GetLogResults implements IOperation, SingletonInterface
         }
 
         /** @var QueryBuilder $queryBuilder */
-        $queryBuilder = GeneralUtility::makeInstance(ObjectManager::class)->get(ConnectionPool::class)->getQueryBuilderForTable('sys_log');
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_log');
         $queryBuilder->resetRestrictions();
         $queryBuilder->select('uid')->from('sys_log')->where(
             $queryBuilder->expr()->eq(
@@ -110,7 +111,7 @@ class GetLogResults implements IOperation, SingletonInterface
             }
         }
 
-        $logCount = $queryBuilder->execute()->rowCount();
+        $logCount = $queryBuilder->executeQuery()->rowCount();
 
         return new OperationResult(true, $logCount);
     }

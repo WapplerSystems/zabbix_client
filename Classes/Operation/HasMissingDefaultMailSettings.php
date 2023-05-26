@@ -10,6 +10,7 @@ namespace WapplerSystems\ZabbixClient\Operation;
  */
 
 use TYPO3\CMS\Core\SingletonInterface;
+use WapplerSystems\ZabbixClient\Attribute\MonitoringOperation;
 use WapplerSystems\ZabbixClient\OperationResult;
 
 
@@ -18,6 +19,7 @@ use WapplerSystems\ZabbixClient\OperationResult;
  * Check if strict syntax is enabled
  *
  */
+#[MonitoringOperation('HasMissingDefaultMailSettings')]
 class HasMissingDefaultMailSettings implements IOperation, SingletonInterface
 {
 

@@ -11,10 +11,10 @@ namespace WapplerSystems\ZabbixClient\Operation;
 
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\SingletonInterface;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use WapplerSystems\ZabbixClient\Attribute\MonitoringOperation;
 use WapplerSystems\ZabbixClient\OperationResult;
 
-
+#[MonitoringOperation('GetApplicationContext')]
 class GetApplicationContext implements IOperation, SingletonInterface
 {
     /**
@@ -23,20 +23,8 @@ class GetApplicationContext implements IOperation, SingletonInterface
      */
     public function execute($parameter = [])
     {
-        if (version_compare(TYPO3_version, '11.0.0', '>=')) {
-            $applicationContext = Environment::getContext();
-            if ($applicationContext->isDevelopment()) {
-                return new OperationResult(true, 'Development');
-            }
-            if ($applicationContext->isTesting()) {
-                return new OperationResult(true, 'Testing');
-            }
-            if ($applicationContext->isProduction()) {
-                return new OperationResult(true, 'Production');
-            }
-            return new OperationResult(true, '');
-        }
-        $applicationContext = GeneralUtility::getApplicationContext();
+
+        $applicationContext = Environment::getContext();
         if ($applicationContext->isDevelopment()) {
             return new OperationResult(true, 'Development');
         }
@@ -47,5 +35,6 @@ class GetApplicationContext implements IOperation, SingletonInterface
             return new OperationResult(true, 'Production');
         }
         return new OperationResult(true, '');
+
     }
 }

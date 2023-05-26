@@ -11,6 +11,7 @@ namespace WapplerSystems\ZabbixClient\Operation;
 
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\CommandUtility;
+use WapplerSystems\ZabbixClient\Attribute\MonitoringOperation;
 use WapplerSystems\ZabbixClient\Exception\InvalidArgumentException;
 use WapplerSystems\ZabbixClient\OperationResult;
 use WapplerSystems\ZabbixClient\Utility\Configuration;
@@ -19,6 +20,7 @@ use WapplerSystems\ZabbixClient\Utility\Configuration;
 /**
  * A Operation which returns the programm versions
  */
+#[MonitoringOperation('GetProgramVersion')]
 class GetProgramVersion implements IOperation, SingletonInterface
 {
     /**

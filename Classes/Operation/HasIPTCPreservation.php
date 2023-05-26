@@ -12,6 +12,7 @@ namespace WapplerSystems\ZabbixClient\Operation;
 use TYPO3\CMS\Core\Configuration\Features;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use WapplerSystems\ZabbixClient\Attribute\MonitoringOperation;
 use WapplerSystems\ZabbixClient\OperationResult;
 
 
@@ -20,6 +21,7 @@ use WapplerSystems\ZabbixClient\OperationResult;
  * Check if strict syntax is enabled
  *
  */
+#[MonitoringOperation('HasIPTCPreservation')]
 class HasIPTCPreservation implements IOperation, SingletonInterface
 {
 

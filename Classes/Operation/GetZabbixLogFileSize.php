@@ -14,6 +14,7 @@ use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Log\Writer\FileWriter;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use WapplerSystems\ZabbixClient\Attribute\MonitoringOperation;
 use WapplerSystems\ZabbixClient\Middleware\ZabbixClient;
 use WapplerSystems\ZabbixClient\OperationResult;
 
@@ -21,6 +22,7 @@ use WapplerSystems\ZabbixClient\OperationResult;
 /**
  * Return total log files size in KB
  */
+#[MonitoringOperation('GetZabbixLogFileSize')]
 class GetZabbixLogFileSize implements IOperation, SingletonInterface
 {
 

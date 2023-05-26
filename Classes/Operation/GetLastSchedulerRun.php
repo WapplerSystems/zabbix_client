@@ -12,9 +12,10 @@ namespace WapplerSystems\ZabbixClient\Operation;
 use TYPO3\CMS\Core\Registry;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use WapplerSystems\ZabbixClient\Attribute\MonitoringOperation;
 use WapplerSystems\ZabbixClient\OperationResult;
 
-
+#[MonitoringOperation('GetLastSchedulerRun')]
 class GetLastSchedulerRun implements IOperation, SingletonInterface
 {
 

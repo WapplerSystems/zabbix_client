@@ -1,6 +1,8 @@
 <?php
 
-defined('TYPO3') or die();
+
+use TYPO3\CMS\Core\Log\LogLevel;
+use TYPO3\CMS\Core\Log\Writer\FileWriter;
 
 if (!isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'])) {
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['zabbix_client']['operations'] = [];
@@ -50,13 +52,9 @@ if (\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('page_speed_ins
 
 
 $GLOBALS['TYPO3_CONF_VARS']['LOG']['WapplerSystems']['ZabbixClient']['Middleware']['ZabbixClient']['writerConfiguration'] = [
-    \TYPO3\CMS\Core\Log\LogLevel::WARNING => [
-        \TYPO3\CMS\Core\Log\Writer\FileWriter::class => [
+    LogLevel::WARNING => [
+        FileWriter::class => [
             'logFileInfix' => 'zabbixclient'
         ],
     ],
 ];
-
-if (defined('TYPO3_version') && version_compare(TYPO3_version, '9.0.0', '<') && version_compare(TYPO3_version, '7.4.0', '>=')) {
-    $GLOBALS['TYPO3_CONF_VARS']['FE']['eID_include']['zabbixclient'] = \WapplerSystems\ZabbixClient\Middleware\Eid::class . '::processRequest';
-}

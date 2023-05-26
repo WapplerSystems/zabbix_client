@@ -2,10 +2,8 @@
 namespace WapplerSystems\ZabbixClient\Utility;
 
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
-use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Core\Information\Typo3Version;
 
 class Configuration
 {
@@ -15,15 +13,10 @@ class Configuration
      */
     public static function getExtConfiguration()
     {
-        if (class_exists(Typo3Version::class)) {
-            return \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(ExtensionConfiguration::class)
-                ->get('zabbix_client');
-        }
+        $typo3Version = GeneralUtility::makeInstance(Typo3Version::class);
+        if (version_compare($typo3Version->getVersion(), '9.0.0', '>=')) {
 
-        if (version_compare(TYPO3_version, '9.0.0', '>=')) {
-
-            return \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(ExtensionConfiguration::class)
-                ->get('zabbix_client');
+            return GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('zabbix_client');
         }
 
         if (isset($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['zabbix_client'])) {
@@ -34,21 +27,4 @@ class Configuration
         }
         return [];
     }
-
-
-    /**
-     * Get the whole typoscript array
-     * @return array
-     */
-    public static function getTypoScriptConfiguration(): array
-    {
-        $configurationManager = GeneralUtility::makeInstance(ObjectManager::class)
-            ->get(ConfigurationManagerInterface::class);
-
-        return $configurationManager->getConfiguration(
-            ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
-            'zabbix_client'
-        );
-    }
-
 }

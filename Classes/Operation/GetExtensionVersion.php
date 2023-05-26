@@ -11,6 +11,7 @@ namespace WapplerSystems\ZabbixClient\Operation;
 
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use WapplerSystems\ZabbixClient\Attribute\MonitoringOperation;
 use WapplerSystems\ZabbixClient\Exception\InvalidArgumentException;
 use WapplerSystems\ZabbixClient\OperationResult;
 
@@ -19,6 +20,7 @@ use WapplerSystems\ZabbixClient\OperationResult;
  * An Operation that returns the version of an installed extension
  *
  */
+#[MonitoringOperation('GetExtensionVersion')]
 class GetExtensionVersion implements IOperation, SingletonInterface
 {
     /**

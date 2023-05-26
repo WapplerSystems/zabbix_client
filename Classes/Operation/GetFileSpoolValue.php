@@ -11,6 +11,7 @@ namespace WapplerSystems\ZabbixClient\Operation;
 
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use WapplerSystems\ZabbixClient\Attribute\MonitoringOperation;
 use WapplerSystems\ZabbixClient\OperationResult;
 
 
@@ -21,6 +22,7 @@ use WapplerSystems\ZabbixClient\OperationResult;
  * - sending: Returns mails trying to send.
  * - lag: Returns time passed in seconds from oldest file in spool.
  */
+#[MonitoringOperation('GetFileSpoolValue')]
 class GetFileSpoolValue implements IOperation, SingletonInterface
 {
     /**

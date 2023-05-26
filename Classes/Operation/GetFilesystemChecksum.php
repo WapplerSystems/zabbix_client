@@ -11,6 +11,7 @@ namespace WapplerSystems\ZabbixClient\Operation;
 
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use WapplerSystems\ZabbixClient\Attribute\MonitoringOperation;
 use WapplerSystems\ZabbixClient\OperationResult;
 
 /**
@@ -22,6 +23,7 @@ use WapplerSystems\ZabbixClient\OperationResult;
  * @author Tobias Liebig <liebig@networkteam.com>
  *
  */
+#[MonitoringOperation('GetFilesystemChecksum')]
 class GetFilesystemChecksum implements IOperation, SingletonInterface
 {
     /**
