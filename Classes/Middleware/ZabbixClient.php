@@ -65,7 +65,7 @@ class ZabbixClient implements MiddlewareInterface
             /** @var Response $response */
             $response = GeneralUtility::makeInstance(Response::class);
 
-            /** @var Logger Logger */
+            /** @var Logger $logger */
             $logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
             $logger->error('API key wrong', ['ip' => $_SERVER['REMOTE_ADDR']]);
 
