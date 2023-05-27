@@ -11,23 +11,35 @@ namespace WapplerSystems\ZabbixClient\Middleware;
  */
 
 
+use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
+use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\MiddlewareInterface;
+use TYPO3\CMS\Core\TypoScript\AST\Node\RootNode;
+use TYPO3\CMS\Core\TypoScript\FrontendTypoScript;
+use TYPO3\CMS\Core\Utility\DebugUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use WapplerSystems\ZabbixClient\ManagerFactory;
 use WapplerSystems\ZabbixClient\Exception\InvalidOperationException;
 use WapplerSystems\ZabbixClient\Authorization\IpAuthorizationProvider;
 use WapplerSystems\ZabbixClient\Authentication\KeyAuthenticationProvider;
+use WapplerSystems\ZabbixClient\OperationManager;
 
 
 class ZabbixClient implements MiddlewareInterface
 {
+
+    public function __construct(
+        private readonly OperationManager $operationManager
+    ) {
+
+    }
+
     /**
      * Calls the "unavailableAction" of the error controller if the system is in maintenance mode.
      * This only applies if the REMOTE_ADDR does not match the devIpMask
@@ -39,9 +51,8 @@ class ZabbixClient implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
 
-        /** @var \Psr\Http\Message\UriInterface $requestedUri */
         $requestedUri = $request->getUri();
-        if (strpos($requestedUri->getPath(), '/zabbixclient/') === 0) {
+        if (str_starts_with($requestedUri->getPath(), '/zabbixclient/')) {
             return $this->processRequest($request);
         }
 
@@ -75,12 +86,15 @@ class ZabbixClient implements MiddlewareInterface
         $operation = $request->getParsedBody()['operation'] ?? $request->getQueryParams()['operation'] ?? null;
         $params = array_merge($request->getParsedBody() ?? [], $request->getQueryParams() ?? []);
 
-        $managerFactory = ManagerFactory::getInstance();
+
+        $GLOBALS['TYPO3_REQUEST'] = (new ServerRequest())->withAttribute(
+            'applicationType',
+            SystemEnvironmentBuilder::REQUESTTYPE_BE
+        )->withAttribute('frontend.typoscript',new FrontendTypoScript(new RootNode(),[]));
 
         if ($operation !== null && $operation !== '') {
-            $operationManager = $managerFactory->getOperationManager();
             try {
-                $result = $operationManager->executeOperation($operation, $params);
+                $result = $this->operationManager->executeOperation($operation, $params);
             } catch (InvalidOperationException $ex){
                 return $response->withStatus(404,  $ex->getMessage());
             } catch (\Exception $ex) {

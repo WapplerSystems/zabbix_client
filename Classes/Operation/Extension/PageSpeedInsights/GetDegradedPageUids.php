@@ -23,7 +23,7 @@ use WapplerSystems\ZabbixClient\OperationResult;
  * An Operation that returns the version of an installed extension
  *
  */
-#[MonitoringOperation('GetDegradedPageUids')]
+#[MonitoringOperation('PageSpeedInsights_GetDegradedPageUids')]
 class GetDegradedPageUids implements IOperation, SingletonInterface
 {
     /**

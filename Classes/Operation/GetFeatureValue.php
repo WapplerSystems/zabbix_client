@@ -38,8 +38,6 @@ class GetFeatureValue implements IOperation, SingletonInterface
      */
     public function execute($parameter = [])
     {
-        $typo3Version = GeneralUtility::makeInstance(Typo3Version::class);
-
         if (!isset($parameter['feature']) || $parameter['feature'] === '') {
             throw new InvalidArgumentException('feature not set');
         }
@@ -62,9 +60,6 @@ class GetFeatureValue implements IOperation, SingletonInterface
                 $feature = GeneralUtility::makeInstance(MailFeature::class);
                 break;
             case 'passwordhashing':
-                if (version_compare($typo3Version->getVersion(), '9.0.0', '<')) {
-                    return new OperationResult(false, false);
-                }
                 /** @var PasswordHashingFeature $feature */
                 $feature = GeneralUtility::makeInstance(PasswordHashingFeature::class);
                 break;

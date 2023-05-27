@@ -5,32 +5,12 @@ $EM_CONF[$_EXTKEY] = [
     'category' => 'misc',
     'author' => 'Sven Wappler',
     'author_email' => 'typo3YYYY@wappler.systems',
-    'shy' => '',
-    'dependencies' => '',
-    'conflicts' => '',
-    'priority' => '',
-    'module' => '',
     'state' => 'stable',
-    'internal' => '',
-    'uploadfolder' => 0,
-    'createDirs' => '',
-    'modify_tables' => '',
-    'clearCacheOnLoad' => 0,
-    'lockType' => '',
     'author_company' => 'WapplerSystems',
     'version' => '12.2.0',
     'constraints' => [
         'depends' => [
             'typo3' => '12.0.0-12.4.99',
-        ],
-        'conflicts' => [
-        ],
-        'suggests' => [
-        ],
-    ],
-    'autoload' => [
-        'classmap' => [
-            'Classes',
         ],
     ],
 ];
