@@ -32,10 +32,10 @@ class GetInsecureExtensionList implements IOperation, SingletonInterface
      */
     public function execute($parameter = [])
     {
-        $scope = $parameter['scope'];
+        $scope = $parameter['scope'] ?? '';
 
         /**
-         * @var ListUtility
+         * @var $listUtility ListUtility
          */
         $listUtility = GeneralUtility::makeInstance(ListUtility::class);
         $extensionInformation = $listUtility->getAvailableAndInstalledExtensionsWithAdditionalInformation();
