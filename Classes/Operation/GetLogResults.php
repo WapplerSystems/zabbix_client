@@ -52,7 +52,7 @@ class GetLogResults implements IOperation, SingletonInterface
     public function execute($parameter = [])
     {
 
-        $filter = $parameter['filter'];
+        $filter = $parameter['filter'] ?? '';
 
         $type = -1;
         $error = -1;
