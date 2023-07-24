@@ -41,10 +41,10 @@ class OperationManager implements IOperationManager
     public function getOperation($operationKey)
     {
         $operationKey = strtolower($operationKey);
-        if (is_string($this->operations[$operationKey])) {
+        if (is_string($this->operations[$operationKey] ?? null)) {
             return GeneralUtility::makeInstance($this->operations[$operationKey]);
         }
-        if (is_object($this->operations[$operationKey])) {
+        if (is_object($this->operations[$operationKey] ?? null)) {
             return $this->operations[$operationKey];
         }
         return false;
