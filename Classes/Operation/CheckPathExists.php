@@ -30,7 +30,7 @@ class CheckPathExists implements IOperation, SingletonInterface
      */
     public function execute($parameter = null)
     {
-        $path = $this->getPath($parameter);
+        $path = $this->getPath($parameter['path']);
         list($path) = glob($path);
 
         if (is_file($path)) {

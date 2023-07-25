@@ -14,6 +14,7 @@ use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use WapplerSystems\ZabbixClient\OperationResult;
+use TYPO3\CMS\Core\Information\Typo3Version;
 
 /**
  *
@@ -28,6 +29,7 @@ class HasFailedSchedulerTask implements IOperation, SingletonInterface
      */
     public function execute($parameter = [])
     {
+        $typo3Version = GeneralUtility::makeInstance(Typo3Version::class);
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_scheduler_task');
         $queryBuilder
             ->count('uid')
@@ -37,13 +39,13 @@ class HasFailedSchedulerTask implements IOperation, SingletonInterface
                 $queryBuilder->expr()->neq('lastexecution_failure', $queryBuilder->createNamedParameter(''))
             );
 
-        if (version_compare(TYPO3_version, '9.0.0', '>=')) {
+        if (version_compare($typo3Version->getVersion(), '9.0.0', '>=')) {
             $queryBuilder->andWhere(
                 $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT))
             );
         }
 
-        $count = $queryBuilder->execute()->fetchColumn(0);
+        $count = $queryBuilder->executeQuery()->fetchFirstColumn(0);
 
         return new OperationResult(true, $count > 0);
     }

@@ -20,7 +20,7 @@ use TYPO3\CMS\Install\Configuration\Mail\MailFeature;
 use TYPO3\CMS\Install\Configuration\PasswordHashing\PasswordHashingFeature;
 use WapplerSystems\ZabbixClient\Exception\InvalidArgumentException;
 use WapplerSystems\ZabbixClient\OperationResult;
-
+use TYPO3\CMS\Core\Information\Typo3Version;
 
 /**
  *
@@ -36,6 +36,7 @@ class GetFeatureValue implements IOperation, SingletonInterface
      */
     public function execute($parameter = [])
     {
+        $typo3Version = GeneralUtility::makeInstance(Typo3Version::class);
 
         if (!isset($parameter['feature']) || $parameter['feature'] === '') {
             throw new InvalidArgumentException('feature not set');
@@ -59,7 +60,7 @@ class GetFeatureValue implements IOperation, SingletonInterface
                 $feature = GeneralUtility::makeInstance(MailFeature::class);
                 break;
             case 'passwordhashing':
-                if (version_compare(TYPO3_version, '9.0.0', '<')) {
+                if (version_compare($typo3Version->getVersion(), '9.0.0', '<')) {
                     return new OperationResult(false, false);
                 }
                 /** @var PasswordHashingFeature $feature */

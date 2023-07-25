@@ -13,7 +13,7 @@ use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use WapplerSystems\ZabbixClient\OperationResult;
-
+use TYPO3\CMS\Core\Information\Typo3Version;
 
 class GetApplicationContext implements IOperation, SingletonInterface
 {
@@ -23,7 +23,9 @@ class GetApplicationContext implements IOperation, SingletonInterface
      */
     public function execute($parameter = [])
     {
-        if (version_compare(TYPO3_version, '11.0.0', '>=')) {
+        $typo3Version = GeneralUtility::makeInstance(Typo3Version::class);
+
+        if (version_compare($typo3Version->getVersion(), '11.0.0', '>=')) {
             $applicationContext = Environment::getContext();
             if ($applicationContext->isDevelopment()) {
                 return new OperationResult(true, 'Development');

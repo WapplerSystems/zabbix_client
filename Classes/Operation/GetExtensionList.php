@@ -12,7 +12,8 @@ namespace WapplerSystems\ZabbixClient\Operation;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\SingletonInterface;
 use WapplerSystems\ZabbixClient\OperationResult;
-
+use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * An Operation that returns a list of installed extensions
@@ -60,9 +61,11 @@ class GetExtensionList implements IOperation, SingletonInterface
      */
     protected function getPathForScope($scope)
     {
+        $typo3Version = GeneralUtility::makeInstance(Typo3Version::class);
+
         switch ($scope) {
             case 'system':
-                if (version_compare(TYPO3_version, '9.0.0', '<')) {
+                if (version_compare($typo3Version->getVersion(), '9.0.0', '<')) {
                     $path = PATH_typo3 . 'sysext/';
                 } else {
                     $path = Environment::getPublicPath() . '/typo3/sysext/';
@@ -70,7 +73,7 @@ class GetExtensionList implements IOperation, SingletonInterface
                 break;
             case 'local':
             default:
-                if (version_compare(TYPO3_version, '9.0.0', '<')) {
+                if (version_compare($typo3Version->getVersion(), '9.0.0', '<')) {
                     $path = PATH_typo3conf . 'ext/';
                 } else {
                     $path = Environment::getPublicPath() . '/typo3conf/ext/';

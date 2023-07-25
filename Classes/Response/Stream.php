@@ -86,7 +86,7 @@ class Stream implements StreamInterface
     /**
      * Closes the stream and any underlying resources.
      */
-    public function close()
+    public function close(): void
     {
         if (!$this->resource) {
             return;
@@ -114,13 +114,13 @@ class Stream implements StreamInterface
      *
      * @return int|null Returns the size in bytes if known, or null if unknown.
      */
-    public function getSize()
+    public function getSize(): int
     {
         if ($this->resource === null) {
             return null;
         }
         $stats = fstat($this->resource);
-        return $stats['size'];
+        return (int)$stats['size'];
     }
 
     /**
@@ -129,7 +129,7 @@ class Stream implements StreamInterface
      * @return int Position of the file pointer
      * @throws \RuntimeException on error.
      */
-    public function tell()
+    public function tell(): int
     {
         if (!$this->resource) {
             throw new \RuntimeException('No resource available; cannot tell position', 1436717285);
@@ -146,7 +146,7 @@ class Stream implements StreamInterface
      *
      * @return bool
      */
-    public function eof()
+    public function eof(): bool
     {
         if (!$this->resource) {
             return true;
@@ -159,7 +159,7 @@ class Stream implements StreamInterface
      *
      * @return bool
      */
-    public function isSeekable()
+    public function isSeekable(): bool
     {
         if (!$this->resource) {
             return false;
@@ -181,7 +181,7 @@ class Stream implements StreamInterface
      *
      * @throws \RuntimeException on failure.
      */
-    public function seek($offset, $whence = SEEK_SET)
+    public function seek($offset, $whence = SEEK_SET): void
     {
         if (!$this->resource) {
             throw new \RuntimeException('No resource available; cannot seek position', 1436717287);
@@ -206,7 +206,7 @@ class Stream implements StreamInterface
      * @link http://www.php.net/manual/en/function.fseek.php
      * @throws \RuntimeException on failure.
      */
-    public function rewind()
+    public function rewind(): void
     {
         $this->seek(0);
     }
@@ -216,7 +216,7 @@ class Stream implements StreamInterface
      *
      * @return bool
      */
-    public function isWritable()
+    public function isWritable(): bool
     {
         if (!$this->resource) {
             return false;
@@ -232,7 +232,7 @@ class Stream implements StreamInterface
      * @return int Returns the number of bytes written to the stream.
      * @throws \RuntimeException on failure.
      */
-    public function write($string)
+    public function write($string): int
     {
         if (!$this->resource) {
             throw new \RuntimeException('No resource available; cannot write', 1436717290);
@@ -249,7 +249,7 @@ class Stream implements StreamInterface
      *
      * @return bool
      */
-    public function isReadable()
+    public function isReadable(): bool
     {
         if (!$this->resource) {
             return false;
@@ -268,7 +268,7 @@ class Stream implements StreamInterface
      *     if no bytes are available.
      * @throws \RuntimeException if an error occurs.
      */
-    public function read($length)
+    public function read($length): string
     {
         if (!$this->resource) {
             throw new \RuntimeException('No resource available; cannot read', 1436717292);
@@ -290,7 +290,7 @@ class Stream implements StreamInterface
      * @throws \RuntimeException if unable to read or an error occurs while
      *     reading.
      */
-    public function getContents()
+    public function getContents(): string
     {
         if (!$this->isReadable()) {
             return '';

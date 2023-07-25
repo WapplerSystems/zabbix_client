@@ -11,7 +11,6 @@ namespace WapplerSystems\ZabbixClient\Operation;
 
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extensionmanager\Domain\Model\Extension;
 use TYPO3\CMS\Extensionmanager\Utility\ListUtility;
 use WapplerSystems\ZabbixClient\OperationResult;
@@ -33,8 +32,10 @@ class GetInsecureExtensionList implements IOperation, SingletonInterface
     {
         $scope = $parameter['scope'] ?? '';
 
-        /** @var ListUtility $listUtility */
-        $listUtility = GeneralUtility::makeInstance(ObjectManager::class)->get(ListUtility::class);
+        /**
+         * @var ListUtility
+         */
+        $listUtility = GeneralUtility::makeInstance(ListUtility::class);
         $extensionInformation = $listUtility->getAvailableAndInstalledExtensionsWithAdditionalInformation();
         $loadedInsecure = [];
         $existingInsecure = [];

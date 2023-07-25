@@ -11,19 +11,16 @@ namespace WapplerSystems\ZabbixClient\Operation;
 
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extensionmanager\Utility\ListUtility;
 use WapplerSystems\ZabbixClient\Exception\InvalidArgumentException;
 use WapplerSystems\ZabbixClient\OperationResult;
-
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  *
  */
 class HasExtensionUpdate implements IOperation, SingletonInterface
 {
-
     /**
      *
      * @param array $parameter None
@@ -42,8 +39,10 @@ class HasExtensionUpdate implements IOperation, SingletonInterface
             return new OperationResult(false, 'Extension [' . $extensionKey . '] is not loaded');
         }
 
-        /** @var ListUtility $listUtility */
-        $listUtility = GeneralUtility::makeInstance(ObjectManager::class)->get(ListUtility::class);
+        /**
+         * @var ListUtility
+         */
+        $listUtility = GeneralUtility::makeInstance(ListUtility::class);
         $extensionInformation = $listUtility->getAvailableAndInstalledExtensionsWithAdditionalInformation();
 
         if (isset($extensionInformation[$extensionKey]['updateAvailable'])) {
