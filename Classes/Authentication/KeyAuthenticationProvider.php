@@ -19,7 +19,7 @@ class KeyAuthenticationProvider
      * @param $key
      * @return bool
      */
-    public function hasValidKey($key)
+    public function hasValidKey($key): bool
     {
         $config = Configuration::getExtConfiguration();
         return trim($config['apiKey']) === trim($key);

@@ -9,6 +9,7 @@ namespace WapplerSystems\ZabbixClient\Operation;
  * LICENSE.txt file that was distributed with this source code.
  */
 
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\SingletonInterface;
@@ -29,6 +30,7 @@ class HasForbiddenUsers implements IOperation, SingletonInterface
      *
      * @param array $parameter None
      * @return OperationResult
+     * @throws Exception
      */
     public function execute(array $parameter = []): OperationResult
     {

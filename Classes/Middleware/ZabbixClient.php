@@ -69,7 +69,7 @@ class ZabbixClient implements MiddlewareInterface
             return $response->withStatus(403, 'Not allowed');
         }
 
-        $key = $request->getParsedBody()['key'] ?? $request->getQueryParams()['key'] ?? null;
+        $key = $request->getParsedBody()['key'] ?? $request->getQueryParams()['key'] ?? '';
         $keyAuthenticationProvider = new KeyAuthenticationProvider();
         if (!$keyAuthenticationProvider->hasValidKey($key)) {
             /** @var Response $response */
@@ -89,7 +89,7 @@ class ZabbixClient implements MiddlewareInterface
         $GLOBALS['TYPO3_REQUEST'] = (new ServerRequest())->withAttribute(
             'applicationType',
             SystemEnvironmentBuilder::REQUESTTYPE_BE
-        )->withAttribute('frontend.typoscript',new FrontendTypoScript(new RootNode(),[]));
+        )->withAttribute('frontend.typoscript',new FrontendTypoScript(new RootNode(),[],[],[]));
 
         if ($operation !== null && $operation !== '') {
             try {
