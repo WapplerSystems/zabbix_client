@@ -33,7 +33,9 @@ class HasIPTCPreservation implements IOperation, SingletonInterface
     public function execute(array $parameter = []): OperationResult
     {
         if (isset($GLOBALS['TYPO3_CONF_VARS']['GFX']['processor_stripColorProfileParameters'])) {
-            return new OperationResult(true, (bool)array_search('!iptc', $GLOBALS['TYPO3_CONF_VARS']['GFX']['processor_stripColorProfileParameters'] ?? []) !== false);
+            foreach($GLOBALS['TYPO3_CONF_VARS']['GFX']['processor_stripColorProfileParameters'] as $index => $key) {
+                if (strpos($key, '!iptc') !== false) return new OperationResult(true, true);
+            }
         }
         return new OperationResult(true, strpos($GLOBALS['TYPO3_CONF_VARS']['GFX']['processor_stripColorProfileCommand'] ?? '','!iptc') !== false);
     }
