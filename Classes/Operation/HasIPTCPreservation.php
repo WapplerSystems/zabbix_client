@@ -9,10 +9,12 @@ namespace WapplerSystems\ZabbixClient\Operation;
  * LICENSE.txt file that was distributed with this source code.
  */
 
-use TYPO3\CMS\Core\Configuration\Features;
 use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\StringUtility;
 use WapplerSystems\ZabbixClient\Attribute\MonitoringOperation;
+use WapplerSystems\ZabbixClient\Imaging\GraphicalFunctions;
 use WapplerSystems\ZabbixClient\OperationResult;
 
 
@@ -32,9 +34,38 @@ class HasIPTCPreservation implements IOperation, SingletonInterface
      */
     public function execute(array $parameter = []): OperationResult
     {
-        if (isset($GLOBALS['TYPO3_CONF_VARS']['GFX']['processor_stripColorProfileParameters'])) {
-            return new OperationResult(true, (bool)array_search('!iptc', $GLOBALS['TYPO3_CONF_VARS']['GFX']['processor_stripColorProfileParameters'] ?? []) !== false);
+        $imageBasePath = ExtensionManagementUtility::extPath('zabbix_client') . 'Resources/Private/TestInput/';
+        $imageProcessor = $this->initializeImageProcessor();
+        $inputFile = $imageBasePath . 'TestIPTC.jpg';
+        $imageProcessor->imageMagickConvert_forceFileNameBody = StringUtility::getUniqueId('iptc');
+        $imResult = $imageProcessor->imageMagickConvert($inputFile, 'jpg', '200', '', '', '', [], true);
+        if ($imResult !== null && file_exists($imResult[3])) {
+            $metaData = $imageProcessor->imageMagickMetadata($imResult[3]);
+            unlink($imResult[3]);
+            foreach ($metaData as $value) {
+                if (str_contains($value, 'Test-Image')) {
+                    return new OperationResult(true, true);
+                }
+            }
         }
-        return new OperationResult(true, strpos($GLOBALS['TYPO3_CONF_VARS']['GFX']['processor_stripColorProfileCommand'] ?? '','!iptc') !== false);
+        return new OperationResult(true, false);
     }
+
+
+    /**
+     * Initialize image processor
+     *
+     * @return GraphicalFunctions Initialized image processor
+     */
+    protected function initializeImageProcessor(): GraphicalFunctions
+    {
+        $imageProcessor = GeneralUtility::makeInstance(GraphicalFunctions::class);
+        $imageProcessor->dontCheckForExistingTempFile = true;
+        $imageProcessor->filenamePrefix = 'zabbixClient-';
+        $imageProcessor->dontCompress = true;
+        $imageProcessor->alternativeOutputKey = 'zabbixClienTest';
+        $imageProcessor->setImageFileExt(['gif', 'jpg', 'png', 'tif', 'ai', 'pdf', 'webp']);
+        return $imageProcessor;
+    }
+
 }
