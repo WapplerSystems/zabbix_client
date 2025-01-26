@@ -36,6 +36,7 @@ class HasFailedSchedulerTask implements IOperation, SingletonInterface
             ->count('uid')
             ->from('tx_scheduler_task')
             ->where(
+                $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
                 $queryBuilder->expr()->eq('disable', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
                 $queryBuilder->expr()->neq('lastexecution_failure', $queryBuilder->createNamedParameter(''))
             )
