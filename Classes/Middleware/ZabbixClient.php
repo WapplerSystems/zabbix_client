@@ -51,7 +51,7 @@ class ZabbixClient implements MiddlewareInterface
     {
 
         $requestedUri = $request->getUri();
-        if (str_starts_with($requestedUri->getPath(), '/zabbixclient/')) {
+        if (str_contains($requestedUri->getPath(), '/zabbixclient/')) {
             return $this->processRequest($request);
         }
 
@@ -94,15 +94,12 @@ class ZabbixClient implements MiddlewareInterface
         if ($operation !== null && $operation !== '') {
             try {
                 $result = $this->operationManager->executeOperation($operation, $params);
+                return new JsonResponse($result->toArray());
             } catch (InvalidOperationException $ex){
                 return $response->withStatus(404,  $ex->getMessage());
             } catch (\Exception $ex) {
                 return $response->withStatus(500,  get_class($ex) . ': '. $ex->getMessage());
             }
-        }
-
-        if ($result !== null) {
-            return new JsonResponse($result->toArray());
         }
 
         return $response->withStatus(404, 'operation or service parameter not set');
