@@ -30,7 +30,7 @@ class CheckPathExists implements IOperation, SingletonInterface
      * @param array|null $parameter a path 'path' to a file or folder
      * @return OperationResult 'file' if path is a file, 'directory' if it's a directory and false if it doesn't exist
      */
-    public function execute(array $parameter = null): OperationResult
+    public function execute(?array $parameter = null): OperationResult
     {
         $path = $this->getPath($parameter['path']);
         list($path) = glob($path);
