@@ -99,10 +99,10 @@ class ZabbixClient implements MiddlewareInterface
             } catch (\Exception $ex) {
                 return $response->withStatus(500,  get_class($ex) . ': '. $ex->getMessage());
             }
-        }
 
-        if ($result !== null) {
-            return new JsonResponse($result->toArray());
+            if ($result !== null) {
+                return new JsonResponse($result->toArray());
+            }
         }
 
         return $response->withStatus(404, 'operation or service parameter not set');
