@@ -1,39 +1,41 @@
 {
-	"name": "wapplersystems/zabbix_client",
-	"description": "TYPO3 Zabbix Client",
-	"type": "typo3-cms-extension",
-	"homepage": "https://github.com/wapplersystems/zabbix_client",
-	"license": "GPL-2.0-or-later",
-	"authors": [
-		{
-			"name": "Sven Wappler",
-			"role": "Developer",
-			"homepage": "https://wappler.systems"
-		}
-	],
-	"require": {
-		"typo3/cms-core": "^14.0"
-	},
-	"require-dev": {
-		"phpunit/phpunit": "^10"
-	},
-	"autoload": {
-		"psr-4": {
-			"WapplerSystems\\ZabbixClient\\": "Classes/"
-		}
-	},
-	"autoload-dev": {
-		"psr-4": {
-			"WapplerSystems\\ZabbixClient\\Tests\\": "Tests/"
-		}
-	},
-	"config": {
-	},
-	"scripts": {
-	},
-	"extra": {
-		"typo3/cms": {
-			"extension-key": "zabbix_client"
-		}
-	}
+    "name": "wapplersystems/zabbix_client",
+    "type": "typo3-cms-extension",
+    "description": "TYPO3 Zabbix Client",
+    "keywords": ["TYPO3", "extension", "zabbix", "monitoring"],
+    "homepage": "https://github.com/WapplerSystems/zabbix_client",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Sven Wappler",
+            "email": "typo3@wappler.systems",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/WapplerSystems/zabbix_client",
+        "issues": "https://github.com/WapplerSystems/zabbix_client/issues"
+    },
+    "require": {
+        "php": "^8.2",
+        "typo3/cms-core": "^14.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "WapplerSystems\\ZabbixClient\\": "Classes/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "WapplerSystems\\ZabbixClient\\Tests\\": "Tests/"
+        }
+    },
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "zabbix_client"
+        }
+    }
 }
