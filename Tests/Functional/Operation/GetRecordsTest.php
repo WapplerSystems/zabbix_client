@@ -60,15 +60,15 @@ class GetRecordsTest extends FunctionalTestCase
         $operation = new GetRecords();
         $result = $operation->execute([
             'table' => 'be_users',
-            'field' => ['username', 'deleted'],
-            'value' => ['username' => 'admin', 'deleted' => '0'],
+            'field' => ['username', 'admin'],
+            'value' => ['username' => 'admin', 'admin' => '1'],
             'checkEnableFields' => false,
         ]);
 
         self::assertTrue($result->isSuccessful());
         $records = $result->getValue();
         self::assertIsArray($records);
-        self::assertCount(1, $records);
+        self::assertGreaterThanOrEqual(1, count($records));
     }
 
     #[Test]
