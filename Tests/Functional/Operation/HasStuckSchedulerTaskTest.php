@@ -11,9 +11,8 @@ class HasStuckSchedulerTaskTest extends FunctionalTestCase
 {
     protected array $testExtensionsToLoad = [
         'wapplersystems/zabbix_client',
+        'typo3/cms-scheduler',
     ];
-
-    // scheduler loaded via composer require-dev
 
     #[Test]
     public function returnsFalseWhenNoTasksStuck(): void
