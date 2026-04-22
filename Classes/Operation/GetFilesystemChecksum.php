@@ -9,6 +9,7 @@ namespace WapplerSystems\ZabbixClient\Operation;
  * LICENSE.txt file that was distributed with this source code.
  */
 
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use WapplerSystems\ZabbixClient\Attribute\MonitoringOperation;
@@ -42,7 +43,7 @@ class GetFilesystemChecksum implements IOperation, SingletonInterface
 
         if ($path !== false) {
             if (is_dir($path)) {
-                list($checksum, $md5s) = $this->getFolderChecksum($path);
+                [$checksum, $md5s] = $this->getFolderChecksum($path);
             } else {
                 $checksum = $this->getFileChecksum($path);
             }
@@ -75,7 +76,7 @@ class GetFilesystemChecksum implements IOperation, SingletonInterface
 
         // FIXME remove this hacky part
         // skip path checks for CLI mode
-        if (defined('TYPO3_cliMode')) {
+        if (Environment::isCli()) {
             return $path;
         }
 
@@ -119,10 +120,10 @@ class GetFilesystemChecksum implements IOperation, SingletonInterface
                 continue;
             }
             if (is_dir($path . '/' . $entry)) {
-                list($checksum, $md5sOfSubfolder) = $this->getFolderChecksum($path . '/' . $entry);
+                [$checksum, $md5sOfSubfolder] = $this->getFolderChecksum($path . '/' . $entry);
                 $md5s = array_merge($md5s, $md5sOfSubfolder);
             } else {
-                $relPath = str_replace(PATH_site, '', $path . '/' . $entry);
+                $relPath = str_replace(Environment::getPublicPath() . '/', '', $path . '/' . $entry);
                 $md5s[$relPath] = $this->getFileChecksum($path . '/' . $entry);
             }
         }
