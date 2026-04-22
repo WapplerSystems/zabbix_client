@@ -1,0 +1,8 @@
+"sys_log"
+,"uid","tstamp","userid","action","recuid","tablename","recpid","error","details","type","channel","IP","level","message"
+,1,1700000000,0,0,0,"",0,2,"Core: Exception handler (WEB): Uncaught TYPO3 Exception: #1 ServiceUnavailableException",5,"default","127.0.0.1","error",""
+,2,1700000100,0,0,0,"",0,2,"Core: Exception handler (WEB): Uncaught TYPO3 Exception: #2 ServiceUnavailableException",5,"default","127.0.0.1","error",""
+,3,1700000200,0,0,0,"",0,2,"Core: Exception handler (WEB): Uncaught TYPO3 Exception: #3 PageNotFoundException",5,"default","192.168.1.1","error",""
+,4,1700000300,0,0,0,"",0,2,"Core: Exception handler (WEB): Uncaught TYPO3 Exception: #4 InvalidArgumentException",5,"default","10.0.0.1","error",""
+,5,1700000400,1,0,0,"",0,3,"Login failed for user admin",255,"default","10.0.0.5","warning",""
+,6,1700000500,1,0,0,"",0,3,"Login failed for user editor",255,"default","10.0.0.6","warning",""

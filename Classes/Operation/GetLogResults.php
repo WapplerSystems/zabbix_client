@@ -83,8 +83,8 @@ class GetLogResults implements IOperation, SingletonInterface
 
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_log');
-        $queryBuilder->resetRestrictions();
-        $queryBuilder->select('uid')->from('sys_log')->where(
+        $queryBuilder->getRestrictions()->removeAll();
+        $queryBuilder->count('uid')->from('sys_log')->where(
             $queryBuilder->expr()->eq(
                 'error',
                 $error
@@ -111,7 +111,7 @@ class GetLogResults implements IOperation, SingletonInterface
             }
         }
 
-        $logCount = $queryBuilder->executeQuery()->rowCount();
+        $logCount = (int)$queryBuilder->executeQuery()->fetchOne();
 
         return new OperationResult(true, $logCount);
     }

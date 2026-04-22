@@ -1,0 +1,4 @@
+"tx_scheduler_task"
+,"uid","pid","crdate","disable","deleted","nextexecution","lastexecution_time","lastexecution_failure","serialized_executions","tasktype"
+,1,0,1700000000,0,0,1700100000,946684800,"","a:1:{i:0;s:10:""1700000000"";}","TYPO3\CMS\Scheduler\Task\CachingFrameworkGarbageCollectionTask"
+,2,0,1700000000,0,0,1700100000,1700090000,"","","TYPO3\CMS\Scheduler\Task\TableGarbageCollectionTask"
