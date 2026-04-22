@@ -43,14 +43,14 @@ class HasForbiddenUsers implements IOperation, SingletonInterface
 
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('be_users');
-        $queryBuilder->select('uid')->from('be_users');
+        $queryBuilder->count('uid')->from('be_users');
 
         foreach ($usernames as $username) {
             $queryBuilder->orWhere($queryBuilder->expr()->eq(
                 'username',
-                $queryBuilder->quote($username)
+                $queryBuilder->createNamedParameter($username)
             ));
         }
-        return new OperationResult(true, $queryBuilder->executeQuery()->rowCount() > 0);
+        return new OperationResult(true, (int)$queryBuilder->executeQuery()->fetchOne() > 0);
     }
 }
