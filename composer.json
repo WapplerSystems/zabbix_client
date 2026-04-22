@@ -21,6 +21,7 @@
         "typo3/cms-core": "^14.0"
     },
     "require-dev": {
+        "typo3/testing-framework": "^9.0",
         "phpunit/phpunit": "^11.0"
     },
     "autoload": {
