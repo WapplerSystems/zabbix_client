@@ -17,10 +17,8 @@ class AllOperationsIntegrationTest extends FunctionalTestCase
 {
     protected array $testExtensionsToLoad = [
         'wapplersystems/zabbix_client',
-    ];
-
-    protected array $coreExtensionsToLoad = [
-        'scheduler',
+        'typo3/cms-scheduler',
+        'typo3/cms-install',
     ];
 
     /**

@@ -13,9 +13,7 @@ class HasStuckSchedulerTaskTest extends FunctionalTestCase
         'wapplersystems/zabbix_client',
     ];
 
-    protected array $coreExtensionsToLoad = [
-        'scheduler',
-    ];
+    // scheduler loaded via composer require-dev
 
     #[Test]
     public function returnsFalseWhenNoTasksStuck(): void

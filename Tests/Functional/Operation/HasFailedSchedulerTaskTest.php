@@ -13,9 +13,7 @@ class HasFailedSchedulerTaskTest extends FunctionalTestCase
         'wapplersystems/zabbix_client',
     ];
 
-    protected array $coreExtensionsToLoad = [
-        'scheduler',
-    ];
+    // scheduler loaded via composer require-dev
 
     #[Test]
     public function returnsFalseWhenNoTasksFailed(): void
