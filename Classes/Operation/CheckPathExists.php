@@ -34,9 +34,10 @@ class CheckPathExists implements IOperation, SingletonInterface
     public function execute(?array $parameter = null): OperationResult
     {
         $path = $this->getPath($parameter['path']);
-        [$path] = glob($path);
+        $matches = glob($path);
+        $path = $matches[0] ?? null;
 
-        if (is_file($path)) {
+        if ($path !== null && is_file($path)) {
             //if file exists, get the tstamp
             $time = filemtime($path);
             $size = filesize($path);

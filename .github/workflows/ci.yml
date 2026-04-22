@@ -37,8 +37,7 @@ jobs:
           composer install --no-progress --prefer-dist
 
       - name: Run Unit Tests
-        run: |
-          vendor/bin/phpunit --testsuite Unit
+        run: vendor/bin/phpunit -c phpunit.xml
 
   functional-tests:
     name: Functional Tests (PHP ${{ matrix.php }}, TYPO3 ${{ matrix.typo3 }})
@@ -71,8 +70,7 @@ jobs:
       - name: Run Functional Tests
         env:
           typo3DatabaseDriver: pdo_sqlite
-        run: |
-          vendor/bin/phpunit --testsuite Functional
+        run: vendor/bin/phpunit -c phpunit.functional.xml
 
   code-quality:
     name: Code Quality
