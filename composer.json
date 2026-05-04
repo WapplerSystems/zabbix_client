@@ -26,7 +26,10 @@
         "typo3/cms-core": "^13.4"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10"
+        "typo3/testing-framework": "^8.0",
+        "typo3/cms-scheduler": "^13.4",
+        "typo3/cms-install": "^13.4",
+        "phpunit/phpunit": "^11.0"
     },
     "autoload": {
         "psr-4": {
@@ -36,6 +39,12 @@
     "autoload-dev": {
         "psr-4": {
             "WapplerSystems\\ZabbixClient\\Tests\\": "Tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "typo3/class-alias-loader": true,
+            "typo3/cms-composer-installers": true
         }
     },
     "extra": {

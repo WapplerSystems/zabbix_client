@@ -1,0 +1,5 @@
+"be_users"
+,"uid","pid","username","password","admin","disable","deleted"
+,1,0,"admin","$argon2id$v=19$m=65536,t=16,p=1$hash",1,0,0
+,2,0,"editor","$argon2id$v=19$m=65536,t=16,p=1$hash",0,0,0
+,3,0,"disabled_user","$argon2id$v=19$m=65536,t=16,p=1$hash",0,1,0
