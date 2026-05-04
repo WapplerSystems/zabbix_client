@@ -51,7 +51,7 @@ class ZabbixClient implements MiddlewareInterface
     {
 
         $requestedUri = $request->getUri();
-        if (str_starts_with($requestedUri->getPath(), '/zabbixclient/')) {
+        if (str_contains($requestedUri->getPath(), '/zabbixclient/')) {
             return $this->processRequest($request);
         }
 
