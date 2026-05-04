@@ -88,7 +88,7 @@ class GetExtensionList implements IOperation, SingletonInterface
         $path = $this->getPathForScope($scope);
         $extensionInfo = [];
         if (@is_dir($path)) {
-            $extensionFolders = \TYPO3\CMS\Core\Utility\GeneralUtility::get_dirs($path);
+            $extensionFolders = array_filter(scandir($path), fn($entry) => $entry !== '.' && $entry !== '..' && is_dir($path . $entry));
             if (is_array($extensionFolders)) {
                 foreach ($extensionFolders as $extKey) {
                     $extensionInfo[$extKey]['ext_key'] = $extKey;

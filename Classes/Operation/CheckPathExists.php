@@ -9,6 +9,7 @@ namespace WapplerSystems\ZabbixClient\Operation;
  * LICENSE.txt file that was distributed with this source code.
  */
 
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use WapplerSystems\ZabbixClient\Attribute\MonitoringOperation;
@@ -33,9 +34,10 @@ class CheckPathExists implements IOperation, SingletonInterface
     public function execute(?array $parameter = null): OperationResult
     {
         $path = $this->getPath($parameter['path']);
-        list($path) = glob($path);
+        $matches = glob($path);
+        $path = $matches[0] ?? null;
 
-        if (is_file($path)) {
+        if ($path !== null && is_file($path)) {
             //if file exists, get the tstamp
             $time = filemtime($path);
             $size = filesize($path);
@@ -72,7 +74,7 @@ class CheckPathExists implements IOperation, SingletonInterface
 
         // FIXME remove this hacky part
         // skip path checks for CLI mode
-        if (defined('TYPO3_cliMode')) {
+        if (Environment::isCli()) {
             return $path;
         }
 
