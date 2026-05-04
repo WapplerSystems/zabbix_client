@@ -298,6 +298,160 @@ zabbix_export:
               name: 'TYPO3 OPcache not available'
               event_name: 'TYPO3 OPcache not available on {HOST.HOST}'
               priority: AVERAGE
+        - uuid: a500f9ff612f4eee8de59512dc0a9bfd
+          name: 'TYPO3 OPcache memory (raw JSON)'
+          type: HTTP_AGENT
+          key: typo3_GetOpCacheMemory
+          delay: 1m
+          history: 1d
+          trends: '0'
+          value_type: TEXT
+          timeout: 3s
+          url: 'https://{HOST.HOST}/zabbixclient/'
+          query_fields:
+            - name: operation
+              value: GetOpCacheMemory
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            - tag: Application
+              value: TYPO3
+        - uuid: 5b277dab478a496b903655b18970a669
+          name: 'TYPO3 OPcache memory free %'
+          type: DEPENDENT
+          key: typo3_OpCache_memory_free_percent
+          history: 90d
+          value_type: FLOAT
+          units: '%'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.memory.free_percent
+          master_item:
+            key: typo3_GetOpCacheMemory
+          tags:
+            - tag: Application
+              value: TYPO3
+          triggers:
+            - uuid: 4d5d4ab12e4042e7830335e0fb68bf57
+              expression: 'max(/Template TYPO3 9-12/typo3_OpCache_memory_free_percent,5m)<20'
+              name: 'TYPO3 OPcache memory < 20% free'
+              event_name: 'TYPO3 OPcache memory low ({ITEM.LASTVALUE} free) on {HOST.HOST}'
+              priority: WARNING
+            - uuid: 11e520cbb0214885bf563076f5c60e43
+              expression: 'max(/Template TYPO3 9-12/typo3_OpCache_memory_free_percent,2m)<5'
+              name: 'TYPO3 OPcache memory < 5% free'
+              event_name: 'TYPO3 OPcache memory critical ({ITEM.LASTVALUE} free) on {HOST.HOST}'
+              priority: HIGH
+        - uuid: 9ee64c774092431a8e7a848ec41dd0ca
+          name: 'TYPO3 OPcache wasted memory %'
+          type: DEPENDENT
+          key: typo3_OpCache_memory_wasted_percent
+          history: 90d
+          value_type: FLOAT
+          units: '%'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.memory.wasted_percent
+          master_item:
+            key: typo3_GetOpCacheMemory
+          tags:
+            - tag: Application
+              value: TYPO3
+        - uuid: 092aadd2dc174717b827332328b166a9
+          name: 'TYPO3 OPcache OOM restarts'
+          type: DEPENDENT
+          key: typo3_OpCache_oom_restarts
+          history: 90d
+          value_type: UNSIGNED
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.statistics.oom_restarts
+          master_item:
+            key: typo3_GetOpCacheMemory
+          tags:
+            - tag: Application
+              value: TYPO3
+          triggers:
+            - uuid: e7c65f43ae5844cdac790145a4895c87
+              expression: 'change(/Template TYPO3 9-12/typo3_OpCache_oom_restarts)>0'
+              name: 'TYPO3 OPcache out-of-memory restart occurred'
+              event_name: 'TYPO3 OPcache OOM restart on {HOST.HOST}'
+              priority: HIGH
+        - uuid: ffd47cd4640c416c8bb2374ddfdc2130
+          name: 'TYPO3 OPcache cached scripts'
+          type: DEPENDENT
+          key: typo3_OpCache_cached_scripts
+          history: 90d
+          value_type: UNSIGNED
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.statistics.num_cached_scripts
+          master_item:
+            key: typo3_GetOpCacheMemory
+          tags:
+            - tag: Application
+              value: TYPO3
+        - uuid: 33a44e9ae810461ebfe04156903afaa4
+          name: 'TYPO3 OPcache hit rate'
+          type: DEPENDENT
+          key: typo3_OpCache_hit_rate
+          history: 90d
+          value_type: FLOAT
+          units: '%'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.statistics.hit_rate
+          master_item:
+            key: typo3_GetOpCacheMemory
+          tags:
+            - tag: Application
+              value: TYPO3
+        - uuid: 4e752f3d00294fa7bc2fd2fbac423daa
+          name: 'TYPO3 OPcache interned strings free %'
+          type: DEPENDENT
+          key: typo3_OpCache_interned_strings_free_percent
+          history: 90d
+          value_type: FLOAT
+          units: '%'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.interned_strings.free_percent
+          master_item:
+            key: typo3_GetOpCacheMemory
+          tags:
+            - tag: Application
+              value: TYPO3
+          triggers:
+            - uuid: 8b8e891f23fa4ad59ee37347328dac47
+              expression: 'max(/Template TYPO3 9-12/typo3_OpCache_interned_strings_free_percent,5m)<10'
+              name: 'TYPO3 OPcache interned strings buffer < 10% free'
+              event_name: 'TYPO3 OPcache interned strings buffer almost full on {HOST.HOST}'
+              priority: WARNING
+        - uuid: ce9f486ce28640238e347df0498cdb1f
+          name: 'TYPO3 OPcache cache full'
+          type: DEPENDENT
+          key: typo3_OpCache_cache_full
+          history: 90d
+          value_type: UNSIGNED
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.cache_full
+            - type: BOOL_TO_DECIMAL
+              parameters:
+                - ''
+          master_item:
+            key: typo3_GetOpCacheMemory
+          tags:
+            - tag: Application
+              value: TYPO3
         - uuid: 119d571706194bb2914e8c46b3cd6337
           name: 'TYPO3 OpenSSL version'
           type: HTTP_AGENT
