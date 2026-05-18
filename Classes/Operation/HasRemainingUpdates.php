@@ -9,6 +9,7 @@ namespace WapplerSystems\ZabbixClient\Operation;
  * LICENSE.txt file that was distributed with this source code.
  */
 
+use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Service\UpgradeWizardsService;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -29,16 +30,31 @@ class HasRemainingUpdates implements IOperation, SingletonInterface
      */
     public function execute(array $parameter = []): OperationResult
     {
-
         $upgradeWizardsService = GeneralUtility::makeInstance(UpgradeWizardsService::class);
-        $incompleteWizards = $upgradeWizardsService->getUpgradeWizardsList();
-        $incompleteWizards = array_filter(
-            $incompleteWizards,
-            function ($wizard) {
-                return $wizard['shouldRenderWizard'];
+        $logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
+
+        $hasRemaining = false;
+        foreach ($upgradeWizardsService->getUpgradeWizardIdentifiers() as $identifier) {
+            try {
+                if ($upgradeWizardsService->isWizardDone($identifier)) {
+                    continue;
+                }
+                $info = $upgradeWizardsService->getWizardInformationByIdentifier($identifier);
+                if (!empty($info['shouldRenderWizard'])) {
+                    $hasRemaining = true;
+                }
+            } catch (\Throwable $e) {
+                // A single broken upgrade wizard must not break the whole monitoring call.
+                // Report remaining=true so the broken state surfaces in Zabbix.
+                $logger->warning('Upgrade wizard "{identifier}" check failed: {message}', [
+                    'identifier' => $identifier,
+                    'message' => $e->getMessage(),
+                    'exception' => $e,
+                ]);
+                $hasRemaining = true;
             }
-        );
-        return new OperationResult(true, count($incompleteWizards) > 0);
+        }
+        return new OperationResult(true, $hasRemaining);
     }
 
 }
