@@ -9,6 +9,7 @@ namespace WapplerSystems\ZabbixClient\Operation;
  * LICENSE.txt file that was distributed with this source code.
  */
 
+use TYPO3\CMS\Core\Authentication\CommandLineUserCreation;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -23,13 +24,16 @@ class HasInsecureBackendUsers implements IOperation, SingletonInterface
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
             ->getQueryBuilderForTable('be_users');
 
-        // Total admin count
+        // Total admin count. The system-managed "_cli_" user (auto-created by
+        // TYPO3 core, admin=1, no usable login, no MFA, no email) is excluded
+        // here and below so it does not raise false-positive security counts.
         $totalAdmins = (int)$queryBuilder
             ->count('uid')
             ->from('be_users')
             ->where(
                 $queryBuilder->expr()->eq('admin', 1),
-                $queryBuilder->expr()->eq('deleted', 0)
+                $queryBuilder->expr()->eq('deleted', 0),
+                $queryBuilder->expr()->neq('username', $queryBuilder->createNamedParameter(CommandLineUserCreation::CLI_USERNAME))
             )
             ->executeQuery()
             ->fetchOne();
@@ -43,6 +47,7 @@ class HasInsecureBackendUsers implements IOperation, SingletonInterface
             ->where(
                 $queryBuilder->expr()->eq('admin', 1),
                 $queryBuilder->expr()->eq('deleted', 0),
+                $queryBuilder->expr()->neq('username', $queryBuilder->createNamedParameter(CommandLineUserCreation::CLI_USERNAME)),
                 $queryBuilder->expr()->or(
                     $queryBuilder->expr()->isNull('mfa'),
                     $queryBuilder->expr()->eq('mfa', $queryBuilder->createNamedParameter('')),
@@ -75,6 +80,7 @@ class HasInsecureBackendUsers implements IOperation, SingletonInterface
             ->from('be_users')
             ->where(
                 $queryBuilder->expr()->eq('deleted', 0),
+                $queryBuilder->expr()->neq('username', $queryBuilder->createNamedParameter(CommandLineUserCreation::CLI_USERNAME)),
                 $queryBuilder->expr()->or(
                     $queryBuilder->expr()->isNull('email'),
                     $queryBuilder->expr()->eq('email', $queryBuilder->createNamedParameter(''))
