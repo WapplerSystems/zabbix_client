@@ -1,0 +1,6 @@
+"be_users"
+,"uid","pid","username","admin","disable","deleted","mfa","email","lastlogin"
+,1,0,"secure_admin",1,0,0,"[""totp""]","secure@example.com",0
+,2,0,"insecure_admin",1,0,0,"","insecure@example.com",0
+,3,0,"_cli_",1,0,0,"","",0
+,4,0,"stale_editor",0,0,0,"","stale@example.com",1000000000
