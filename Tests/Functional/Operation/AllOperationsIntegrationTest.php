@@ -45,6 +45,19 @@ class AllOperationsIntegrationTest extends FunctionalTestCase
     }
 
     /**
+     * Operations that shell out to composer. Whether they can succeed depends on the
+     * environment - the functional test instance is a throwaway directory without a
+     * composer.json - so they are only required not to blow up.
+     */
+    public static function environmentDependentOperationProvider(): array
+    {
+        return [
+            'GetComposerAudit' => ['GetComposerAudit', []],
+            'GetComposerOutdated' => ['GetComposerOutdated', []],
+        ];
+    }
+
+    /**
      * Operations that require specific parameters to avoid exceptions.
      */
     public static function parameterizedOperationProvider(): array
@@ -92,6 +105,23 @@ class AllOperationsIntegrationTest extends FunctionalTestCase
     }
 
     #[Test]
+    #[DataProvider('environmentDependentOperationProvider')]
+    public function environmentDependentOperationExecutesWithoutFatalError(string $operationName, array $params): void
+    {
+        $operationManager = $this->get(OperationManager::class);
+
+        self::assertTrue($operationManager->hasOperation($operationName), 'Operation ' . $operationName . ' is not registered');
+
+        $result = $operationManager->executeOperation($operationName, $params);
+
+        self::assertInstanceOf(OperationResult::class, $result);
+        if (!$result->isSuccessful()) {
+            // A clean refusal is the expected outcome where composer cannot run.
+            self::assertIsString($result->getValue());
+        }
+    }
+
+    #[Test]
     #[DataProvider('parameterizedOperationProvider')]
     public function parameterizedOperationExecutesWithoutFatalError(string $operationName, array $params): void
     {
@@ -133,6 +163,8 @@ class AllOperationsIntegrationTest extends FunctionalTestCase
             'HasDeprecationLogEnabled',
             'HasRemainingUpdates',
             'GetTotalLogFilesSize',
+            'GetComposerAudit',
+            'GetComposerOutdated',
         ];
 
         foreach ($expectedOperations as $operationName) {
