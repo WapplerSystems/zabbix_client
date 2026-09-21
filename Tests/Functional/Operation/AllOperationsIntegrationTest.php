@@ -41,6 +41,8 @@ class AllOperationsIntegrationTest extends FunctionalTestCase
             'HasMissingDefaultMailSettings' => ['HasMissingDefaultMailSettings', []],
             'HasDeprecationLogEnabled' => ['HasDeprecationLogEnabled', []],
             'HasRemainingUpdates' => ['HasRemainingUpdates', []],
+            'GetComposerPackages' => ['GetComposerPackages', []],
+            'GetComposerPackages filtered' => ['GetComposerPackages', ['types' => 'typo3-cms-extension']],
         ];
     }
 

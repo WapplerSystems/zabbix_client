@@ -1,0 +1,488 @@
+{
+    "zabbix_export": {
+        "version": "7.0",
+        "template_groups": [
+            {
+                "uuid": "a526ceba17135b5ca1f1e76f714d9dd5",
+                "name": "Templates/Applications"
+            }
+        ],
+        "templates": [
+            {
+                "uuid": "b085b12704e6588ea648d2a4497f3444",
+                "template": "TYPO3 Composer Security",
+                "name": "TYPO3 Composer Security",
+                "description": "Reports vulnerable composer packages of a TYPO3 installation.\n\nRequires EXT:zabbix_client (>= 14.3) with the GetComposerPackages operation, and outgoing HTTPS from the Zabbix server or proxy to api.osv.dev and packagist.org.\n\nAdd this template in addition to the general TYPO3 template and set {$TYPO3_CLIENT_KEY} on the host.\n\nHow it works: the extension only delivers the package inventory. OSV performs the version matching, the Packagist advisory API supplies CVE id, severity, title and link. Both are joined on the GitHub advisory id, which keeps the check at two HTTP requests per run - JavaScript preprocessing in Zabbix is limited to 10 seconds.",
+                "groups": [
+                    {
+                        "name": "Templates/Applications"
+                    }
+                ],
+                "items": [
+                    {
+                        "uuid": "60cda3be4bf3591abffd26e49e89b5fb",
+                        "name": "TYPO3 composer packages",
+                        "type": "HTTP_AGENT",
+                        "key": "typo3.composer.packages",
+                        "delay": "1h",
+                        "history": "7d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "description": "Installed composer packages with versions, from the GetComposerPackages operation of EXT:zabbix_client.",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.value"
+                                ]
+                            }
+                        ],
+                        "timeout": "30s",
+                        "url": "https://{HOST.HOST}/zabbixclient/",
+                        "query_fields": [
+                            {
+                                "name": "operation",
+                                "value": "GetComposerPackages"
+                            }
+                        ],
+                        "posts": "key={$TYPO3_CLIENT_KEY}",
+                        "follow_redirects": "NO",
+                        "request_method": "POST",
+                        "verify_peer": "YES",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "b0f759031e975c4b914c0a5de3f94712",
+                        "name": "TYPO3 composer packages: checkable",
+                        "type": "DEPENDENT",
+                        "key": "typo3.composer.packages.count",
+                        "delay": "0",
+                        "history": "7d",
+                        "trends": "0",
+                        "value_type": "UNSIGNED",
+                        "description": "Packages with a comparable release version.",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.count"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "typo3.composer.packages"
+                        },
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "f327f7f3fefc57bdb54df8e428e3bd5f",
+                        "name": "TYPO3 composer packages: not checkable",
+                        "type": "DEPENDENT",
+                        "key": "typo3.composer.packages.unresolved",
+                        "delay": "0",
+                        "history": "7d",
+                        "trends": "0",
+                        "value_type": "UNSIGNED",
+                        "description": "Packages installed from a branch (dev-*). They have no comparable version and are deliberately excluded from the CVE match, because an unparsable version makes every advisory look like a hit.",
+                        "preprocessing": [
+                            {
+                                "type": "JAVASCRIPT",
+                                "parameters": [
+                                    "var d = JSON.parse(value);\nreturn Object.keys((d && d.unresolved) || {}).length;"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "typo3.composer.packages"
+                        },
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "2aee3fe89f7e50dd8323d184dd7cda66",
+                        "name": "TYPO3 composer security audit",
+                        "type": "DEPENDENT",
+                        "key": "typo3.composer.audit",
+                        "delay": "0",
+                        "history": "7d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "description": "Matches the inventory against OSV (version matching) and enriches the hits from the Packagist advisory API (CVE, severity, title, link). Needs outgoing HTTPS from the Zabbix server or proxy.",
+                        "preprocessing": [
+                            {
+                                "type": "JAVASCRIPT",
+                                "parameters": [
+                                    "var out = {count: 0, bySeverity: {critical: 0, high: 0, medium: 0, low: 0, unknown: 0}, vulns: [], text: '', error: ''};\nvar rank = {critical: 0, high: 1, medium: 2, low: 3, unknown: 4};\n\ntry {\n    var inv = JSON.parse(value);\n    var pkgs = (inv && inv.packages) || {};\n    var names = Object.keys(pkgs);\n    if (names.length === 0) {\n        return JSON.stringify(out);\n    }\n\n    var ignore = {};\n    var ignoreRaw = '{$TYPO3_AUDIT_IGNORE}';\n    if (ignoreRaw.indexOf('{$') !== 0) {\n        var parts = ignoreRaw.split(',');\n        for (var n = 0; n < parts.length; n++) {\n            var entry = parts[n].replace(/^\\s+|\\s+$/g, '').toUpperCase();\n            if (entry !== '') {\n                ignore[entry] = true;\n            }\n        }\n    }\n\n    // Step 1: OSV matches the installed versions against its database.\n    var queries = [];\n    for (var i = 0; i < names.length; i++) {\n        queries.push({'package': {name: names[i], ecosystem: 'Packagist'}, version: pkgs[names[i]]});\n    }\n    var osvReq = new HttpRequest();\n    osvReq.addHeader('Content-Type: application/json');\n    var osvBody = osvReq.post('{$TYPO3_AUDIT_OSV_URL}', JSON.stringify({queries: queries}));\n    if (osvReq.getStatus() !== 200) {\n        throw 'OSV returned HTTP ' + osvReq.getStatus();\n    }\n    var results = JSON.parse(osvBody).results || [];\n\n    var affected = [];\n    var idsByPkg = {};\n    for (var r = 0; r < results.length && r < names.length; r++) {\n        var vulns = results[r] ? results[r].vulns : null;\n        if (vulns && vulns.length) {\n            var ids = [];\n            for (var w = 0; w < vulns.length; w++) {\n                ids.push(vulns[w].id);\n            }\n            idsByPkg[names[r]] = ids;\n            affected.push(names[r]);\n        }\n    }\n    if (affected.length === 0) {\n        return JSON.stringify(out);\n    }\n\n    // Step 2: Packagist supplies CVE, severity, title and link for the affected packages.\n    // Both sides share the GitHub advisory id, so one request is enough to enrich all hits.\n    var form = [];\n    for (var a = 0; a < affected.length; a++) {\n        form.push('packages[]=' + encodeURIComponent(affected[a]));\n    }\n    var advReq = new HttpRequest();\n    advReq.addHeader('Content-Type: application/x-www-form-urlencoded');\n    var advBody = advReq.post('{$TYPO3_AUDIT_PACKAGIST_URL}', form.join('&'));\n    if (advReq.getStatus() !== 200) {\n        throw 'Packagist returned HTTP ' + advReq.getStatus();\n    }\n    var advisories = JSON.parse(advBody).advisories || {};\n\n    for (var p = 0; p < affected.length; p++) {\n        var name = affected[p];\n        var byGhsa = {};\n        var list = advisories[name] || [];\n        for (var l = 0; l < list.length; l++) {\n            var sources = list[l].sources || [];\n            for (var s = 0; s < sources.length; s++) {\n                if (sources[s].name === 'GitHub') {\n                    byGhsa[sources[s].remoteId] = list[l];\n                }\n            }\n        }\n\n        var own = idsByPkg[name];\n        for (var m = 0; m < own.length; m++) {\n            var id = own[m];\n            var adv = byGhsa[id];\n            var cve = (adv && adv.cve) ? adv.cve : id;\n            if (ignore[cve.toUpperCase()] === true || ignore[id.toUpperCase()] === true) {\n                continue;\n            }\n            var sev = (adv && adv.severity) ? String(adv.severity).toLowerCase() : 'unknown';\n            if (rank[sev] === undefined) {\n                sev = 'unknown';\n            }\n            out.bySeverity[sev]++;\n            out.count++;\n            if (out.vulns.length < 100) {\n                out.vulns.push({\n                    pkg: name,\n                    ver: pkgs[name],\n                    id: id,\n                    cve: cve,\n                    sev: sev,\n                    title: (adv && adv.title) ? adv.title : '',\n                    url: (adv && adv.link) ? adv.link : 'https://osv.dev/vulnerability/' + id\n                });\n            }\n        }\n    }\n\n    out.vulns.sort(function (x, y) {\n        if (rank[x.sev] !== rank[y.sev]) {\n            return rank[x.sev] - rank[y.sev];\n        }\n        return x.pkg < y.pkg ? -1 : (x.pkg > y.pkg ? 1 : 0);\n    });\n\n    var lines = [];\n    for (var t = 0; t < out.vulns.length; t++) {\n        var v = out.vulns[t];\n        lines.push('[' + v.sev + '] ' + v.pkg + ' ' + v.ver + ' - ' + v.cve + ' - ' + v.title + ' ' + v.url);\n    }\n    out.text = lines.join('\\n');\n    if (out.text.length > 60000) {\n        out.text = out.text.substring(0, 60000) + '\\n[truncated]';\n    }\n} catch (e) {\n    // Deliberately emit ONLY the error key: the dependent counter items use\n    // \"custom on fail -> discard value\", so a failed check freezes them at their last\n    // known state instead of reporting a false all-clear while the check is broken.\n    return JSON.stringify({error: 'composer audit failed: ' + e});\n}\n\nreturn JSON.stringify(out);\n"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "typo3.composer.packages"
+                        },
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "cf48b8e7ca795a79a9ca469c2e38716e",
+                        "name": "TYPO3 security: vulnerabilities total",
+                        "type": "DEPENDENT",
+                        "key": "typo3.composer.audit.count",
+                        "delay": "0",
+                        "history": "7d",
+                        "trends": "0",
+                        "value_type": "UNSIGNED",
+                        "description": "Discards the value when the audit fails, so a broken check freezes the counter instead of reporting a false all-clear.",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.count"
+                                ],
+                                "error_handler": "DISCARD_VALUE"
+                            }
+                        ],
+                        "master_item": {
+                            "key": "typo3.composer.audit"
+                        },
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "1dd3f49b8fd15a3092c82f774913dfa5",
+                        "name": "TYPO3 security: critical",
+                        "type": "DEPENDENT",
+                        "key": "typo3.composer.audit.critical",
+                        "delay": "0",
+                        "history": "7d",
+                        "trends": "0",
+                        "value_type": "UNSIGNED",
+                        "description": "Discards the value when the audit fails, so a broken check freezes the counter instead of reporting a false all-clear.",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.bySeverity.critical"
+                                ],
+                                "error_handler": "DISCARD_VALUE"
+                            }
+                        ],
+                        "master_item": {
+                            "key": "typo3.composer.audit"
+                        },
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "6a8b7aa6d5d25cde9702dbb925e7a39c",
+                        "name": "TYPO3 security: high",
+                        "type": "DEPENDENT",
+                        "key": "typo3.composer.audit.high",
+                        "delay": "0",
+                        "history": "7d",
+                        "trends": "0",
+                        "value_type": "UNSIGNED",
+                        "description": "Discards the value when the audit fails, so a broken check freezes the counter instead of reporting a false all-clear.",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.bySeverity.high"
+                                ],
+                                "error_handler": "DISCARD_VALUE"
+                            }
+                        ],
+                        "master_item": {
+                            "key": "typo3.composer.audit"
+                        },
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "d220f728300a5171814e4df6b31484c3",
+                        "name": "TYPO3 security: medium",
+                        "type": "DEPENDENT",
+                        "key": "typo3.composer.audit.medium",
+                        "delay": "0",
+                        "history": "7d",
+                        "trends": "0",
+                        "value_type": "UNSIGNED",
+                        "description": "Discards the value when the audit fails, so a broken check freezes the counter instead of reporting a false all-clear.",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.bySeverity.medium"
+                                ],
+                                "error_handler": "DISCARD_VALUE"
+                            }
+                        ],
+                        "master_item": {
+                            "key": "typo3.composer.audit"
+                        },
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "570c0901af485aaebdff2ac578dcf90c",
+                        "name": "TYPO3 security: low",
+                        "type": "DEPENDENT",
+                        "key": "typo3.composer.audit.low",
+                        "delay": "0",
+                        "history": "7d",
+                        "trends": "0",
+                        "value_type": "UNSIGNED",
+                        "description": "Discards the value when the audit fails, so a broken check freezes the counter instead of reporting a false all-clear.",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.bySeverity.low"
+                                ],
+                                "error_handler": "DISCARD_VALUE"
+                            }
+                        ],
+                        "master_item": {
+                            "key": "typo3.composer.audit"
+                        },
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "0d87db4ef71e55f19d2d41473b21a95d",
+                        "name": "TYPO3 security: findings",
+                        "type": "DEPENDENT",
+                        "key": "typo3.composer.audit.list",
+                        "delay": "0",
+                        "history": "7d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "description": "One line per finding: severity, package, version, CVE, title, link.",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.text"
+                                ],
+                                "error_handler": "DISCARD_VALUE"
+                            }
+                        ],
+                        "master_item": {
+                            "key": "typo3.composer.audit"
+                        },
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "3c626347bbb6558d9609831d954acfc6",
+                        "name": "TYPO3 security: audit error",
+                        "type": "DEPENDENT",
+                        "key": "typo3.composer.audit.error",
+                        "delay": "0",
+                        "history": "7d",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "description": "Empty while the audit works.",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.error"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "typo3.composer.audit"
+                        },
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    }
+                ],
+                "macros": [
+                    {
+                        "macro": "{$TYPO3_CLIENT_KEY}",
+                        "value": "",
+                        "description": "apiKey from the zabbix_client extension configuration."
+                    },
+                    {
+                        "macro": "{$TYPO3_AUDIT_IGNORE}",
+                        "value": "",
+                        "description": "Comma separated CVE or GHSA ids to suppress (accepted risk)."
+                    },
+                    {
+                        "macro": "{$TYPO3_AUDIT_OSV_URL}",
+                        "value": "https://api.osv.dev/v1/querybatch"
+                    },
+                    {
+                        "macro": "{$TYPO3_AUDIT_PACKAGIST_URL}",
+                        "value": "https://packagist.org/api/security-advisories/"
+                    }
+                ],
+                "triggers": [
+                    {
+                        "uuid": "ec88a91d77b05d569c3141929379f3dc",
+                        "expression": "last(/TYPO3 Composer Security/typo3.composer.audit.critical)>0",
+                        "name": "TYPO3: {ITEM.VALUE} critical vulnerability(ies) in composer packages",
+                        "event_name": "TYPO3: {ITEM.VALUE} critical vulnerability(ies) in composer packages on {HOST.HOST}",
+                        "priority": "DISASTER",
+                        "description": "Update the affected packages.\n\nThe concrete CVEs with links are in item \"TYPO3 security: findings\" (typo3.composer.audit.list).",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "a5784cfc41945eee8ca2efa99f5f09bc",
+                        "expression": "last(/TYPO3 Composer Security/typo3.composer.audit.high)>0",
+                        "name": "TYPO3: {ITEM.VALUE} high vulnerability(ies) in composer packages",
+                        "event_name": "TYPO3: {ITEM.VALUE} high vulnerability(ies) in composer packages on {HOST.HOST}",
+                        "priority": "HIGH",
+                        "description": "Update the affected packages.\n\nThe concrete CVEs with links are in item \"TYPO3 security: findings\" (typo3.composer.audit.list).",
+                        "dependencies": [
+                            {
+                                "name": "TYPO3: {ITEM.VALUE} critical vulnerability(ies) in composer packages",
+                                "expression": "last(/TYPO3 Composer Security/typo3.composer.audit.critical)>0"
+                            }
+                        ],
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "1a517508b9c35f6d8f6451efe6eaef39",
+                        "expression": "last(/TYPO3 Composer Security/typo3.composer.audit.medium)>0",
+                        "name": "TYPO3: {ITEM.VALUE} medium vulnerability(ies) in composer packages",
+                        "event_name": "TYPO3: {ITEM.VALUE} medium vulnerability(ies) in composer packages on {HOST.HOST}",
+                        "priority": "WARNING",
+                        "description": "Update the affected packages.\n\nThe concrete CVEs with links are in item \"TYPO3 security: findings\" (typo3.composer.audit.list).",
+                        "dependencies": [
+                            {
+                                "name": "TYPO3: {ITEM.VALUE} high vulnerability(ies) in composer packages",
+                                "expression": "last(/TYPO3 Composer Security/typo3.composer.audit.high)>0"
+                            }
+                        ],
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "29b7a6ed15ae598ab5970fa7671277c9",
+                        "expression": "last(/TYPO3 Composer Security/typo3.composer.audit.low)>0",
+                        "name": "TYPO3: {ITEM.VALUE} low vulnerability(ies) in composer packages",
+                        "event_name": "TYPO3: {ITEM.VALUE} low vulnerability(ies) in composer packages on {HOST.HOST}",
+                        "priority": "INFO",
+                        "description": "Update the affected packages.\n\nThe concrete CVEs with links are in item \"TYPO3 security: findings\" (typo3.composer.audit.list).",
+                        "dependencies": [
+                            {
+                                "name": "TYPO3: {ITEM.VALUE} medium vulnerability(ies) in composer packages",
+                                "expression": "last(/TYPO3 Composer Security/typo3.composer.audit.medium)>0"
+                            }
+                        ],
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "f97be44455aa5666895769d577ce00c4",
+                        "expression": "length(last(/TYPO3 Composer Security/typo3.composer.audit.error))>0",
+                        "name": "TYPO3: composer security audit failed",
+                        "event_name": "TYPO3: composer security audit failed on {HOST.HOST}",
+                        "priority": "WARNING",
+                        "description": "The audit itself did not run: {ITEM.VALUE}\n\nUsual causes: the Zabbix server has no outgoing HTTPS to api.osv.dev or packagist.org, or one of the two is unreachable. The severity counters keep their last value while this is active, so they are stale, not clean.",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "23e1d446861154429c40c6730ea3826c",
+                        "expression": "nodata(/TYPO3 Composer Security/typo3.composer.audit.count,3h)=1",
+                        "name": "TYPO3: composer security audit has no data",
+                        "event_name": "TYPO3: composer security audit has no data on {HOST.HOST}",
+                        "priority": "WARNING",
+                        "description": "No audit result for 3 hours. Check whether /zabbixclient/ is reachable and whether {$TYPO3_CLIENT_KEY} matches the apiKey in the extension configuration.",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "1b932811c6e95fa1a3b5ff9873407d76",
+                        "expression": "last(/TYPO3 Composer Security/typo3.composer.packages.unresolved)>0",
+                        "name": "TYPO3: {ITEM.VALUE} composer package(s) cannot be checked for vulnerabilities",
+                        "event_name": "TYPO3: {ITEM.VALUE} composer package(s) cannot be checked for vulnerabilities on {HOST.HOST}",
+                        "priority": "INFO",
+                        "description": "These packages are installed from a branch (dev-*) and have no comparable version, so no CVE statement is possible for them. Normal on development instances, worth a look on production. Disabled by default.",
+                        "status": "DISABLED",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "TYPO3"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

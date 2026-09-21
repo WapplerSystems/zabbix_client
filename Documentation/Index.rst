@@ -50,5 +50,6 @@ Zabbix Client
 
     Introduction/Index
     Installation/Index
+    Items/Index
     HowTos/Index
     TroubleShooting/Index
