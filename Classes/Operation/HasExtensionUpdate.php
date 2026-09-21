@@ -48,7 +48,7 @@ class HasExtensionUpdate implements IOperation, SingletonInterface
         $extensionInformation = $listUtility->getAvailableAndInstalledExtensionsWithAdditionalInformation();
 
         if (isset($extensionInformation[$extensionKey]['updateAvailable'])) {
-            return new OperationResult(true, (boolean)$extensionInformation[$extensionKey]['updateAvailable']);
+            return new OperationResult(true, (bool)$extensionInformation[$extensionKey]['updateAvailable']);
         }
 
         return new OperationResult(false, false);

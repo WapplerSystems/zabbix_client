@@ -52,7 +52,8 @@ class GetResponseTime implements IOperation, SingletonInterface
 
         $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
-        curl_close($ch);
+        // No curl_close(): the handle is an object since PHP 8.0, freed when it goes out
+        // of scope, and calling it is deprecated as of PHP 8.5.
 
         if ($response === false) {
             return new OperationResult(false, 'cURL error: ' . $error);
@@ -82,13 +83,27 @@ class GetResponseTime implements IOperation, SingletonInterface
             ],
         ]);
 
+        // Read through a handle so the response headers can be taken from the stream
+        // metadata. The $http_response_header variable would be the shorter route, but it
+        // is deprecated as of PHP 8.4 - and merely naming it already emits the notice -
+        // while its replacement http_get_last_response_headers() would raise the
+        // requirement to PHP 8.4.
         $startTime = microtime(true);
-        $response = @file_get_contents($url, false, $context);
+        $handle = @fopen($url, 'r', false, $context);
+        $response = false;
+        $headers = [];
+        if ($handle !== false) {
+            $metaData = stream_get_meta_data($handle);
+            $headers = $metaData['wrapper_data'] ?? [];
+            $response = stream_get_contents($handle);
+            fclose($handle);
+        }
         $endTime = microtime(true);
 
         $httpCode = 0;
-        if (isset($http_response_header) && is_array($http_response_header) && !empty($http_response_header)) {
-            if (preg_match('/HTTP\/\d+\.?\d*\s+(\d+)/', $http_response_header[0], $matches)) {
+        foreach ($headers as $header) {
+            // Keep the last status line, so a redirect chain reports where it ended.
+            if (preg_match('/^HTTP\/\d+\.?\d*\s+(\d+)/', (string)$header, $matches) === 1) {
                 $httpCode = (int)$matches[1];
             }
         }
