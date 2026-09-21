@@ -24,16 +24,19 @@ class GetComposerAudit implements IOperation, SingletonInterface
         }
 
         $projectPath = Environment::getProjectPath();
-        $command = 'cd ' . escapeshellarg($projectPath) . ' && composer audit --format=json --no-interaction 2>&1';
+        // Keep stderr out of stdout: composer writes warnings such as "could not detect
+        // the root package version" to stderr, and merging them corrupts the JSON.
+        $command = 'cd ' . escapeshellarg($projectPath) . ' && composer audit --format=json --no-interaction 2>/dev/null';
 
         $output = [];
         $returnCode = 0;
         exec($command, $output, $returnCode);
 
-        $jsonOutput = implode("\n", $output);
-        $data = json_decode($jsonOutput, true);
+        // A non-zero exit code is not an error here: composer audit signals found
+        // vulnerabilities that way. Only unparsable output means the call failed.
+        $data = $this->decodeJson(implode("\n", $output));
 
-        if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
+        if (!is_array($data)) {
             return new OperationResult(false, 'Cannot run composer audit');
         }
 
@@ -59,5 +62,20 @@ class GetComposerAudit implements IOperation, SingletonInterface
             'vulnerabilities' => $vulnerabilityCount,
             'advisories' => $advisories,
         ]);
+    }
+
+    /**
+     * Decodes the JSON document from a command output, tolerating leading noise.
+     */
+    protected function decodeJson(string $output): ?array
+    {
+        $start = strcspn($output, '{[');
+        if ($start >= strlen($output)) {
+            return null;
+        }
+
+        $data = json_decode(substr($output, $start), true);
+
+        return is_array($data) ? $data : null;
     }
 }
