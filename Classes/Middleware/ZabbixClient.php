@@ -69,8 +69,16 @@ class ZabbixClient implements MiddlewareInterface
             return $response->withStatus(403, 'Not allowed');
         }
 
-        $key = $request->getParsedBody()['key'] ?? $request->getQueryParams()['key'] ?? '';
         $keyAuthenticationProvider = new KeyAuthenticationProvider();
+        if (!$keyAuthenticationProvider->isKeyConfigured()) {
+            /** @var $logger Logger */
+            $logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
+            $logger->warning('Request denied: no API key configured in the extension settings', ['ip' => $ip]);
+
+            return $response->withStatus(403, 'Not allowed');
+        }
+
+        $key = $request->getParsedBody()['key'] ?? $request->getQueryParams()['key'] ?? '';
         if (!$keyAuthenticationProvider->hasValidKey($key)) {
             /** @var Response $response */
             $response = GeneralUtility::makeInstance(Response::class);

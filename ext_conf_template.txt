@@ -1,5 +1,5 @@
 
-# cat=basic/enable; type=string; label=API Key:Allowed characters: 0-9 a-z A-Z
+# cat=basic/enable; type=string; label=API Key:Required. The endpoint rejects every request until a key is set. Use a long random value; allowed characters: 0-9 a-z A-Z
 apiKey =
 
 # cat=basic/enable; type=string; label=Allowed IPs:Restrict the endpoint to specific IPs. Comma separated lists are possible.
