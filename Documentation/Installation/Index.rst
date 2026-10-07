@@ -51,7 +51,11 @@ Client setup
 
 2. Extension setup
 
-    Set a key in the extension settings
+    Set a key in the extension settings. The key is mandatory: as long as no key is
+    configured, the endpoint answers every request with HTTP 403. Use the same value as
+    the ``{$TYPO3_CLIENT_KEY}`` macro in Zabbix.
+
+    Optionally restrict "Allowed IPs" to the address of your Zabbix server or proxy.
 
     .. figure:: ../Images/typo3_ext.png
         :alt: Extension setting
