@@ -700,6 +700,45 @@ zabbix_export:
                   tag: Application
                   value: TYPO3
         -
+          uuid: cca64b3eca6e44ffa9288d83c42edecd
+          name: 'TYPO3 PDF preview rendering'
+          type: HTTP_AGENT
+          key: typo3_HasPdfPreviewSupport
+          delay: 1d
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.value
+          timeout: 10s
+          url: 'https://{HOST.HOST}/zabbixclient/'
+          query_fields:
+            -
+              name: operation
+              value: HasPdfPreviewSupport
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          follow_redirects: 'NO'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            -
+              tag: Application
+              value: TYPO3
+          triggers:
+            -
+              uuid: 789c27185996471e8a3db4976a23a4e9
+              expression: 'find(/Template TYPO3 9-11/typo3_HasPdfPreviewSupport,,"like","true")=0'
+              name: 'TYPO3 cannot render PDF previews'
+              event_name: 'TYPO3 cannot render PDF previews on {HOST.HOST}'
+              description: 'The image processing could not turn the bundled test PDF into a PNG. TYPO3 then serves the PDF itself instead of a preview (empty thumbnails, broken galleries). Usual causes: Ghostscript missing, or an ImageMagick policy that forbids reading PDF (policy.xml: <policy domain="coder" rights="write" pattern="PDF"/>).'
+              priority: WARNING
+              tags:
+                -
+                  tag: Application
+                  value: TYPO3
+        -
           uuid: b6e2fa87e45a40549a89f4560f9ce5cb
           name: 'TYPO3 missing default mail settings'
           type: HTTP_AGENT

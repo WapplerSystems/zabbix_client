@@ -47,8 +47,8 @@ class AllOperationsIntegrationTest extends FunctionalTestCase
     }
 
     /**
-     * Operations that shell out to composer. Whether they can succeed depends on the
-     * environment - the functional test instance is a throwaway directory without a
+     * Operations that shell out to composer or to the image processor. Whether they can succeed
+     * depends on the environment - the functional test instance is a throwaway directory without a
      * composer.json - so they are only required not to blow up.
      */
     public static function environmentDependentOperationProvider(): array
@@ -56,6 +56,8 @@ class AllOperationsIntegrationTest extends FunctionalTestCase
         return [
             'GetComposerAudit' => ['GetComposerAudit', []],
             'GetComposerOutdated' => ['GetComposerOutdated', []],
+            // depends on ImageMagick/GraphicsMagick, Ghostscript and their PDF policy
+            'HasPdfPreviewSupport' => ['HasPdfPreviewSupport', []],
         ];
     }
 
@@ -167,6 +169,7 @@ class AllOperationsIntegrationTest extends FunctionalTestCase
             'GetTotalLogFilesSize',
             'GetComposerAudit',
             'GetComposerOutdated',
+            'HasPdfPreviewSupport',
         ];
 
         foreach ($expectedOperations as $operationName) {
