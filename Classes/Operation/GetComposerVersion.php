@@ -40,7 +40,10 @@ class GetComposerVersion implements IOperation, SingletonInterface
 
         // "Composer version 2.5.5 2023-03-21 11:50:05"
         if (preg_match('/Composer (?:version )?(\d+\.\d+\.\d+[^\s]*)/', $result['stdout'], $matches) !== 1) {
-            return new OperationResult(false, 'Cannot determine composer version');
+            return new OperationResult(
+                false,
+                'Cannot determine composer version (exit code ' . $result['exitCode'] . ', ' . $result['command'] . ')'
+            );
         }
         $version = $matches[1];
         $latest = $this->fetchLatestStableVersion();

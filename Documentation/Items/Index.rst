@@ -110,7 +110,10 @@ The web server environment differs from a shell, and the operations compensate f
    ``var/composer`` is used as ``COMPOSER_HOME``.
 *  ``PHP_BINARY`` points to php-fpm or php-cgi. Composer is started with the PHP CLI of
    the same version (``php85``, ``php8.5``, ``php85.bin.cli`` or ``php``), or with the
-   path set as ``program.php`` in the extension configuration.
+   path set as ``program.php`` in the extension configuration. ``/usr/local/bin`` and
+   ``/usr/bin`` are searched before ``PHP_BINDIR``, and every candidate must report the
+   ``cli`` SAPI: on Hetzner managed hosting ``PHP_BINDIR`` is ``/home/httpd/cgi-bin``,
+   whose ``php85`` is a CGI wrapper that answers with a security alert.
 *  The composer binary is looked up in ``vendor/composer/composer``, ``~/bin``,
    ``/usr/local/bin`` and ``/usr/bin``, or taken from ``program.composer``.
 *  PHP notices go to stderr, so deprecation warnings of an older composer on a newer PHP

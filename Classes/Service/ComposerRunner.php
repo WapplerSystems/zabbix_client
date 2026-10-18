@@ -26,6 +26,11 @@ class ComposerRunner
     public const DEFAULT_TIMEOUT = 50;
 
     /**
+     * Detected PHP CLI per process; '' = searched without result.
+     */
+    protected static ?string $phpCli = null;
+
+    /**
      * @param string[] $arguments composer arguments, e.g. ['audit', '--format=json']
      * @throws ComposerRunException
      */
@@ -36,8 +41,9 @@ class ComposerRunner
         $data = $this->decodeJson($result['stdout']);
         if ($data === null) {
             throw new ComposerRunException(
-                'composer ' . ($arguments[0] ?? '') . ' returned no JSON (exit code ' . $result['exitCode'] . ')'
-                . $this->describeError($result['stderr'])
+                'composer ' . ($arguments[0] ?? '') . ' returned no JSON (exit code ' . $result['exitCode']
+                . ', ' . $result['command'] . ')'
+                . $this->describeError($result['stderr'] . "\n" . $result['stdout'])
             );
         }
 
@@ -46,7 +52,7 @@ class ComposerRunner
 
     /**
      * @param string[] $arguments
-     * @return array{stdout: string, stderr: string, exitCode: int}
+     * @return array{stdout: string, stderr: string, exitCode: int, command: string}
      * @throws ComposerRunException
      */
     public function run(array $arguments, int $timeout = self::DEFAULT_TIMEOUT): array
@@ -136,7 +142,12 @@ class ComposerRunner
             throw new ComposerRunException('composer ' . ($arguments[0] ?? '') . ' timed out after ' . $timeout . 's');
         }
 
-        return ['stdout' => $stdout, 'stderr' => $stderr, 'exitCode' => $exitCode];
+        return [
+            'stdout' => $stdout,
+            'stderr' => $stderr,
+            'exitCode' => $exitCode,
+            'command' => $php . ' ' . $composer,
+        ];
     }
 
     /**
@@ -211,8 +222,14 @@ class ComposerRunner
             return PHP_BINARY;
         }
 
+        if (self::$phpCli !== null) {
+            return self::$phpCli ?: null;
+        }
+
         // Under php-fpm or php-cgi, PHP_BINARY is not usable for scripts. Look for the CLI of
         // the same PHP version first, so composer runs with the PHP version of the site.
+        // The standard directories come first: on managed hosting PHP_BINDIR can be a cgi-bin
+        // directory whose "php85" is a CGI wrapper. Every candidate is checked to be a CLI.
         $major = PHP_MAJOR_VERSION;
         $minor = PHP_MINOR_VERSION;
         $names = [
@@ -221,18 +238,44 @@ class ComposerRunner
             'php' . $major . $minor . '.bin.cli', // Hetzner managed hosting
             'php',
         ];
-        $directories = array_unique(array_filter([PHP_BINDIR, dirname(PHP_BINARY), '/usr/local/bin', '/usr/bin']));
+        $directories = array_unique(array_filter(['/usr/local/bin', '/usr/bin', PHP_BINDIR, dirname(PHP_BINARY)]));
 
         foreach ($names as $name) {
             foreach ($directories as $directory) {
                 $candidate = $directory . '/' . $name;
-                if (@is_file($candidate) && @is_executable($candidate)) {
-                    return $candidate;
+                if (@is_file($candidate) && @is_executable($candidate) && $this->isPhpCli($candidate)) {
+                    return self::$phpCli = $candidate;
                 }
             }
         }
 
+        self::$phpCli = '';
+
         return null;
+    }
+
+    /**
+     * php-cgi answers "-r" with a CGI security alert instead of running the code.
+     */
+    protected function isPhpCli(string $binary): bool
+    {
+        if (!$this->isFunctionAvailable('proc_open')) {
+            return false;
+        }
+        $process = @proc_open(
+            [$binary, '-r', 'echo PHP_SAPI;'],
+            [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+            $pipes
+        );
+        if (!is_resource($process)) {
+            return false;
+        }
+        fclose($pipes[0]);
+        $output = (string)stream_get_contents($pipes[1]);
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+
+        return proc_close($process) === 0 && trim($output) === 'cli';
     }
 
     public function findComposer(): ?string
