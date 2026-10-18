@@ -9,70 +9,101 @@ namespace WapplerSystems\ZabbixClient\Operation;
  * LICENSE.txt file that was distributed with this source code.
  */
 
-use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use WapplerSystems\ZabbixClient\Attribute\MonitoringOperation;
+use WapplerSystems\ZabbixClient\Exception\ComposerRunException;
 use WapplerSystems\ZabbixClient\OperationResult;
+use WapplerSystems\ZabbixClient\Service\ComposerRunner;
 
+/**
+ * Runs "composer outdated" on every call. The command queries every configured repository,
+ * which takes 10-30 seconds; the Zabbix item needs a matching timeout.
+ *
+ * Optional parameters: direct (default 1, only packages required in composer.json),
+ * timeout (seconds, default 50).
+ */
 #[MonitoringOperation('GetComposerOutdated')]
 class GetComposerOutdated implements IOperation, SingletonInterface
 {
     public function execute(array $parameter = []): OperationResult
     {
-        if (!function_exists('exec')) {
-            return new OperationResult(false, 'Cannot run composer outdated');
+        $direct = !isset($parameter['direct']) || (bool)$parameter['direct'];
+        $timeout = max(5, (int)($parameter['timeout'] ?? ComposerRunner::DEFAULT_TIMEOUT));
+
+        $arguments = ['outdated', '--format=json'];
+        if ($direct) {
+            $arguments[] = '--direct';
         }
 
-        $direct = !isset($parameter['direct']) || (bool)$parameter['direct'];
-
-        $projectPath = Environment::getProjectPath();
-        // Keep stderr out of stdout: composer writes warnings such as "could not detect
-        // the root package version" to stderr, and merging them corrupts the JSON.
-        $command = 'cd ' . escapeshellarg($projectPath) . ' && composer outdated --format=json --no-interaction'
-            . ($direct ? ' --direct' : '') . ' 2>/dev/null';
-
-        $output = [];
-        $returnCode = 0;
-        exec($command, $output, $returnCode);
-
-        $data = $this->decodeJson(implode("\n", $output));
-
-        if (!is_array($data)) {
-            return new OperationResult(false, 'Cannot run composer outdated');
+        try {
+            $data = GeneralUtility::makeInstance(ComposerRunner::class)->runJson($arguments, $timeout);
+        } catch (ComposerRunException $e) {
+            return new OperationResult(false, 'Cannot run composer outdated: ' . $e->getMessage());
         }
 
         $packages = [];
+        $counts = ['major' => 0, 'minor' => 0, 'patch' => 0];
 
         if (isset($data['installed']) && is_array($data['installed'])) {
             foreach ($data['installed'] as $package) {
+                $version = (string)($package['version'] ?? '');
+                $latest = (string)($package['latest'] ?? '');
+                $level = $this->getUpdateLevel($version, $latest);
+                if ($level !== null) {
+                    $counts[$level]++;
+                }
                 $packages[] = [
                     'package' => $package['name'] ?? '',
-                    'version' => $package['version'] ?? '',
-                    'latest' => $package['latest'] ?? '',
+                    'version' => $version,
+                    'latest' => $latest,
+                    // "semver-safe-update" = within the constraint, "update-possible" = needs a constraint change
                     'status' => $package['latest-status'] ?? '',
+                    'level' => $level ?? '',
+                    'abandoned' => (bool)($package['abandoned'] ?? false),
                 ];
             }
         }
 
         return new OperationResult(true, [
             'outdatedCount' => count($packages),
+            'majorCount' => $counts['major'],
+            'minorCount' => $counts['minor'],
+            'patchCount' => $counts['patch'],
             'direct' => $direct,
             'packages' => $packages,
         ]);
     }
 
     /**
-     * Decodes the JSON document from a command output, tolerating leading noise.
+     * Classifies an update as major, minor or patch; null for branch installs.
      */
-    protected function decodeJson(string $output): ?array
+    protected function getUpdateLevel(string $version, string $latest): ?string
     {
-        $start = strcspn($output, '{[');
-        if ($start >= strlen($output)) {
+        $current = $this->parseVersion($version);
+        $target = $this->parseVersion($latest);
+        if ($current === null || $target === null) {
+            return null;
+        }
+        if ($target[0] !== $current[0]) {
+            return 'major';
+        }
+        if ($target[1] !== $current[1]) {
+            return 'minor';
+        }
+
+        return 'patch';
+    }
+
+    /**
+     * @return int[]|null
+     */
+    protected function parseVersion(string $version): ?array
+    {
+        if (preg_match('/^v?(\d+)(?:\.(\d+))?(?:\.(\d+))?/', $version, $matches) !== 1) {
             return null;
         }
 
-        $data = json_decode(substr($output, $start), true);
-
-        return is_array($data) ? $data : null;
+        return [(int)$matches[1], (int)($matches[2] ?? 0), (int)($matches[3] ?? 0)];
     }
 }

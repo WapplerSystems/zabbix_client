@@ -30,6 +30,9 @@ class GetComposerOutdatedTest extends UnitTestCase
         self::assertArrayHasKey('outdatedCount', $value);
         self::assertArrayHasKey('direct', $value);
         self::assertArrayHasKey('packages', $value);
+        self::assertArrayHasKey('majorCount', $value);
+        self::assertArrayHasKey('minorCount', $value);
+        self::assertArrayHasKey('patchCount', $value);
         self::assertIsInt($value['outdatedCount']);
         self::assertIsArray($value['packages']);
         self::assertCount($value['outdatedCount'], $value['packages']);
@@ -51,5 +54,21 @@ class GetComposerOutdatedTest extends UnitTestCase
         $result = $operation->execute(['direct' => '0']);
 
         self::assertFalse($result->getValue()['direct']);
+    }
+
+    #[Test]
+    public function updateLevelIsClassifiedBySemver(): void
+    {
+        $operation = new class () extends GetComposerOutdated {
+            public function level(string $version, string $latest): ?string
+            {
+                return $this->getUpdateLevel($version, $latest);
+            }
+        };
+
+        self::assertSame('major', $operation->level('v8.3.1', 'v9.0.1'));
+        self::assertSame('minor', $operation->level('14.0.3', '14.1.2'));
+        self::assertSame('patch', $operation->level('2.2.0', '2.2.4'));
+        self::assertNull($operation->level('dev-main 365cf5c', 'dev-main d4461dd'));
     }
 }

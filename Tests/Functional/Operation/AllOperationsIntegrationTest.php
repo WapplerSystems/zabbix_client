@@ -56,6 +56,7 @@ class AllOperationsIntegrationTest extends FunctionalTestCase
         return [
             'GetComposerAudit' => ['GetComposerAudit', []],
             'GetComposerOutdated' => ['GetComposerOutdated', []],
+            'GetComposerVersion' => ['GetComposerVersion', []],
             // depends on ImageMagick/GraphicsMagick, Ghostscript and their PDF policy
             'HasPdfPreviewSupport' => ['HasPdfPreviewSupport', []],
         ];
@@ -169,6 +170,7 @@ class AllOperationsIntegrationTest extends FunctionalTestCase
             'GetTotalLogFilesSize',
             'GetComposerAudit',
             'GetComposerOutdated',
+            'GetComposerVersion',
             'HasPdfPreviewSupport',
         ];
 

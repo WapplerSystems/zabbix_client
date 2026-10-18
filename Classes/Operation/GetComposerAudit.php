@@ -9,73 +9,67 @@ namespace WapplerSystems\ZabbixClient\Operation;
  * LICENSE.txt file that was distributed with this source code.
  */
 
-use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use WapplerSystems\ZabbixClient\Attribute\MonitoringOperation;
+use WapplerSystems\ZabbixClient\Exception\ComposerRunException;
 use WapplerSystems\ZabbixClient\OperationResult;
+use WapplerSystems\ZabbixClient\Service\ComposerRunner;
 
+/**
+ * Runs "composer audit" on every call, so the result reflects the advisories known right now.
+ *
+ * Optional parameter: timeout (seconds, default 50).
+ */
 #[MonitoringOperation('GetComposerAudit')]
 class GetComposerAudit implements IOperation, SingletonInterface
 {
     public function execute(array $parameter = []): OperationResult
     {
-        if (!function_exists('exec')) {
-            return new OperationResult(false, 'Cannot run composer audit');
-        }
+        $timeout = max(5, (int)($parameter['timeout'] ?? ComposerRunner::DEFAULT_TIMEOUT));
 
-        $projectPath = Environment::getProjectPath();
-        // Keep stderr out of stdout: composer writes warnings such as "could not detect
-        // the root package version" to stderr, and merging them corrupts the JSON.
-        $command = 'cd ' . escapeshellarg($projectPath) . ' && composer audit --format=json --no-interaction 2>/dev/null';
-
-        $output = [];
-        $returnCode = 0;
-        exec($command, $output, $returnCode);
-
-        // A non-zero exit code is not an error here: composer audit signals found
-        // vulnerabilities that way. Only unparsable output means the call failed.
-        $data = $this->decodeJson(implode("\n", $output));
-
-        if (!is_array($data)) {
-            return new OperationResult(false, 'Cannot run composer audit');
+        try {
+            // A non-zero exit code is not an error here: composer audit signals found
+            // vulnerabilities that way. Only missing JSON means the call failed.
+            $data = GeneralUtility::makeInstance(ComposerRunner::class)
+                ->runJson(['audit', '--format=json'], $timeout);
+        } catch (ComposerRunException $e) {
+            return new OperationResult(false, 'Cannot run composer audit: ' . $e->getMessage());
         }
 
         $advisories = [];
-        $vulnerabilityCount = 0;
 
         if (isset($data['advisories']) && is_array($data['advisories'])) {
             foreach ($data['advisories'] as $packageName => $packageAdvisories) {
                 if (is_array($packageAdvisories)) {
                     foreach ($packageAdvisories as $advisory) {
-                        $vulnerabilityCount++;
                         $advisories[] = [
-                            'package' => $packageName,
+                            'package' => $advisory['packageName'] ?? $packageName,
                             'cve' => $advisory['cve'] ?? $advisory['advisoryId'] ?? '',
                             'title' => $advisory['title'] ?? '',
+                            'affectedVersions' => $advisory['affectedVersions'] ?? '',
+                            'link' => $advisory['link'] ?? '',
                         ];
                     }
                 }
             }
         }
 
-        return new OperationResult(true, [
-            'vulnerabilities' => $vulnerabilityCount,
-            'advisories' => $advisories,
-        ]);
-    }
-
-    /**
-     * Decodes the JSON document from a command output, tolerating leading noise.
-     */
-    protected function decodeJson(string $output): ?array
-    {
-        $start = strcspn($output, '{[');
-        if ($start >= strlen($output)) {
-            return null;
+        $abandoned = [];
+        if (isset($data['abandoned']) && is_array($data['abandoned'])) {
+            foreach ($data['abandoned'] as $packageName => $replacement) {
+                $abandoned[] = [
+                    'package' => $packageName,
+                    'replacement' => is_string($replacement) ? $replacement : '',
+                ];
+            }
         }
 
-        $data = json_decode(substr($output, $start), true);
-
-        return is_array($data) ? $data : null;
+        return new OperationResult(true, [
+            'vulnerabilities' => count($advisories),
+            'advisories' => $advisories,
+            'abandonedCount' => count($abandoned),
+            'abandoned' => $abandoned,
+        ]);
     }
 }
