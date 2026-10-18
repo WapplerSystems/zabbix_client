@@ -22,3 +22,8 @@ program.jpegoptim = /usr/bin/jpegoptim
 
 # cat=basic/enable; type=string; label=Path to WebP
 program.webp = /usr/bin/cwebp
+# cat=basic/enable; type=string; label=Path to PHP CLI:Used to run composer. Empty: detected automatically (the CLI matching the PHP version of the site).
+program.php =
+
+# cat=basic/enable; type=string; label=Path to composer:Empty: detected automatically (vendor/composer/composer, composer.phar in the project root, ~/bin/composer, /usr/local/bin/composer, /usr/bin/composer).
+program.composer =

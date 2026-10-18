@@ -133,6 +133,9 @@ class AllOperationsIntegrationTest extends FunctionalTestCase
             'HasDeprecationLogEnabled',
             'HasRemainingUpdates',
             'GetTotalLogFilesSize',
+            'GetComposerAudit',
+            'GetComposerOutdated',
+            'GetComposerVersion',
         ];
 
         foreach ($expectedOperations as $operationName) {
