@@ -107,7 +107,9 @@ The web server environment differs from a shell, and the operations compensate f
 *  ``HOME`` is often not set, and composer refuses to start without ``HOME`` or
    ``COMPOSER_HOME``. The home directory of the system user is set instead, so the global
    composer cache and ``auth.json`` are shared with the shell; if it is not writable,
-   ``var/composer`` is used as ``COMPOSER_HOME``.
+   ``var/composer`` is used as ``COMPOSER_HOME``. If ``~/.config/composer`` exists, it is
+   set as ``COMPOSER_HOME`` explicitly: composer only picks that directory when ``XDG_*``
+   variables are set, as in an SSH session, and would otherwise miss its ``auth.json``.
 *  ``PHP_BINARY`` points to php-fpm or php-cgi. Composer is started with the PHP CLI of
    the same version (``php85``, ``php8.5``, ``php85.bin.cli`` or ``php``), or with the
    path set as ``program.php`` in the extension configuration. ``/usr/local/bin`` and

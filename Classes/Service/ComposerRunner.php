@@ -187,6 +187,18 @@ class ComposerRunner
             }
         }
 
+        if (($environment['COMPOSER_HOME'] ?? '') === '' && ($environment['HOME'] ?? '') !== '') {
+            // Composer only uses ~/.config/composer when XDG_* variables are set, which is the
+            // case in an SSH session but not under the web server. It then falls back to
+            // ~/.composer and misses the auth.json the shell uses for private repositories.
+            $xdgConfig = ($environment['XDG_CONFIG_HOME'] ?? '') !== ''
+                ? $environment['XDG_CONFIG_HOME']
+                : $environment['HOME'] . '/.config';
+            if (@is_dir($xdgConfig . '/composer')) {
+                $environment['COMPOSER_HOME'] = $xdgConfig . '/composer';
+            }
+        }
+
         $path = $environment['PATH'] ?? '';
         $environment['PATH'] = implode(PATH_SEPARATOR, array_filter([
             $path,
