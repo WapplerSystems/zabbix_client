@@ -288,6 +288,8 @@ class ComposerRunner
         $candidates = [
             // composer/composer as a project dependency matches the project best
             Environment::getProjectPath() . '/vendor/composer/composer/bin/composer',
+            // shared hosting without a system composer usually keeps a phar in the project root
+            Environment::getProjectPath() . '/composer.phar',
         ];
         $home = $this->getUserHome();
         if ($home !== null) {

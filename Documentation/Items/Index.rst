@@ -114,7 +114,8 @@ The web server environment differs from a shell, and the operations compensate f
    ``/usr/bin`` are searched before ``PHP_BINDIR``, and every candidate must report the
    ``cli`` SAPI: on Hetzner managed hosting ``PHP_BINDIR`` is ``/home/httpd/cgi-bin``,
    whose ``php85`` is a CGI wrapper that answers with a security alert.
-*  The composer binary is looked up in ``vendor/composer/composer``, ``~/bin``,
+*  The composer binary is looked up in ``vendor/composer/composer``, ``composer.phar`` in
+   the project root, ``~/bin``,
    ``/usr/local/bin`` and ``/usr/bin``, or taken from ``program.composer``.
 *  PHP notices go to stderr, so deprecation warnings of an older composer on a newer PHP
    do not corrupt the JSON output.
