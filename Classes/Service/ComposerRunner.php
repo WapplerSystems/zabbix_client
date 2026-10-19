@@ -61,22 +61,29 @@ class ComposerRunner
             throw new ComposerRunException('proc_open() is disabled');
         }
 
-        $php = $this->findPhpCli();
-        if ($php === null) {
-            throw new ComposerRunException('No PHP CLI binary found');
-        }
         $composer = $this->findComposer();
         if ($composer === null) {
             throw new ComposerRunException('No composer binary found');
         }
 
-        // display_errors goes to stderr: older composer releases emit deprecation notices
-        // on newer PHP versions, and on stdout they would corrupt the JSON document.
-        $command = array_merge(
-            [$php, '-d', 'display_errors=stderr', '-d', 'memory_limit=-1', $composer],
-            $arguments,
-            ['--no-interaction', '--no-ansi']
-        );
+        if ($this->isExecutableWrapper($composer)) {
+            // A shell wrapper (e.g. mittwald: bash script that picks the PHP version and the
+            // phar itself) cannot be run through php, which would just print the script.
+            $php = '';
+            $command = array_merge([$composer], $arguments, ['--no-interaction', '--no-ansi']);
+        } else {
+            $php = $this->findPhpCli();
+            if ($php === null) {
+                throw new ComposerRunException('No PHP CLI binary found');
+            }
+            // display_errors goes to stderr: older composer releases emit deprecation notices
+            // on newer PHP versions, and on stdout they would corrupt the JSON document.
+            $command = array_merge(
+                [$php, '-d', 'display_errors=stderr', '-d', 'memory_limit=-1', $composer],
+                $arguments,
+                ['--no-interaction', '--no-ansi']
+            );
+        }
 
         $process = proc_open(
             $command,
@@ -146,7 +153,7 @@ class ComposerRunner
             'stdout' => $stdout,
             'stderr' => $stderr,
             'exitCode' => $exitCode,
-            'command' => $php . ' ' . $composer,
+            'command' => trim($php . ' ' . $composer),
         ];
     }
 
@@ -319,6 +326,25 @@ class ComposerRunner
         }
 
         return null;
+    }
+
+    /**
+     * True for an executable script whose shebang names another interpreter than PHP.
+     * Composer phars and PHP wrappers start with "<?php" or a "#!...php" shebang.
+     */
+    public function isExecutableWrapper(string $binary): bool
+    {
+        if (!@is_executable($binary)) {
+            return false;
+        }
+        $handle = @fopen($binary, 'rb');
+        if ($handle === false) {
+            return false;
+        }
+        $firstLine = (string)fgets($handle, 256);
+        fclose($handle);
+
+        return str_starts_with($firstLine, '#!') && !str_contains($firstLine, 'php');
     }
 
     /**
