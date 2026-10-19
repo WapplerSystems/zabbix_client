@@ -17,7 +17,22 @@ Zabbix setup
 
 1. Import
 
-    Import the template *typo3conf/ext/zabbix_client/Resources/Private/ZabbixTemplate/typo3.xml* into your Zabbix system.
+    Download the template for Zabbix 7.x from GitHub and import it under
+    :guilabel:`Data collection > Templates > Import`:
+
+    *   `typo3.yaml (view) <https://github.com/WapplerSystems/zabbix_client/blob/release/v14/Resources/Private/ZabbixTemplate/zabbix-7/typo3.yaml>`__
+    *   `typo3.yaml (download) <https://raw.githubusercontent.com/WapplerSystems/zabbix_client/release/v14/Resources/Private/ZabbixTemplate/zabbix-7/typo3.yaml>`__
+
+    The file is also shipped with the extension in
+    ``Resources/Private/ZabbixTemplate/zabbix-7/typo3.yaml``. It contains
+    :guilabel:`Template TYPO3 9-14` and its parent template
+    :guilabel:`Template Frontend Performance`; the second parent, :guilabel:`HTTP Service`,
+    is part of every Zabbix installation. The template is exported from a production
+    Zabbix, so it always matches the operations of the current release. Re-importing a
+    newer version updates the existing template, hosts and history are kept.
+
+    The files in ``zabbix-5/`` and ``zabbix-6/`` are kept for older Zabbix versions but no
+    longer maintained.
 
     .. figure:: ../Images/template_import.png
         :alt: Import template
@@ -32,9 +47,19 @@ Zabbix setup
 
     Important: You have to enter a DNS name / Domain / Subdomain (and set "Connect to" to DNS) or a IP address at "Agent interfaces".
 
-3. Macro
+3. Macros
 
-    Add a macro in this host. The key is named {$TYPO3_CLIENT_KEY}. Set a long user-defined key.
+    Add two macros to the host:
+
+    ``{$TYPO3_CLIENT_KEY}``
+        A long user-defined key. The same value goes into the extension settings.
+
+    ``{$TYPO3_CLIENT_PATH}``
+        The URL of the endpoint, e.g. ``https://www.example.com/zabbixclient/``.
+
+    Optional macros of the frontend check: ``{$FRONTEND.SCHEME}`` (``https``),
+    ``{$FRONTEND.PATH}`` (``/``), ``{$FRONTEND.RESP.WARN}`` and ``{$FRONTEND.RESP.HIGH}``
+    (response time thresholds in seconds, ``2`` and ``5``).
 
     .. figure:: ../Images/host_macros.png
         :alt: Host macro

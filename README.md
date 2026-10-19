@@ -13,6 +13,17 @@ as Lighthouse tests, a system can be fully observed.
 
 Further information can be found in the documentation.
 
+## Zabbix templates
+
+Templates for Zabbix 7.x, exported from a production Zabbix:
+
+* [typo3.yaml](Resources/Private/ZabbixTemplate/zabbix-7/typo3.yaml) – general TYPO3 template
+  ([download](https://raw.githubusercontent.com/WapplerSystems/zabbix_client/release/v14/Resources/Private/ZabbixTemplate/zabbix-7/typo3.yaml))
+* [composer-security.yaml](Resources/Private/ZabbixTemplate/zabbix-7/composer-security.yaml) – known vulnerabilities via OSV
+  ([download](https://raw.githubusercontent.com/WapplerSystems/zabbix_client/release/v14/Resources/Private/ZabbixTemplate/zabbix-7/composer-security.yaml))
+
+Set the host macros `{$TYPO3_CLIENT_KEY}` and `{$TYPO3_CLIENT_PATH}` (e.g. `https://www.example.com/zabbixclient/`).
+
 Website: https://t3monitoring.de/
 
 ## screenshots
