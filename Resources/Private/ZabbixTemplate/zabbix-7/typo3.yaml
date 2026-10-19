@@ -1,17 +1,345 @@
 zabbix_export:
-  version: '7.0'
+  version: '7.4'
   template_groups:
     - uuid: a571c0d144b14fd4a87a9d9b2aa9fcd6
       name: Templates/Applications
   templates:
+    - uuid: e7752236596b41a9a09e3d3b7f237947
+      template: 'Template Frontend Performance'
+      name: 'Template Frontend Performance'
+      description: 'Allgemeiner Frontend-Check der Startseite per Web-Szenario. Misst Antwortzeit, Download-Geschwindigkeit und HTTP-Status. URL wird aus dem Default-Interface des Hosts gebildet ({HOST.CONN}); abweichende Pfade ueber {$FRONTEND.PATH}, abweichendes Schema ueber {$FRONTEND.SCHEME}.'
+      groups:
+        - name: Templates/Applications
+      httptests:
+        - uuid: f4f62850f6ef47bfa9fb20ecf5c4a7d0
+          name: 'Frontend Performance'
+          steps:
+            - name: Startseite
+              url: '{$FRONTEND.SCHEME}://{HOST.CONN}{$FRONTEND.PATH}'
+              posts: ''
+              status_codes: '200'
+          tags:
+            - tag: Application
+              value: Frontend
+            - tag: scope
+              value: performance
+      macros:
+        - macro: '{$FRONTEND.PATH}'
+          value: /
+          description: 'Pfad der zu pruefenden Startseite'
+        - macro: '{$FRONTEND.RESP.HIGH}'
+          value: '5'
+          description: 'Antwortzeit Startseite in s, ab der eskaliert wird'
+        - macro: '{$FRONTEND.RESP.WARN}'
+          value: '2'
+          description: 'Antwortzeit Startseite in s, ab der gewarnt wird'
+        - macro: '{$FRONTEND.SCHEME}'
+          value: https
+          description: 'Protokoll fuer den Frontend-Check'
     - uuid: b19712d20f9344d3a057e0e0585e4cce
-      template: 'Template TYPO3 9-12'
-      name: 'Template TYPO3 9-12'
+      template: 'Template TYPO3 9-14'
+      name: 'Template TYPO3 9-14'
       templates:
         - name: 'HTTP Service'
+        - name: 'Template Frontend Performance'
       groups:
         - name: Templates/Applications
       items:
+        - uuid: 4b6e93b0f1a24cd482617a0d3464e047
+          name: 'TYPO3 Composer abandoned packages'
+          type: DEPENDENT
+          key: typo3_ComposerAudit_abandoned
+          history: 90d
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.abandonedCount
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: typo3_GetComposerAudit
+          tags:
+            - tag: Application
+              value: Composer
+            - tag: Application
+              value: TYPO3
+        - uuid: cc06b241c88e46d5882259e674da842e
+          name: 'TYPO3 Composer security advisories (list)'
+          type: DEPENDENT
+          key: typo3_ComposerAudit_list
+          history: 30d
+          value_type: TEXT
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.advisories
+              error_handler: DISCARD_VALUE
+            - type: JAVASCRIPT
+              parameters:
+                - 'var a = JSON.parse(value); var l = []; for (var i = 0; i < a.length; i++) { var x = a[i]; l.push(x.package + '' '' + x.cve + '': '' + x.title + '' '' + x.link); } return l.length ? l.join(''\n'') : ''none'';'
+          master_item:
+            key: typo3_GetComposerAudit
+          tags:
+            - tag: Application
+              value: Composer
+            - tag: Application
+              value: TYPO3
+        - uuid: 56ccd4c92c4f4c9a9938cb989531dccf
+          name: 'TYPO3 Composer audit check OK'
+          type: DEPENDENT
+          key: typo3_ComposerAudit_ok
+          history: 30d
+          description: '1 = composer audit ran, 0 = it failed (reason in the raw item).'
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - 'return JSON.parse(value).status ? 1 : 0;'
+          master_item:
+            key: typo3_GetComposerAudit
+          tags:
+            - tag: Application
+              value: Composer
+            - tag: Application
+              value: TYPO3
+          triggers:
+            - uuid: 89ded502928842298e92790f78e9e7bf
+              expression: 'max(/Template TYPO3 9-14/typo3_ComposerAudit_ok,#3)=0'
+              name: 'TYPO3 Composer audit failing on {HOST.NAME}'
+              priority: INFO
+              description: 'composer audit failed three times in a row - vulnerabilities are not checked. Reason in item ''TYPO3 Composer audit (raw)''. Raise to Warning once all hosts run zabbix_client >= 14.2.4.'
+              tags:
+                - tag: Application
+                  value: Composer
+        - uuid: 1d68083510a64adbac8272996c35cfb8
+          name: 'TYPO3 Composer security advisories'
+          type: DEPENDENT
+          key: typo3_ComposerAudit_vulnerabilities
+          history: 90d
+          description: 'Number of security advisories affecting installed composer packages. Keeps its last value while the check fails.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.vulnerabilities
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: typo3_GetComposerAudit
+          tags:
+            - tag: Application
+              value: Composer
+            - tag: Application
+              value: TYPO3
+          triggers:
+            - uuid: 49039ac8c9d041fd925c2f7179f47023
+              expression: 'last(/Template TYPO3 9-14/typo3_ComposerAudit_vulnerabilities)>0'
+              name: 'TYPO3 Composer security advisories on {HOST.NAME}'
+              opdata: '{ITEM.LASTVALUE1} advisories'
+              priority: HIGH
+              description: 'composer audit found advisories for installed packages. Details: item ''TYPO3 Composer security advisories (list)''.'
+              tags:
+                - tag: Application
+                  value: Composer
+        - uuid: e066ade546ff4472aee4ad847f3e9586
+          name: 'TYPO3 Composer outdated packages'
+          type: DEPENDENT
+          key: typo3_ComposerOutdated_count
+          history: 90d
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.outdatedCount
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: typo3_GetComposerOutdated
+          tags:
+            - tag: Application
+              value: Composer
+            - tag: Application
+              value: TYPO3
+          triggers:
+            - uuid: 95c0fae0f26e42c28e712031f2807a11
+              expression: 'last(/Template TYPO3 9-14/typo3_ComposerOutdated_count)>0'
+              name: 'TYPO3 Composer packages outdated on {HOST.NAME}'
+              opdata: '{ITEM.LASTVALUE1} packages'
+              priority: INFO
+              tags:
+                - tag: Application
+                  value: Composer
+        - uuid: e8dea03deabb46739e5f89c0c415c425
+          name: 'TYPO3 Composer outdated packages (list)'
+          type: DEPENDENT
+          key: typo3_ComposerOutdated_list
+          history: 30d
+          value_type: TEXT
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.packages
+              error_handler: DISCARD_VALUE
+            - type: JAVASCRIPT
+              parameters:
+                - 'var a = JSON.parse(value); var l = []; for (var i = 0; i < a.length; i++) { var p = a[i]; l.push(p.package + '' '' + p.version + '' -> '' + p.latest + (p.level ? '' ('' + p.level + '')'' : '''')); } return l.length ? l.join(''\n'') : ''none'';'
+          master_item:
+            key: typo3_GetComposerOutdated
+          tags:
+            - tag: Application
+              value: Composer
+            - tag: Application
+              value: TYPO3
+        - uuid: b6340779474a499bb149c5c130e07768
+          name: 'TYPO3 Composer outdated packages (major)'
+          type: DEPENDENT
+          key: typo3_ComposerOutdated_major
+          history: 90d
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.majorCount
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: typo3_GetComposerOutdated
+          tags:
+            - tag: Application
+              value: Composer
+            - tag: Application
+              value: TYPO3
+          triggers:
+            - uuid: a611479b759142b4b4d49d7bfb015f59
+              expression: 'last(/Template TYPO3 9-14/typo3_ComposerOutdated_major)>0'
+              name: 'TYPO3 Composer major updates available on {HOST.NAME}'
+              opdata: '{ITEM.LASTVALUE1} packages'
+              priority: INFO
+              tags:
+                - tag: Application
+                  value: Composer
+        - uuid: 7664a8f324cc41148e01bffad5c4c0a7
+          name: 'TYPO3 Composer outdated packages (minor)'
+          type: DEPENDENT
+          key: typo3_ComposerOutdated_minor
+          history: 90d
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.minorCount
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: typo3_GetComposerOutdated
+          tags:
+            - tag: Application
+              value: Composer
+            - tag: Application
+              value: TYPO3
+        - uuid: 346913041baf42da9aa030bf59646850
+          name: 'TYPO3 Composer outdated check OK'
+          type: DEPENDENT
+          key: typo3_ComposerOutdated_ok
+          history: 30d
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - 'return JSON.parse(value).status ? 1 : 0;'
+          master_item:
+            key: typo3_GetComposerOutdated
+          tags:
+            - tag: Application
+              value: Composer
+            - tag: Application
+              value: TYPO3
+          triggers:
+            - uuid: 9f850988484c4d369ce854ca4642df6f
+              expression: 'last(/Template TYPO3 9-14/typo3_ComposerOutdated_ok)=0'
+              name: 'TYPO3 Composer outdated check failing on {HOST.NAME}'
+              priority: INFO
+              tags:
+                - tag: Application
+                  value: Composer
+        - uuid: d961cc24b71542d78b890559ab228f3d
+          name: 'TYPO3 Composer outdated packages (patch)'
+          type: DEPENDENT
+          key: typo3_ComposerOutdated_patch
+          history: 90d
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.patchCount
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: typo3_GetComposerOutdated
+          tags:
+            - tag: Application
+              value: Composer
+            - tag: Application
+              value: TYPO3
+        - uuid: a0fa94cf0cb34082a6cc56528bcfec0a
+          name: 'TYPO3 Composer latest stable version'
+          type: DEPENDENT
+          key: typo3_ComposerVersion_latest
+          history: 30d
+          value_type: CHAR
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.latest
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: typo3_GetComposerVersion
+          tags:
+            - tag: Application
+              value: Composer
+            - tag: Application
+              value: TYPO3
+        - uuid: d918904fd3cb4410ad2f34cbd4e91896
+          name: 'TYPO3 Composer binary check OK'
+          type: DEPENDENT
+          key: typo3_ComposerVersion_ok
+          history: 30d
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - 'return JSON.parse(value).status ? 1 : 0;'
+          master_item:
+            key: typo3_GetComposerVersion
+          tags:
+            - tag: Application
+              value: Composer
+            - tag: Application
+              value: TYPO3
+        - uuid: d1216ea7907c4b2c8a66c5548bb61888
+          name: 'TYPO3 Composer update available'
+          type: DEPENDENT
+          key: typo3_ComposerVersion_update
+          history: 90d
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.updateAvailable
+              error_handler: DISCARD_VALUE
+            - type: JAVASCRIPT
+              parameters:
+                - 'if (value !== ''true'' && value !== ''false'') throw ''getcomposer.org not reachable''; return value === ''true'' ? 1 : 0;'
+          master_item:
+            key: typo3_GetComposerVersion
+          tags:
+            - tag: Application
+              value: Composer
+            - tag: Application
+              value: TYPO3
+        - uuid: 030ce1081d02457b91e5cb683897e134
+          name: 'TYPO3 Composer version'
+          type: DEPENDENT
+          key: typo3_ComposerVersion_version
+          history: 365d
+          value_type: CHAR
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.version
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: typo3_GetComposerVersion
+          tags:
+            - tag: Application
+              value: Composer
+            - tag: Application
+              value: TYPO3
         - uuid: fc4202fb1e4f4f61be40f85b1c968ebd
           name: 'TYPO3 failed logins'
           type: HTTP_AGENT
@@ -22,14 +350,14 @@ zabbix_export:
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetLogResults
             - name: filter
               value: FailedLogins
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -37,7 +365,7 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: 288079f825d54758800387dd717edd80
-              expression: '(max(/Template TYPO3 9-12/typo3_FailedLogins,1h)-min(/Template TYPO3 9-12/typo3_FailedLogins,1h))>100 and last(/Template TYPO3 9-12/typo3_FailedLogins) > 0'
+              expression: '(max(/Template TYPO3 9-14/typo3_FailedLogins,1h)-min(/Template TYPO3 9-14/typo3_FailedLogins,1h))>100 and last(/Template TYPO3 9-14/typo3_FailedLogins) > 0'
               name: 'TYPO3 Number of failed login attempts increases'
               event_name: 'TYPO3 Number of failed login attempts increases on {HOST.HOST}'
               priority: HIGH
@@ -50,19 +378,18 @@ zabbix_export:
           key: typo3_GetApplicationContext
           delay: 5m
           history: 90d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetApplicationContext
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -70,31 +397,90 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: 1813556432ac435c8d1cff8a16fb4e1d
-              expression: 'find(/Template TYPO3 9-12/typo3_GetApplicationContext,,"like","Production")=0'
+              expression: 'find(/Template TYPO3 9-14/typo3_GetApplicationContext,,"like","Production")=0'
               name: 'TYPO3 Application Context is not Production'
               event_name: 'TYPO3 Application Context is not Production on {HOST.HOST}'
               priority: WARNING
               tags:
                 - tag: Application
                   value: TYPO3
+        - uuid: 5417ac6b6b8e4d11acb28abd5dc05642
+          name: 'TYPO3 Composer audit (raw)'
+          type: HTTP_AGENT
+          key: typo3_GetComposerAudit
+          delay: 1h
+          history: 7d
+          value_type: TEXT
+          description: 'Runs composer audit on the site on every call (zabbix_client >= 14.2.4). Dependent items extract the values.'
+          timeout: 30s
+          url: '{$TYPO3_CLIENT_PATH}'
+          query_fields:
+            - name: operation
+              value: GetComposerAudit
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          request_method: POST
+          tags:
+            - tag: Application
+              value: Composer
+            - tag: Application
+              value: TYPO3
+        - uuid: 151f231a63f14ad59f0d2ac2621a37fd
+          name: 'TYPO3 Composer outdated (raw)'
+          type: HTTP_AGENT
+          key: typo3_GetComposerOutdated
+          delay: 1d
+          history: 7d
+          value_type: TEXT
+          description: 'Runs composer outdated --direct on the site (takes 10-30 s). Dependent items extract the values.'
+          timeout: 60s
+          url: '{$TYPO3_CLIENT_PATH}'
+          query_fields:
+            - name: operation
+              value: GetComposerOutdated
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          request_method: POST
+          tags:
+            - tag: Application
+              value: Composer
+            - tag: Application
+              value: TYPO3
+        - uuid: 33fb8556242e49cab56896225ea40e89
+          name: 'TYPO3 Composer version (raw)'
+          type: HTTP_AGENT
+          key: typo3_GetComposerVersion
+          delay: 1d
+          history: 7d
+          value_type: TEXT
+          description: 'Version of the composer binary on the site and the latest stable release.'
+          timeout: 30s
+          url: '{$TYPO3_CLIENT_PATH}'
+          query_fields:
+            - name: operation
+              value: GetComposerVersion
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          request_method: POST
+          tags:
+            - tag: Application
+              value: Composer
+            - tag: Application
+              value: TYPO3
         - uuid: 3028289f308142efb0fb954c65893361
           name: 'TYPO3 database version'
           type: HTTP_AGENT
           key: typo3_GetDatabaseVersion
           history: 90d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - '$.value[0]'
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetDatabaseVersion
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -106,21 +492,20 @@ zabbix_export:
           key: typo3_GetGraphicsMagickVersion
           delay: 1d
           history: 90d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetProgramVersion
             - name: program
               value: gm
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -132,21 +517,20 @@ zabbix_export:
           key: typo3_GetImageMagickVersion
           delay: 1d
           history: 90d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetProgramVersion
             - name: program
               value: im
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -158,19 +542,18 @@ zabbix_export:
           key: typo3_GetInsecureExtensionList
           delay: 1d
           history: 30d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetInsecureExtensionList
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -178,7 +561,7 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: 07b0deefad394483bb2d130941c43dac
-              expression: 'find(/Template TYPO3 9-12/typo3_GetInsecureExtensionList,,"like","false")=0'
+              expression: 'find(/Template TYPO3 9-14/typo3_GetInsecureExtensionList,,"like","false")=0'
               name: 'TYPO3 Insecure Extensions detected'
               event_name: 'TYPO3 Insecure Extensions detected on {HOST.HOST}'
               priority: HIGH
@@ -191,21 +574,20 @@ zabbix_export:
           key: typo3_GetJpegoptimVersion
           delay: 1d
           history: 90d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetProgramVersion
             - name: program
               value: jpegoptim
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -222,12 +604,12 @@ zabbix_export:
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetLastExtensionListUpdate
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -235,7 +617,7 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: d0f3b67dbf8a486dae2dfb569e06e672
-              expression: 'fuzzytime(/Template TYPO3 9-12/typo3_GetLastExtensionListUpdate,172800s)=0'
+              expression: 'fuzzytime(/Template TYPO3 9-14/typo3_GetLastExtensionListUpdate,172800s)=0'
               name: 'TYPO3 Extension List Update is more than 2 days overdue'
               event_name: 'TYPO3 Extension List Update is more than 2 days overdue on {HOST.HOST}'
               priority: AVERAGE
@@ -253,7 +635,7 @@ zabbix_export:
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetLastSchedulerRun
@@ -265,10 +647,26 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: 96ac41b8ea3d4c459c4b3df8d7061aab
-              expression: 'fuzzytime(/Template TYPO3 9-12/typo3_GetLastSchedulerRun,172800s)=0'
+              expression: 'fuzzytime(/Template TYPO3 9-14/typo3_GetLastSchedulerRun,172800s)=0'
               name: 'TYPO3 Scheduler is more than 2 days overdue'
               event_name: 'TYPO3 Scheduler is more than 2 days overdue on {HOST.HOST}'
               priority: AVERAGE
+        - uuid: 78e3702815bb4ca48ab5a23efd7c233a
+          name: 'TYPO3 OPcache memory (raw)'
+          type: HTTP_AGENT
+          key: typo3_GetOpCacheMemory
+          delay: 5m
+          history: 1h
+          value_type: TEXT
+          description: 'Master item: fetches the full GetOpCacheMemory JSON from zabbix_client. Dependent items extract individual values via JSONPath.'
+          timeout: 5s
+          url: '{$TYPO3_CLIENT_PATH}'
+          query_fields:
+            - name: operation
+              value: GetOpCacheMemory
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          request_method: POST
+          verify_peer: 'YES'
         - uuid: 49554c76b24f4b2cbcae260d3fb059f3
           name: 'TYPO3 OPcache active'
           type: HTTP_AGENT
@@ -276,13 +674,13 @@ zabbix_export:
           delay: 1h
           history: 90d
           trends: '0'
-          value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value.OPcache.active
+            - type: BOOL_TO_DECIMAL
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetOpCacheStatus
@@ -294,7 +692,7 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: ce7d936443734d95be961709a6099f93
-              expression: 'find(/Template TYPO3 9-12/typo3_GetOpCacheStatus,,"like","true")=0'
+              expression: 'last(/Template TYPO3 9-14/typo3_GetOpCacheStatus)=0'
               name: 'TYPO3 OPcache not available'
               event_name: 'TYPO3 OPcache not available on {HOST.HOST}'
               priority: AVERAGE
@@ -304,21 +702,20 @@ zabbix_export:
           key: typo3_GetOpenSSLVersion
           delay: 1d
           history: 90d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetProgramVersion
             - name: program
               value: openssl
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -330,21 +727,20 @@ zabbix_export:
           key: typo3_GetOptiPNGVersion
           delay: 1d
           history: 90d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetProgramVersion
             - name: program
               value: optipng
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -356,19 +752,18 @@ zabbix_export:
           key: typo3_GetOutdatedExtensionList
           delay: 1d
           history: 90d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetOutdatedExtensionList
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -376,7 +771,7 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: 24634351fae5432f98f84e2c2bd61873
-              expression: 'find(/Template TYPO3 9-12/typo3_GetOutdatedExtensionList,,"like","false")=0'
+              expression: 'find(/Template TYPO3 9-14/typo3_GetOutdatedExtensionList,,"like","false")=0'
               name: 'TYPO3 Outdated Extensions detected'
               event_name: 'TYPO3 Outdated Extensions detected on {HOST.HOST}'
               priority: INFO
@@ -384,20 +779,19 @@ zabbix_export:
           name: 'PHP version'
           type: HTTP_AGENT
           key: typo3_GetPHPVersion
-          history: 90d
-          trends: '0'
+          history: 30d
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 5s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetPHPVersion
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -405,10 +799,33 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: 9db85766e49a4a209c8f01f04830e7bf
-              expression: 'nodata(/Template TYPO3 9-12/typo3_GetPHPVersion,1000s)=1'
+              expression: 'nodata(/Template TYPO3 9-14/typo3_GetPHPVersion,1000s)=1'
               name: 'TYPO3 Zabbix client malfunction'
               event_name: 'TYPO3 Zabbix client malfunction on {HOST.HOST}'
               priority: HIGH
+        - uuid: d7731419e5ab44f0b78d43411380d4a6
+          name: 'TYPO3 support state'
+          type: HTTP_AGENT
+          key: typo3_GetSupportState
+          delay: 1d
+          history: 90d
+          value_type: TEXT
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value
+          timeout: 3s
+          url: '{$TYPO3_CLIENT_PATH}'
+          query_fields:
+            - name: operation
+              value: GetSupportState
+          follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            - tag: Application
+              value: TYPO3
         - uuid: 42b69e3370c8462ca75674a17a283d4e
           name: 'TYPO3 total log files size (KB)'
           type: HTTP_AGENT
@@ -420,12 +837,12 @@ zabbix_export:
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetTotalLogFilesSize
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -433,7 +850,7 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: 5314cc9ed24944b7bee9e03fae013664
-              expression: 'last(/Template TYPO3 9-12/typo3_GetTotalLogFilesSize)>10240'
+              expression: 'last(/Template TYPO3 9-14/typo3_GetTotalLogFilesSize)>10240'
               name: 'TYPO3 log files are bigger than 10MB'
               event_name: 'TYPO3 log files are bigger than 10MB on {HOST.HOST}'
               priority: WARNING
@@ -441,7 +858,7 @@ zabbix_export:
                 - tag: Application
                   value: TYPO3
             - uuid: 1cdeb759c3324e0aa42e54b4d15bb581
-              expression: 'last(/Template TYPO3 9-12/typo3_GetTotalLogFilesSize)>102400'
+              expression: 'last(/Template TYPO3 9-14/typo3_GetTotalLogFilesSize)>102400'
               name: 'TYPO3 log files are bigger than 100MB'
               event_name: 'TYPO3 log files are bigger than 100MB on {HOST.HOST}'
               priority: HIGH
@@ -452,47 +869,79 @@ zabbix_export:
           name: 'TYPO3 version'
           type: HTTP_AGENT
           key: typo3_GetTYPO3Version
-          delay: 1h
-          history: 90d
-          trends: '0'
+          delay: 1d
+          history: 30d
           value_type: TEXT
+          inventory_link: ALIAS
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetTYPO3Version
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
             - tag: Application
               value: TYPO3
+        - uuid: b2145561b98e4c9680acb5c8a0f02ffd
+          name: 'TYPO3 version (integer)'
+          type: HTTP_AGENT
+          key: typo3_GetTYPO3VersionAsInteger
+          delay: 1h
+          history: 1825d
+          trends: 1825d
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value
+          timeout: 3s
+          url: '{$TYPO3_CLIENT_PATH}'
+          query_fields:
+            - name: operation
+              value: GetTYPO3Version
+            - name: asInteger
+              value: '1'
+          follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            - tag: Application
+              value: TYPO3
+          triggers:
+            - uuid: f9d6860752c7488b96643d5aebfe720d
+              expression: 'change(/Template TYPO3 9-14/typo3_GetTYPO3VersionAsInteger)<>0'
+              name: 'TYPO3 version changed on {HOST.NAME}'
+              event_name: 'TYPO3 {ITEM.PREVVALUE} → {ITEM.LASTVALUE} on {HOST.NAME}'
+              priority: INFO
+              description: 'Fires for one polling interval whenever the TYPO3 major.minor.patch version reported by typo3_GetTYPO3VersionAsInteger changes. Self-resolves on the next unchanged data point. Used as long-term audit trail (events kept hk_events_trigger=365d) for update timestamps.'
+              manual_close: 'YES'
         - uuid: 7d5e3d28854d4ebfb479172ad2d338f6
           name: 'TYPO3 WebP version'
           type: HTTP_AGENT
           key: typo3_GetWebPVersion
           delay: 1d
           history: 90d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetProgramVersion
             - name: program
               value: webp
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -504,21 +953,20 @@ zabbix_export:
           key: typo3_GetZabbixExtensionVersion
           delay: 1d
           history: 90d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetExtensionVersion
             - name: extensionKey
               value: zabbix_client
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -535,7 +983,7 @@ zabbix_export:
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetZabbixLogFileSize
@@ -547,7 +995,7 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: 9a81893e78b64fa2a151b13d26271399
-              expression: 'last(/Template TYPO3 9-12/typo3_GetZabbixLogFileSize)>0'
+              expression: 'last(/Template TYPO3 9-14/typo3_GetZabbixLogFileSize)>0'
               name: 'TYPO3 Zabbix log file increased'
               event_name: 'TYPO3 Zabbix log file increased on {HOST.HOST}'
               priority: HIGH
@@ -559,13 +1007,13 @@ zabbix_export:
           delay: 8h
           history: 90d
           trends: '0'
-          value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
+            - type: BOOL_TO_DECIMAL
           timeout: 10s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: HasFailedSchedulerTask
@@ -577,7 +1025,7 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: cde2fa17a0e6444487c7c9577cab5b1c
-              expression: 'find(/Template TYPO3 9-12/typo3_HasFailedSchedulerTask,,"like","false")=0'
+              expression: 'last(/Template TYPO3 9-14/typo3_HasFailedSchedulerTask)=1'
               name: 'TYPO3 has failed scheduler task'
               event_name: 'TYPO3 has failed scheduler task on {HOST.HOST}'
               priority: HIGH
@@ -588,20 +1036,20 @@ zabbix_export:
           delay: 1d
           history: 90d
           trends: '0'
-          value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
+            - type: BOOL_TO_DECIMAL
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: HasForbiddenUsers
             - name: usernames
               value: '{$TYPO3_FORBIDDEN_USERS}'
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -609,7 +1057,7 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: 52026e9a8bda420b863badc194c76b78
-              expression: 'find(/Template TYPO3 9-12/typo3_HasForbiddenUsers,,"like","false")=0'
+              expression: 'last(/Template TYPO3 9-14/typo3_HasForbiddenUsers)=1'
               name: 'TYPO3 Has forbidden user'
               event_name: 'TYPO3 Has forbidden user on {HOST.HOST}'
               priority: HIGH
@@ -623,18 +1071,18 @@ zabbix_export:
           delay: 1d
           history: 90d
           trends: '0'
-          value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
+            - type: BOOL_TO_DECIMAL
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: HasIPTCPreservation
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -642,7 +1090,7 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: 9999342a921843ba8618f81bb37e3931
-              expression: 'find(/Template TYPO3 9-12/typo3_HasIPTCPreservation,,"like","true")=0'
+              expression: 'last(/Template TYPO3 9-14/typo3_HasIPTCPreservation)=0'
               name: 'TYPO3 Has missing IPTC preservation'
               event_name: 'TYPO3 Missing IPTC preservation on {HOST.HOST}'
               priority: WARNING
@@ -655,19 +1103,18 @@ zabbix_export:
           key: typo3_HasMissingDefaultMailSettings
           delay: 1d
           history: 90d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: HasMissingDefaultMailSettings
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -675,10 +1122,69 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: e748a8f796dd4d2f80bd96dc7e76402f
-              expression: 'find(/Template TYPO3 9-12/typo3_HasMissingDefaultMailSettings,,"like","false")=0'
+              expression: 'find(/Template TYPO3 9-14/typo3_HasMissingDefaultMailSettings,,"like","false")=0'
               name: 'TYPO3 Has missing default mail settings'
               event_name: 'TYPO3 Has missing default mail settings {HOST.HOST}'
               priority: WARNING
+              tags:
+                - tag: Application
+                  value: TYPO3
+        - uuid: c8708636b99d4527980d21c394d724b5
+          name: 'TYPO3 outdated version'
+          type: HTTP_AGENT
+          key: typo3_HasOutdatedVersion
+          delay: 1h
+          history: 90d
+          trends: '0'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value
+            - type: BOOL_TO_DECIMAL
+          timeout: 3s
+          url: '{$TYPO3_CLIENT_PATH}'
+          query_fields:
+            - name: operation
+              value: HasOutdatedVersion
+          follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            - tag: Application
+              value: TYPO3
+        - uuid: 96e2fd39d969431aadd3c4cdc653412d
+          name: 'TYPO3 PDF preview rendering'
+          type: HTTP_AGENT
+          key: typo3_HasPdfPreviewSupport
+          delay: 1d
+          history: 90d
+          trends: '0'
+          description: 'wapplersystems/zabbix_client >= 14.2.3: renders a bundled test PDF into a PNG through the TYPO3 image processing. 0 = PDF previews/thumbnails cannot be generated.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value
+            - type: BOOL_TO_DECIMAL
+          timeout: 10s
+          url: '{$TYPO3_CLIENT_PATH}'
+          query_fields:
+            - name: operation
+              value: HasPdfPreviewSupport
+          follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          request_method: POST
+          verify_peer: 'YES'
+          tags:
+            - tag: Application
+              value: TYPO3
+          triggers:
+            - uuid: 4c1267e7e0884f2fa4beef35938b6571
+              expression: 'last(/Template TYPO3 9-14/typo3_HasPdfPreviewSupport)=0'
+              name: 'TYPO3 cannot render PDF previews'
+              event_name: 'TYPO3 cannot render PDF previews on {HOST.HOST}'
+              priority: WARNING
+              description: 'The image processing could not turn the bundled test PDF into a PNG. TYPO3 then serves the PDF itself instead of a preview (empty thumbnails, broken galleries). Usual causes: Ghostscript missing, or an ImageMagick policy that forbids reading PDF (policy.xml: <policy domain="coder" rights="write" pattern="PDF"/>, default on openSUSE).'
               tags:
                 - tag: Application
                   value: TYPO3
@@ -689,13 +1195,13 @@ zabbix_export:
           delay: 8h
           history: 90d
           trends: '0'
-          value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
+            - type: BOOL_TO_DECIMAL
           timeout: 10s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: HasRemainingUpdates
@@ -707,7 +1213,7 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: ca452d15a27446cc90faa1fa03f1ebbb
-              expression: 'find(/Template TYPO3 9-12/typo3_HasRemainingUpdates,,"like","false")=0'
+              expression: 'last(/Template TYPO3 9-14/typo3_HasRemainingUpdates)=1'
               name: 'TYPO3 Has remaining updates'
               event_name: 'TYPO3 Has remaining updates on {HOST.HOST}'
               priority: HIGH
@@ -721,18 +1227,18 @@ zabbix_export:
           delay: 1h
           history: 90d
           trends: '0'
-          value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
+            - type: BOOL_TO_DECIMAL
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: HasSecurityUpdate
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -740,7 +1246,7 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: ded05ea0b1244f59a1ee96c69c7269b6
-              expression: 'find(/Template TYPO3 9-12/typo3_HasSecurityUpdate,,"like","true")=1'
+              expression: 'last(/Template TYPO3 9-14/typo3_HasSecurityUpdate)=1'
               name: 'TYPO3 Security Update available'
               event_name: 'TYPO3 Security Update available on {HOST.HOST}'
               priority: HIGH
@@ -750,19 +1256,18 @@ zabbix_export:
           key: typo3_HasStrictSyntaxEnabled
           delay: 1d
           history: 90d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: HasStrictSyntaxEnabled
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -775,18 +1280,18 @@ zabbix_export:
           delay: 1h
           history: 90d
           trends: '0'
-          value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
+            - type: BOOL_TO_DECIMAL
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: HasUpdate
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -794,10 +1299,199 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: 8562739e19e946f198311e90725e9cd8
-              expression: 'find(/Template TYPO3 9-12/typo3_HasUpdate,,"like","true")=1'
+              expression: 'last(/Template TYPO3 9-14/typo3_HasUpdate)=1'
               name: 'TYPO3 Update available'
               event_name: 'TYPO3 Update available on {HOST.HOST}'
               priority: INFO
+        - uuid: 2dc2d3799431464fa08e2d131671b7cc
+          name: 'TYPO3 OPcache cache full'
+          type: DEPENDENT
+          key: typo3_OpCacheMemory_cache_full
+          history: 90d
+          trends: '0'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.cache_full
+            - type: BOOL_TO_DECIMAL
+          master_item:
+            key: typo3_GetOpCacheMemory
+          triggers:
+            - uuid: e2fe25cfc0f34ef9a627d91d58399fbb
+              expression: 'last(/Template TYPO3 9-14/typo3_OpCacheMemory_cache_full)=1'
+              name: 'OPcache cache is full on {HOST.NAME}'
+              priority: HIGH
+              description: 'OPcache cache is full. Increase opcache.memory_consumption.'
+        - uuid: f57bec9c0b7b42caac2024e5834fb173
+          name: 'TYPO3 OPcache enabled'
+          type: DEPENDENT
+          key: typo3_OpCacheMemory_enabled
+          history: 90d
+          trends: '0'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.enabled
+            - type: BOOL_TO_DECIMAL
+          master_item:
+            key: typo3_GetOpCacheMemory
+          triggers:
+            - uuid: 8610fc552f9546f5a9fed7d5f5df0152
+              expression: 'last(/Template TYPO3 9-14/typo3_OpCacheMemory_enabled)=0'
+              name: 'OPcache disabled on {HOST.NAME}'
+              priority: WARNING
+              description: 'OPcache reports as disabled. Performance will degrade significantly.'
+        - uuid: 9956c186b82f441d8193d79c4fdea046
+          name: 'TYPO3 OPcache hash restarts'
+          type: DEPENDENT
+          key: typo3_OpCacheMemory_hash_restarts
+          history: 90d
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.statistics.hash_restarts
+          master_item:
+            key: typo3_GetOpCacheMemory
+        - uuid: 9ea889bd4cd24dc8becef57f042aa9f3
+          name: 'TYPO3 OPcache hit rate'
+          type: DEPENDENT
+          key: typo3_OpCacheMemory_hit_rate
+          history: 90d
+          value_type: FLOAT
+          units: '%'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.statistics.hit_rate
+          master_item:
+            key: typo3_GetOpCacheMemory
+        - uuid: 608038ffa84740fea3820a2294443b76
+          name: 'TYPO3 OPcache interned strings free percent'
+          type: DEPENDENT
+          key: typo3_OpCacheMemory_interned_strings_free_percent
+          history: 90d
+          value_type: FLOAT
+          units: '%'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.interned_strings.free_percent
+          master_item:
+            key: typo3_GetOpCacheMemory
+          triggers:
+            - uuid: ea7be6fbcf9c4d5f935124ca264f0a3b
+              expression: 'last(/Template TYPO3 9-14/typo3_OpCacheMemory_interned_strings_free_percent)<5'
+              name: 'OPcache interned strings buffer < 5% free on {HOST.NAME}'
+              priority: WARNING
+              description: 'Interned strings buffer almost full — increase opcache.interned_strings_buffer.'
+        - uuid: 55da01040289448fb951fa5b37b9aa80
+          name: 'TYPO3 OPcache manual restarts'
+          type: DEPENDENT
+          key: typo3_OpCacheMemory_manual_restarts
+          history: 90d
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.statistics.manual_restarts
+          master_item:
+            key: typo3_GetOpCacheMemory
+        - uuid: 5361218957ce46a9a360b8393809cda5
+          name: 'TYPO3 OPcache memory free percent'
+          type: DEPENDENT
+          key: typo3_OpCacheMemory_memory_free_percent
+          history: 90d
+          value_type: FLOAT
+          units: '%'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.memory.free_percent
+          master_item:
+            key: typo3_GetOpCacheMemory
+          triggers:
+            - uuid: 26966fbc3d364b4fb8c5d5c4587d751e
+              expression: 'last(/Template TYPO3 9-14/typo3_OpCacheMemory_memory_free_percent)<10'
+              name: 'OPcache free memory < 10% on {HOST.NAME}'
+              priority: WARNING
+              description: 'Free OPcache memory dropped below 10%.'
+        - uuid: 810483c140ad42819fd2536b5f404640
+          name: 'TYPO3 OPcache memory total'
+          type: DEPENDENT
+          key: typo3_OpCacheMemory_memory_total
+          history: 90d
+          units: B
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.memory.total
+          master_item:
+            key: typo3_GetOpCacheMemory
+        - uuid: 5d6cc0d62182482bb4ce890590316a40
+          name: 'TYPO3 OPcache memory used'
+          type: DEPENDENT
+          key: typo3_OpCacheMemory_memory_used
+          history: 90d
+          units: B
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.memory.used
+          master_item:
+            key: typo3_GetOpCacheMemory
+        - uuid: b3d40c89cd7d4e0599ba64f6520e9d8c
+          name: 'TYPO3 OPcache memory wasted percent'
+          type: DEPENDENT
+          key: typo3_OpCacheMemory_memory_wasted_percent
+          history: 90d
+          value_type: FLOAT
+          units: '%'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.memory.wasted_percent
+          master_item:
+            key: typo3_GetOpCacheMemory
+        - uuid: c7926a33d15142a39d04f02bfb303201
+          name: 'TYPO3 OPcache cached scripts'
+          type: DEPENDENT
+          key: typo3_OpCacheMemory_num_cached_scripts
+          history: 90d
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.statistics.num_cached_scripts
+          master_item:
+            key: typo3_GetOpCacheMemory
+        - uuid: 993697fd9ab14df4ae7c207504514bb6
+          name: 'TYPO3 OPcache OOM restarts'
+          type: DEPENDENT
+          key: typo3_OpCacheMemory_oom_restarts
+          history: 90d
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.statistics.oom_restarts
+          master_item:
+            key: typo3_GetOpCacheMemory
+          triggers:
+            - uuid: 95b0fe3e59af416fab3499701e80cc2f
+              expression: 'change(/Template TYPO3 9-14/typo3_OpCacheMemory_oom_restarts)>0'
+              name: 'OPcache OOM restarts increased on {HOST.NAME}'
+              priority: HIGH
+              description: 'Out-of-memory restart counter has increased — opcache.memory_consumption is too small.'
+        - uuid: ba62b312af2f41619fd08ced8d81bfea
+          name: 'TYPO3 OPcache restart pending'
+          type: DEPENDENT
+          key: typo3_OpCacheMemory_restart_pending
+          history: 90d
+          trends: '0'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.restart_pending
+            - type: BOOL_TO_DECIMAL
+          master_item:
+            key: typo3_GetOpCacheMemory
         - uuid: b1fc99ef0c3e410e964abc55e68ec5fd
           name: 'TYPO3 other exceptions'
           type: HTTP_AGENT
@@ -808,14 +1502,14 @@ zabbix_export:
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetLogResults
             - name: filter
               value: OtherExceptions
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -832,14 +1526,14 @@ zabbix_export:
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetLogResults
             - name: filter
               value: PageNotFoundException
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -851,14 +1545,13 @@ zabbix_export:
           key: typo3_PageSpeedInsights_accessibility_desktop
           delay: 1d
           history: 90d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: PageSpeedInsights_GetDegradedPageUids
@@ -866,8 +1559,8 @@ zabbix_export:
               value: desktop
             - name: field
               value: accessibility_score
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -875,7 +1568,7 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: 9708738d713a4e44aa67ec8550a35ea4
-              expression: 'length(last(/Template TYPO3 9-12/typo3_PageSpeedInsights_accessibility_desktop))>0'
+              expression: 'length(last(/Template TYPO3 9-14/typo3_PageSpeedInsights_accessibility_desktop))>0'
               name: 'TYPO3 PSI accessibility worsened pages [desktop]'
               event_name: 'TYPO3 PSI accessibility worsened pages [desktop] on {HOST.HOST}'
               priority: WARNING
@@ -885,14 +1578,13 @@ zabbix_export:
           key: typo3_PageSpeedInsights_accessibility_mobile
           delay: 1d
           history: 90d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: PageSpeedInsights_GetDegradedPageUids
@@ -900,8 +1592,8 @@ zabbix_export:
               value: mobile
             - name: field
               value: accessibility_score
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -909,7 +1601,7 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: 53a5eb2c097c41a6be2874870b8f8b13
-              expression: 'length(last(/Template TYPO3 9-12/typo3_PageSpeedInsights_accessibility_mobile))>0'
+              expression: 'length(last(/Template TYPO3 9-14/typo3_PageSpeedInsights_accessibility_mobile))>0'
               name: 'TYPO3 PSI accessibility worsened pages [mobile]'
               event_name: 'TYPO3 PSI accessibility worsened pages [mobile] on {HOST.HOST}'
               priority: WARNING
@@ -919,14 +1611,13 @@ zabbix_export:
           key: typo3_PageSpeedInsights_bestpractices_desktop
           delay: 1d
           history: 90d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: PageSpeedInsights_GetDegradedPageUids
@@ -934,8 +1625,8 @@ zabbix_export:
               value: desktop
             - name: field
               value: bestpractices_score
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -943,7 +1634,7 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: 90844ca677544da4a3a931429cf2c474
-              expression: 'length(last(/Template TYPO3 9-12/typo3_PageSpeedInsights_bestpractices_desktop))>0'
+              expression: 'length(last(/Template TYPO3 9-14/typo3_PageSpeedInsights_bestpractices_desktop))>0'
               name: 'TYPO3 PSI best practices worsened pages [desktop]'
               event_name: 'TYPO3 PSI best practices worsened pages [desktop] on {HOST.HOST}'
               priority: WARNING
@@ -953,14 +1644,13 @@ zabbix_export:
           key: typo3_PageSpeedInsights_bestpractices_mobile
           delay: 1d
           history: 90d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: PageSpeedInsights_GetDegradedPageUids
@@ -968,8 +1658,8 @@ zabbix_export:
               value: mobile
             - name: field
               value: bestpractices_score
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -977,7 +1667,7 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: 349f48512a854ac7894b6db55c1ede75
-              expression: 'length(last(/Template TYPO3 9-12/typo3_PageSpeedInsights_bestpractices_mobile))>0'
+              expression: 'length(last(/Template TYPO3 9-14/typo3_PageSpeedInsights_bestpractices_mobile))>0'
               name: 'TYPO3 PSI best practices worsened pages [mobile]'
               event_name: 'TYPO3 PSI best practices worsened pages [mobile] on {HOST.HOST}'
               priority: WARNING
@@ -987,7 +1677,6 @@ zabbix_export:
           key: typo3_PageSpeedInsights_performance_desktop
           delay: 1d
           history: 90d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
@@ -1010,7 +1699,7 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: 93d6f666983541ecb86e0423e08d55bc
-              expression: 'length(last(/Template TYPO3 9-12/typo3_PageSpeedInsights_performance_desktop))>0'
+              expression: 'length(last(/Template TYPO3 9-14/typo3_PageSpeedInsights_performance_desktop))>0'
               name: 'TYPO3 PSI performance worsened pages [desktop]'
               event_name: 'TYPO3 PSI performance worsened pages [desktop] on {HOST.HOST}'
               priority: WARNING
@@ -1021,14 +1710,13 @@ zabbix_export:
           key: typo3_PageSpeedInsights_performance_mobile
           delay: 1d
           history: 90d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: PageSpeedInsights_GetDegradedPageUids
@@ -1036,8 +1724,8 @@ zabbix_export:
               value: desktop
             - name: field
               value: performance_score
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -1045,7 +1733,7 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: 6ba81d726ce04ac9aa017a1a3176d9ea
-              expression: 'length(last(/Template TYPO3 9-12/typo3_PageSpeedInsights_performance_mobile))>0'
+              expression: 'length(last(/Template TYPO3 9-14/typo3_PageSpeedInsights_performance_mobile))>0'
               name: 'TYPO3 PSI performance worsened pages [mobile]'
               event_name: 'TYPO3 PSI performance worsened pages [mobile] on {HOST.HOST}'
         - uuid: a50d3664e85b4224a8b02f591e09ca34
@@ -1054,14 +1742,13 @@ zabbix_export:
           key: typo3_PageSpeedInsights_seo_desktop
           delay: 1d
           history: 90d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: PageSpeedInsights_GetDegradedPageUids
@@ -1069,8 +1756,8 @@ zabbix_export:
               value: desktop
             - name: field
               value: seo_score
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -1078,7 +1765,7 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: 66f2187e47e341d9a14803c8f612e47d
-              expression: 'length(last(/Template TYPO3 9-12/typo3_PageSpeedInsights_seo_desktop))>0'
+              expression: 'length(last(/Template TYPO3 9-14/typo3_PageSpeedInsights_seo_desktop))>0'
               name: 'TYPO3 PSI SEO worsened pages [desktop]'
               event_name: 'TYPO3 PSI SEO worsened pages [desktop] on {HOST.HOST}'
               priority: WARNING
@@ -1088,14 +1775,13 @@ zabbix_export:
           key: typo3_PageSpeedInsights_seo_mobile
           delay: 1d
           history: 90d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: PageSpeedInsights_GetDegradedPageUids
@@ -1103,8 +1789,8 @@ zabbix_export:
               value: mobile
             - name: field
               value: seo_score
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -1112,7 +1798,7 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: 864c6d41705a44e4a9e0c5034b25b8e2
-              expression: 'length(last(/Template TYPO3 9-12/typo3_PageSpeedInsights_seo_mobile))>0'
+              expression: 'length(last(/Template TYPO3 9-14/typo3_PageSpeedInsights_seo_mobile))>0'
               name: 'TYPO3 PSI SEO worsened pages [mobile]'
               event_name: 'TYPO3 PSI SEO worsened pages [mobile] on {HOST.HOST}'
               priority: WARNING
@@ -1122,21 +1808,20 @@ zabbix_export:
           key: typo3_preset_context
           delay: 1h
           history: 30d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetFeatureValue
             - name: feature
               value: Context
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -1144,7 +1829,7 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: 403e0f22a637403a98e03df068e97dff
-              expression: 'find(/Template TYPO3 9-12/typo3_preset_context,,"like","Live")=0'
+              expression: 'find(/Template TYPO3 9-14/typo3_preset_context,,"like","Live")=0'
               name: 'TYPO3 context present is not Live'
               event_name: 'TYPO3 context present is not Live on {HOST.HOST}'
               priority: WARNING
@@ -1157,21 +1842,20 @@ zabbix_export:
           key: typo3_preset_image
           delay: 1h
           history: 30d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetFeatureValue
             - name: feature
               value: Image
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -1183,21 +1867,20 @@ zabbix_export:
           key: typo3_preset_mail
           delay: 1h
           history: 30d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetFeatureValue
             - name: feature
               value: Mail
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -1209,21 +1892,20 @@ zabbix_export:
           key: typo3_preset_passwordhashing
           delay: 1h
           history: 30d
-          trends: '0'
           value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetFeatureValue
             - name: feature
               value: passwordhashing
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -1240,14 +1922,14 @@ zabbix_export:
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: GetLogResults
             - name: filter
               value: ServiceUnavailableException
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -1255,7 +1937,7 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: 3c96ab2f87e34cebacb8b2e134341887
-              expression: 'last(/Template TYPO3 9-12/typo3_ServiceUnavailableException)>0'
+              expression: 'last(/Template TYPO3 9-14/typo3_ServiceUnavailableException)>0'
               name: 'TYPO3 ServiceUnavailableExceptions increased'
               event_name: 'TYPO3 ServiceUnavailableExceptions increased on {HOST.HOST}'
               priority: WARNING
@@ -1266,20 +1948,20 @@ zabbix_export:
           delay: 1d
           history: 90d
           trends: '0'
-          value_type: TEXT
           preprocessing:
             - type: JSONPATH
               parameters:
                 - $.value
+            - type: BOOL_TO_DECIMAL
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: HasExtensionUpdate
             - name: extensionKey
               value: zabbix_client
-          posts: 'key={$TYPO3_CLIENT_KEY}'
           follow_redirects: 'NO'
+          posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
           tags:
@@ -1287,13 +1969,14 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: a869aa0258dd490788f47fdf2cf3caaf
-              expression: 'find(/Template TYPO3 9-12/typo3_ZabbixExtensionUpdateAvailable,,"like","true")<>0'
+              expression: 'last(/Template TYPO3 9-14/typo3_ZabbixExtensionUpdateAvailable)=1'
               name: 'TYPO3 Zabbix extension update available'
               event_name: 'TYPO3 Zabbix extension update available on {HOST.HOST}'
               priority: INFO
       httptests:
         - uuid: 1e419a8dc6e84a6bae2f75acd68d2d53
           name: Frontend
+          status: DISABLED
           steps:
             - name: Home
               url: 'https://{HOST.HOST}/'
@@ -1304,9 +1987,58 @@ zabbix_export:
       tags:
         - tag: Application
           value: TYPO3
+      macros:
+        - macro: '{$TYPO3_CLIENT_PATH}'
   triggers:
+    - uuid: b6671967cb5147348c1e1d7c140f1011
+      expression: 'min(/Template Frontend Performance/web.test.time[Frontend Performance,Startseite,resp],5m)>{$FRONTEND.RESP.WARN}'
+      recovery_mode: RECOVERY_EXPRESSION
+      recovery_expression: 'max(/Template Frontend Performance/web.test.time[Frontend Performance,Startseite,resp],5m)<{$FRONTEND.RESP.WARN}*0.8'
+      name: 'Frontend: Startseite langsam (>{$FRONTEND.RESP.WARN}s)'
+      opdata: 'Antwortzeit: {ITEM.LASTVALUE1}'
+      priority: WARNING
+      description: 'Die Antwortzeit der Startseite lag ueber 5 Minuten durchgehend ueber {$FRONTEND.RESP.WARN}s.'
+      dependencies:
+        - name: 'Frontend: Startseite nicht erreichbar'
+          expression: 'min(/Template Frontend Performance/web.test.fail[Frontend Performance],#2)>0'
+        - name: 'Frontend: Startseite sehr langsam (>{$FRONTEND.RESP.HIGH}s)'
+          expression: 'min(/Template Frontend Performance/web.test.time[Frontend Performance,Startseite,resp],5m)>{$FRONTEND.RESP.HIGH}'
+          recovery_expression: 'max(/Template Frontend Performance/web.test.time[Frontend Performance,Startseite,resp],5m)<{$FRONTEND.RESP.HIGH}*0.8'
+      tags:
+        - tag: component
+          value: frontend
+        - tag: scope
+          value: performance
+    - uuid: 54298360bc7249e1a45136ea1931e0da
+      expression: 'min(/Template Frontend Performance/web.test.fail[Frontend Performance],#2)>0'
+      name: 'Frontend: Startseite nicht erreichbar'
+      opdata: '{ITEM.LASTVALUE2}'
+      priority: HIGH
+      description: 'Das Web-Szenario konnte die Startseite in zwei aufeinanderfolgenden Durchlaeufen nicht mit HTTP 200 abrufen.'
+      manual_close: 'YES'
+      tags:
+        - tag: component
+          value: frontend
+        - tag: scope
+          value: availability
+    - uuid: fc62b98c05174109aa61d2925fa22bd5
+      expression: 'min(/Template Frontend Performance/web.test.time[Frontend Performance,Startseite,resp],5m)>{$FRONTEND.RESP.HIGH}'
+      recovery_mode: RECOVERY_EXPRESSION
+      recovery_expression: 'max(/Template Frontend Performance/web.test.time[Frontend Performance,Startseite,resp],5m)<{$FRONTEND.RESP.HIGH}*0.8'
+      name: 'Frontend: Startseite sehr langsam (>{$FRONTEND.RESP.HIGH}s)'
+      opdata: 'Antwortzeit: {ITEM.LASTVALUE1}'
+      priority: AVERAGE
+      description: 'Die Antwortzeit der Startseite lag ueber 5 Minuten durchgehend ueber {$FRONTEND.RESP.HIGH}s.'
+      dependencies:
+        - name: 'Frontend: Startseite nicht erreichbar'
+          expression: 'min(/Template Frontend Performance/web.test.fail[Frontend Performance],#2)>0'
+      tags:
+        - tag: component
+          value: frontend
+        - tag: scope
+          value: performance
     - uuid: e04aaedcc10c4b8594dc4522f580541b
-      expression: 'length(last(/Template TYPO3 9-12/web.test.error[Frontend]))>0 and min(/Template TYPO3 9-12/web.test.fail[Frontend],5m)>0'
+      expression: 'length(last(/Template TYPO3 9-14/web.test.error[Frontend]))>0 and min(/Template TYPO3 9-14/web.test.fail[Frontend],5m)>0'
       name: 'Frontend failed'
       event_name: 'Frontend failed on {HOST.HOST}'
       priority: HIGH
@@ -1314,20 +2046,28 @@ zabbix_export:
         - tag: Application
           value: TYPO3
     - uuid: 518f2512983b4256b107b3ffd17663c5
-      expression: 'last(/Template TYPO3 9-12/web.test.rspcode[Frontend,Home])<>200'
+      expression: 'last(/Template TYPO3 9-14/web.test.rspcode[Frontend,Home])<>200'
       name: 'Homepage not returns 200 response code'
       event_name: 'Homepage not returns 200 response code on {HOST.HOST}'
       priority: HIGH
       tags:
         - tag: Application
           value: TYPO3
+    - uuid: 2b311a366d7841d08e9429451bbd4761
+      expression: 'last(/Template TYPO3 9-14/typo3_ComposerVersion_update)=1 and length(last(/Template TYPO3 9-14/typo3_ComposerVersion_version))>0 and length(last(/Template TYPO3 9-14/typo3_ComposerVersion_latest))>0'
+      name: 'TYPO3 Composer binary outdated on {HOST.NAME}'
+      opdata: 'installed {ITEM.LASTVALUE2}, latest {ITEM.LASTVALUE3}'
+      priority: INFO
+      tags:
+        - tag: Application
+          value: Composer
   graphs:
     - uuid: 9c492fbf74dd4909a6deec6c580a0b57
       name: 'Download Speed'
       graph_items:
         - color: 1A7C11
           item:
-            host: 'Template TYPO3 9-12'
+            host: 'Template TYPO3 9-14'
             key: 'web.test.in[Frontend,,bps]'
     - uuid: b8e80ecb1e3f4110ae045b1802d55142
       name: Errors
@@ -1335,15 +2075,15 @@ zabbix_export:
       graph_items:
         - color: 4527A0
           item:
-            host: 'Template TYPO3 9-12'
+            host: 'Template TYPO3 9-14'
             key: typo3_ServiceUnavailableException
         - sortorder: '1'
           color: 8E24AA
           item:
-            host: 'Template TYPO3 9-12'
+            host: 'Template TYPO3 9-14'
             key: typo3_PageNotFoundException
         - sortorder: '2'
           color: C62828
           item:
-            host: 'Template TYPO3 9-12'
+            host: 'Template TYPO3 9-14'
             key: typo3_OtherExceptions
