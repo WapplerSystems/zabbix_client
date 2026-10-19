@@ -573,6 +573,7 @@ zabbix_export:
               name: 'TYPO3 Insecure Extensions detected'
               event_name: 'TYPO3 Insecure Extensions detected on {HOST.HOST}'
               priority: HIGH
+              manual_close: 'YES'
               tags:
                 - tag: Application
                   value: TYPO3
@@ -629,6 +630,7 @@ zabbix_export:
               name: 'TYPO3 Extension List Update is more than 2 days overdue'
               event_name: 'TYPO3 Extension List Update is more than 2 days overdue on {HOST.HOST}'
               priority: AVERAGE
+              manual_close: 'YES'
               tags:
                 - tag: Application
                   value: TYPO3
@@ -783,6 +785,7 @@ zabbix_export:
               name: 'TYPO3 Outdated Extensions detected'
               event_name: 'TYPO3 Outdated Extensions detected on {HOST.HOST}'
               priority: INFO
+              manual_close: 'YES'
         - uuid: 514cba52fc1b418299a7fc534ada9f3b
           name: 'PHP version'
           type: HTTP_AGENT
@@ -1977,6 +1980,7 @@ zabbix_export:
               name: 'TYPO3 Zabbix extension update available'
               event_name: 'TYPO3 Zabbix extension update available on {HOST.HOST}'
               priority: INFO
+              manual_close: 'YES'
       httptests:
         - uuid: 1e419a8dc6e84a6bae2f75acd68d2d53
           name: Frontend
