@@ -344,6 +344,7 @@ zabbix_export:
           name: 'TYPO3 failed logins'
           type: HTTP_AGENT
           key: typo3_FailedLogins
+          delay: 5m
           history: 90d
           preprocessing:
             - type: JSONPATH
@@ -404,6 +405,12 @@ zabbix_export:
               tags:
                 - tag: Application
                   value: TYPO3
+            - uuid: 9db85766e49a4a209c8f01f04830e7bf
+              expression: 'nodata(/Template TYPO3 9-14/typo3_GetApplicationContext,1000s)=1'
+              name: 'TYPO3 Zabbix client malfunction'
+              event_name: 'TYPO3 Zabbix client malfunction on {HOST.HOST}'
+              priority: HIGH
+              description: 'Heartbeat: GetApplicationContext is polled every 5 minutes, 1000s = three missed polls.'
         - uuid: 5417ac6b6b8e4d11acb28abd5dc05642
           name: 'TYPO3 Composer audit (raw)'
           type: HTTP_AGENT
@@ -468,6 +475,7 @@ zabbix_export:
           name: 'TYPO3 database version'
           type: HTTP_AGENT
           key: typo3_GetDatabaseVersion
+          delay: 1d
           history: 90d
           value_type: TEXT
           preprocessing:
@@ -779,6 +787,7 @@ zabbix_export:
           name: 'PHP version'
           type: HTTP_AGENT
           key: typo3_GetPHPVersion
+          delay: 1h
           history: 30d
           value_type: TEXT
           preprocessing:
@@ -797,12 +806,6 @@ zabbix_export:
           tags:
             - tag: Application
               value: TYPO3
-          triggers:
-            - uuid: 9db85766e49a4a209c8f01f04830e7bf
-              expression: 'nodata(/Template TYPO3 9-14/typo3_GetPHPVersion,1000s)=1'
-              name: 'TYPO3 Zabbix client malfunction'
-              event_name: 'TYPO3 Zabbix client malfunction on {HOST.HOST}'
-              priority: HIGH
         - uuid: d7731419e5ab44f0b78d43411380d4a6
           name: 'TYPO3 support state'
           type: HTTP_AGENT
@@ -830,7 +833,7 @@ zabbix_export:
           name: 'TYPO3 total log files size (KB)'
           type: HTTP_AGENT
           key: typo3_GetTotalLogFilesSize
-          delay: 15m
+          delay: 1h
           history: 90d
           preprocessing:
             - type: JSONPATH
@@ -976,7 +979,7 @@ zabbix_export:
           name: 'TYPO3 zabbix client log file'
           type: HTTP_AGENT
           key: typo3_GetZabbixLogFileSize
-          delay: 5m
+          delay: 15m
           history: 90d
           preprocessing:
             - type: JSONPATH
@@ -1496,6 +1499,7 @@ zabbix_export:
           name: 'TYPO3 other exceptions'
           type: HTTP_AGENT
           key: typo3_OtherExceptions
+          delay: 5m
           history: 90d
           preprocessing:
             - type: JSONPATH
@@ -1519,7 +1523,7 @@ zabbix_export:
           name: 'TYPO3 PageNotFoundExceptions'
           type: HTTP_AGENT
           key: typo3_PageNotFoundException
-          delay: 30s
+          delay: 5m
           history: 90d
           preprocessing:
             - type: JSONPATH
@@ -1915,7 +1919,7 @@ zabbix_export:
           name: 'TYPO3 ServiceUnavailableExceptions'
           type: HTTP_AGENT
           key: typo3_ServiceUnavailableException
-          delay: 30s
+          delay: 5m
           history: 90d
           preprocessing:
             - type: JSONPATH
