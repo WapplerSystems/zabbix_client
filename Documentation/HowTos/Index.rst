@@ -42,7 +42,9 @@ of the ``composer`` binary and of ``exec()``, which are typically unavailable on
 hosting.
 
 Import the template ``Resources/Private/ZabbixTemplate/zabbix-7/composer-security.yaml``
-(the ``.json`` next to it has identical content) and assign
+(`view <https://github.com/WapplerSystems/zabbix_client/blob/release/v14/Resources/Private/ZabbixTemplate/zabbix-7/composer-security.yaml>`__,
+`download <https://raw.githubusercontent.com/WapplerSystems/zabbix_client/release/v14/Resources/Private/ZabbixTemplate/zabbix-7/composer-security.yaml>`__;
+the ``.json`` next to it has identical content) and assign
 :guilabel:`TYPO3 Composer Security` to the host in addition to the general TYPO3 template.
 Only ``{$TYPO3_CLIENT_KEY}`` has to be set, the remaining macros have working defaults.
 
