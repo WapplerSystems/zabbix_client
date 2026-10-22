@@ -268,6 +268,22 @@ zabbix_export:
               value: Composer
             - tag: Application
               value: TYPO3
+        - uuid: 405a2a552789437db05a4a0b48e351ae
+          name: 'TYPO3 Composer packages: count'
+          type: DEPENDENT
+          key: typo3_ComposerPackages_count
+          history: 365d
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.count
+          master_item:
+            key: typo3_GetComposerPackages
+          tags:
+            - tag: Application
+              value: Composer
+            - tag: Application
+              value: TYPO3
         - uuid: a0fa94cf0cb34082a6cc56528bcfec0a
           name: 'TYPO3 Composer latest stable version'
           type: DEPENDENT
@@ -444,6 +460,37 @@ zabbix_export:
           query_fields:
             - name: operation
               value: GetComposerOutdated
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          request_method: POST
+          tags:
+            - tag: Application
+              value: Composer
+            - tag: Application
+              value: TYPO3
+        - uuid: e201573497824e4299ebc9a48f5eac5e
+          name: 'TYPO3 Composer packages (raw)'
+          type: HTTP_AGENT
+          key: typo3_GetComposerPackages
+          delay: 1h
+          history: 365d
+          value_type: TEXT
+          description: 'Installierte Composer-Pakete mit Versionen (ohne dev), aus Composer\InstalledVersions. Gespeichert wird nur bei Änderung (Heartbeat 1d) → History = Änderungsprotokoll. Operation erst ab zabbix_client 14.2.2; v12/v13-Clients antworten mit Fehler → Item nicht unterstützt, kein Alarm.'
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var d = JSON.parse(value);
+                  if (!d.status) { throw 'zabbix_client: ' + JSON.stringify(d.value); }
+                  var v = d.value;
+                  return JSON.stringify({count: v.count, packages: v.packages, unresolved: v.unresolved});
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
+          timeout: 30s
+          url: '{$TYPO3_CLIENT_PATH}'
+          query_fields:
+            - name: operation
+              value: GetComposerPackages
           posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           tags:
@@ -1386,10 +1433,10 @@ zabbix_export:
             key: typo3_GetOpCacheMemory
           triggers:
             - uuid: ea7be6fbcf9c4d5f935124ca264f0a3b
-              expression: 'last(/Template TYPO3 9-14/typo3_OpCacheMemory_interned_strings_free_percent)<5'
+              expression: 'max(/Template TYPO3 9-14/typo3_OpCacheMemory_interned_strings_free_percent,30m)<5'
               name: 'OPcache interned strings buffer < 5% free on {HOST.NAME}'
-              priority: WARNING
-              description: 'Interned strings buffer almost full — increase opcache.interned_strings_buffer.'
+              priority: INFO
+              description: 'max() über 30m: auf FastCGI-Hosts (Hetzner fcgid) hat jeder PHP-Prozess einen eigenen OPcache, jede Abfrage trifft einen zufälligen Prozess. Information = keine Mail, nur Weekly-Report. Abhilfe: opcache.interned_strings_buffer=16+.'
         - uuid: 55da01040289448fb951fa5b37b9aa80
           name: 'TYPO3 OPcache manual restarts'
           type: DEPENDENT
@@ -1416,10 +1463,10 @@ zabbix_export:
             key: typo3_GetOpCacheMemory
           triggers:
             - uuid: 26966fbc3d364b4fb8c5d5c4587d751e
-              expression: 'last(/Template TYPO3 9-14/typo3_OpCacheMemory_memory_free_percent)<10'
+              expression: 'max(/Template TYPO3 9-14/typo3_OpCacheMemory_memory_free_percent,30m)<10'
               name: 'OPcache free memory < 10% on {HOST.NAME}'
               priority: WARNING
-              description: 'Free OPcache memory dropped below 10%.'
+              description: 'max() über 30m wegen fcgid (eigener OPcache je Prozess, zufälliger Prozess pro Abfrage).'
         - uuid: 810483c140ad42819fd2536b5f404640
           name: 'TYPO3 OPcache memory total'
           type: DEPENDENT
@@ -1481,10 +1528,10 @@ zabbix_export:
             key: typo3_GetOpCacheMemory
           triggers:
             - uuid: 95b0fe3e59af416fab3499701e80cc2f
-              expression: 'change(/Template TYPO3 9-14/typo3_OpCacheMemory_oom_restarts)>0'
+              expression: 'min(/Template TYPO3 9-14/typo3_OpCacheMemory_oom_restarts,30m)>0 and change(/Template TYPO3 9-14/typo3_OpCacheMemory_oom_restarts)>0'
               name: 'OPcache OOM restarts increased on {HOST.NAME}'
-              priority: HIGH
-              description: 'Out-of-memory restart counter has increased — opcache.memory_consumption is too small.'
+              priority: WARNING
+              description: 'Unter fcgid ist der Zähler je Prozess verschieden und springt 0/1/0 → change()>0 allein war Fehlalarm. min(30m)>0: alle Prozesse der letzten 30 min hatten schon einen OOM-Restart.'
         - uuid: ba62b312af2f41619fd08ced8d81bfea
           name: 'TYPO3 OPcache restart pending'
           type: DEPENDENT
@@ -1809,6 +1856,25 @@ zabbix_export:
               name: 'TYPO3 PSI SEO worsened pages [mobile]'
               event_name: 'TYPO3 PSI SEO worsened pages [mobile] on {HOST.HOST}'
               priority: WARNING
+        - uuid: 68533e7b250c4f25b443cfa56f6cf2a2
+          name: 'PHP version as integer'
+          type: DEPENDENT
+          key: typo3_PHPVersionAsInteger
+          history: 365d
+          trends: '0'
+          description: '8.4.27 -> 80427. Grundlage der PHP-EOL-/Patchstand-Trigger.'
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var m = String(value).match(/^(\d+)\.(\d+)\.(\d+)/);
+                  if (!m) throw 'Keine PHP-Version: ' + value;
+                  return parseInt(m[1]) * 10000 + parseInt(m[2]) * 100 + parseInt(m[3]);
+          master_item:
+            key: typo3_GetPHPVersion
+          tags:
+            - tag: component
+              value: php
         - uuid: 961ea019a13d44dc8f0b2030980098d7
           name: 'TYPO3 preset context value'
           type: HTTP_AGENT
@@ -1996,6 +2062,24 @@ zabbix_export:
         - tag: Application
           value: TYPO3
       macros:
+        - macro: '{$PHP.EOL.BELOW}'
+          value: '80200'
+          description: 'PHP-Versionen darunter bekommen keine Sicherheitsfixes mehr (8.1 EOL seit 31.12.2025).'
+        - macro: '{$PHP.MIN.8.2}'
+          value: '80235'
+          description: 'Erste PHP-8.2-Version mit allen bekannten Sicherheitsfixes. Bei jedem Security-Release anheben.'
+        - macro: '{$PHP.MIN.8.3}'
+          value: '80336'
+          description: 'Erste PHP-8.3-Version mit allen bekannten Sicherheitsfixes. Bei jedem Security-Release anheben.'
+        - macro: '{$PHP.MIN.8.4}'
+          value: '80427'
+          description: 'Erste PHP-8.4-Version mit allen bekannten Sicherheitsfixes. Bei jedem Security-Release anheben.'
+        - macro: '{$PHP.MIN.8.5}'
+          value: '80512'
+          description: 'Erste PHP-8.5-Version mit allen bekannten Sicherheitsfixes. Bei jedem Security-Release anheben.'
+        - macro: '{$PHP.VENDOR_PATCHED}'
+          value: '0'
+          description: '1 = Hoster/Distribution patcht ohne Versionssprung (Backport) und das ist geprüft; unterdrückt die PHP-Versionstrigger. Begründung + Datum in der Host-Makro-Beschreibung.'
         - macro: '{$TYPO3_CLIENT_PATH}'
   triggers:
     - uuid: b6671967cb5147348c1e1d7c140f1011
@@ -2061,6 +2145,28 @@ zabbix_export:
       tags:
         - tag: Application
           value: TYPO3
+    - uuid: 011da7c839d44e828006ba262b7091b6
+      expression: 'length(last(/Template TYPO3 9-14/typo3_GetPHPVersion))>0 and ((last(/Template TYPO3 9-14/typo3_PHPVersionAsInteger)>=80200 and last(/Template TYPO3 9-14/typo3_PHPVersionAsInteger)<80300 and last(/Template TYPO3 9-14/typo3_PHPVersionAsInteger)<{$PHP.MIN.8.2}) or (last(/Template TYPO3 9-14/typo3_PHPVersionAsInteger)>=80300 and last(/Template TYPO3 9-14/typo3_PHPVersionAsInteger)<80400 and last(/Template TYPO3 9-14/typo3_PHPVersionAsInteger)<{$PHP.MIN.8.3}) or (last(/Template TYPO3 9-14/typo3_PHPVersionAsInteger)>=80400 and last(/Template TYPO3 9-14/typo3_PHPVersionAsInteger)<80500 and last(/Template TYPO3 9-14/typo3_PHPVersionAsInteger)<{$PHP.MIN.8.4}) or (last(/Template TYPO3 9-14/typo3_PHPVersionAsInteger)>=80500 and last(/Template TYPO3 9-14/typo3_PHPVersionAsInteger)<80600 and last(/Template TYPO3 9-14/typo3_PHPVersionAsInteger)<{$PHP.MIN.8.5})) and {$PHP.VENDOR_PATCHED}=0'
+      name: 'PHP {ITEM.LASTVALUE1} hat bekannte Sicherheitslücken (unter Mindest-Patchstand)'
+      priority: WARNING
+      description: 'Die PHP-Version liegt unter dem Mindest-Patchstand ihres Branches ({$PHP.MIN.8.2} … {$PHP.MIN.8.5}). Viele Hoster patchen ohne Versionssprung (Infomaniak, CloudLinux, Plesk, Distributionen) - erst Hoster-Statusseite bzw. Paket-Changelog prüfen, dann updaten oder {$PHP.VENDOR_PATCHED}=1 am Host.'
+      manual_close: 'YES'
+      tags:
+        - tag: component
+          value: php
+        - tag: scope
+          value: security
+    - uuid: f91095fadeaa4ed3b886a411f21b8d15
+      expression: 'length(last(/Template TYPO3 9-14/typo3_GetPHPVersion))>0 and last(/Template TYPO3 9-14/typo3_PHPVersionAsInteger)<{$PHP.EOL.BELOW} and {$PHP.VENDOR_PATCHED}=0'
+      name: 'PHP {ITEM.LASTVALUE1} ist end-of-life (keine Sicherheitsfixes mehr)'
+      priority: HIGH
+      description: 'Die PHP-Version im Webkontext bekommt upstream keine Sicherheitsupdates mehr. PHP-Version des Hostings anheben. Patcht der Hoster/die Distribution nachweislich selbst (z. B. Ubuntu-LTS), am Host {$PHP.VENDOR_PATCHED}=1 mit Begründung setzen.'
+      manual_close: 'YES'
+      tags:
+        - tag: component
+          value: php
+        - tag: scope
+          value: security
     - uuid: 2b311a366d7841d08e9429451bbd4761
       expression: 'last(/Template TYPO3 9-14/typo3_ComposerVersion_update)=1 and length(last(/Template TYPO3 9-14/typo3_ComposerVersion_version))>0 and length(last(/Template TYPO3 9-14/typo3_ComposerVersion_latest))>0'
       name: 'TYPO3 Composer binary outdated on {HOST.NAME}'
