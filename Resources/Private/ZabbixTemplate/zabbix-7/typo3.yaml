@@ -284,48 +284,6 @@ zabbix_export:
               value: Composer
             - tag: Application
               value: TYPO3
-        - uuid: c8a88cdb812442ea9f6906997b46cd5a
-          name: 'TYPO3 Composer t3bootstrap/core version'
-          type: DEPENDENT
-          key: typo3_ComposerPkg_t3bootstrap_core
-          history: 365d
-          value_type: CHAR
-          description: 'Installierte Version von t3bootstrap/core laut composer (leer, wenn nicht installiert).'
-          preprocessing:
-            - type: JSONPATH
-              parameters:
-                - '$.packages[''t3bootstrap/core'']'
-              error_handler: CUSTOM_VALUE
-          master_item:
-            key: typo3_GetComposerPackages
-          tags:
-            - tag: Application
-              value: Composer
-            - tag: Application
-              value: TYPO3
-        - uuid: 8873085d4dfe4c4fa3a74fcb4ad4a8d1
-          name: 'TYPO3 Composer t3bootstrap/core version (integer)'
-          type: DEPENDENT
-          key: typo3_ComposerPkg_t3bootstrap_core_int
-          history: 365d
-          description: 't3bootstrap/core als Zahl (14.3.8 = 14003008); 0, wenn nicht installiert oder keine Release-Version.'
-          preprocessing:
-            - type: JAVASCRIPT
-              parameters:
-                - |
-                  var d = JSON.parse(value);
-                  var v = (d.packages || {})['t3bootstrap/core'];
-                  if (!v) { return 0; }
-                  var m = String(v).replace(/^v/, '').match(/^(\d+)\.(\d+)\.(\d+)/);
-                  if (!m) { return 0; }
-                  return parseInt(m[1], 10) * 1000000 + parseInt(m[2], 10) * 1000 + parseInt(m[3], 10);
-          master_item:
-            key: typo3_GetComposerPackages
-          tags:
-            - tag: Application
-              value: Composer
-            - tag: Application
-              value: TYPO3
         - uuid: a0fa94cf0cb34082a6cc56528bcfec0a
           name: 'TYPO3 Composer latest stable version'
           type: DEPENDENT
@@ -2122,9 +2080,6 @@ zabbix_export:
         - macro: '{$PHP.VENDOR_PATCHED}'
           value: '0'
           description: '1 = Hoster/Distribution patcht ohne Versionssprung (Backport) und das ist geprüft; unterdrückt die PHP-Versionstrigger. Begründung + Datum in der Host-Makro-Beschreibung.'
-        - macro: '{$T3B_CORE_FIXED_V14}'
-          value: '14003008'
-          description: 'Erste t3bootstrap/core-Version (v14) ohne bekannten Fehler; Trigger meldet Hosts darunter. 14003008 = 14.3.8 (details_nr → HTTP 500).'
         - macro: '{$TYPO3_CLIENT_PATH}'
   triggers:
     - uuid: b6671967cb5147348c1e1d7c140f1011
@@ -2220,17 +2175,6 @@ zabbix_export:
       tags:
         - tag: Application
           value: Composer
-    - uuid: 1d72240d3ba34806b83e4e37737de6ae
-      expression: 'last(/Template TYPO3 9-14/typo3_ComposerPkg_t3bootstrap_core_int)>=14000000 and last(/Template TYPO3 9-14/typo3_ComposerPkg_t3bootstrap_core_int)<{$T3B_CORE_FIXED_V14} and length(last(/Template TYPO3 9-14/typo3_ComposerPkg_t3bootstrap_core))>0'
-      name: 'TYPO3 t3bootstrap/core {ITEM.LASTVALUE3} mit bekanntem Fehler auf {HOST.NAME}'
-      priority: INFO
-      description: 't3bootstrap/core unterhalb von {$T3B_CORE_FIXED_V14} (als Zahl, 14003008 = 14.3.8). Bis 14.3.7 schreibt der ProductionExceptionHandler sys_log.details_nr, das es in TYPO3 14 nicht mehr gibt: jede abgefangene Element-Exception (z. B. Spam-POST mit ungültigem Formular-HMAC) wird zum HTTP 500 der ganzen Seite. Fix: composer update t3bootstrap/core. Bei künftigen Fehlern das Makro {$T3B_CORE_FIXED_V14} im Template anheben.'
-      manual_close: 'YES'
-      tags:
-        - tag: Application
-          value: Composer
-        - tag: Application
-          value: TYPO3
   graphs:
     - uuid: 9c492fbf74dd4909a6deec6c580a0b57
       name: 'Download Speed'
