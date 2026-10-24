@@ -24,6 +24,11 @@ Templates for Zabbix 7.x, exported from a production Zabbix:
 
 Set the host macros `{$TYPO3_CLIENT_KEY}` and `{$TYPO3_CLIENT_PATH}` (e.g. `https://www.example.com/zabbixclient/`).
 
+Check intervals are macros with conservative defaults in the parent template `Monitoring Defaults`
+(`{$TYPO3.DELAY.FAST}` 30m, `{$TYPO3.DELAY.HOURLY}` 6h, `{$FRONTEND.DELAY}` 15m, …). For closely
+monitored hosts, override them on the host or in a template linked directly to the host
+(e.g. 5m / 1h / 1m, `{$TYPO3.NODATA}` 1000s, `{$FRONTEND.WINDOW}` 5m, `{$TYPO3.OPCACHE.WINDOW}` 30m).
+
 Website: https://t3monitoring.de/
 
 ## screenshots
