@@ -4,15 +4,43 @@ zabbix_export:
     - uuid: a571c0d144b14fd4a87a9d9b2aa9fcd6
       name: Templates/Applications
   templates:
+    - uuid: 7cd595a8ca1e46659ef1bbcffa51a3f3
+      template: 'Monitoring Defaults'
+      name: 'Monitoring Defaults'
+      description: 'Standard-Intervalle (ohne Monitoring-Vertrag: seltene Checks). Wird von Monitoring-Vertrag / Monitoring-Intern überschrieben.'
+      groups:
+        - name: Templates/Applications
+      macros:
+        - macro: '{$FRONTEND.DELAY}'
+          value: 15m
+          description: 'Web-Szenario Frontend Performance'
+        - macro: '{$FRONTEND.WINDOW}'
+          value: 45m
+          description: 'Zeitfenster Response-Time-Trigger'
+        - macro: '{$TYPO3.DELAY.FAST}'
+          value: 30m
+          description: '5-Minuten-Items (Logins, Exceptions, Heartbeat, OPcache)'
+        - macro: '{$TYPO3.DELAY.HOURLY}'
+          value: 6h
+          description: 'stündliche Items (Composer, Versionen, Presets)'
+        - macro: '{$TYPO3.NODATA}'
+          value: 7200s
+          description: 'Heartbeat-Trigger Zabbix client malfunction'
+        - macro: '{$TYPO3.OPCACHE.WINDOW}'
+          value: 1h
+          description: 'Zeitfenster OPcache-Trigger'
     - uuid: e7752236596b41a9a09e3d3b7f237947
       template: 'Template Frontend Performance'
       name: 'Template Frontend Performance'
       description: 'Allgemeiner Frontend-Check der Startseite per Web-Szenario. Misst Antwortzeit, Download-Geschwindigkeit und HTTP-Status. URL wird aus dem Default-Interface des Hosts gebildet ({HOST.CONN}); abweichende Pfade ueber {$FRONTEND.PATH}, abweichendes Schema ueber {$FRONTEND.SCHEME}.'
+      templates:
+        - name: 'Monitoring Defaults'
       groups:
         - name: Templates/Applications
       httptests:
         - uuid: f4f62850f6ef47bfa9fb20ecf5c4a7d0
           name: 'Frontend Performance'
+          delay: '{$FRONTEND.DELAY}'
           steps:
             - name: Startseite
               url: '{$FRONTEND.SCHEME}://{HOST.CONN}{$FRONTEND.PATH}'
@@ -360,7 +388,7 @@ zabbix_export:
           name: 'TYPO3 failed logins'
           type: HTTP_AGENT
           key: typo3_FailedLogins
-          delay: 5m
+          delay: '{$TYPO3.DELAY.FAST}'
           history: 90d
           preprocessing:
             - type: JSONPATH
@@ -393,7 +421,7 @@ zabbix_export:
           name: 'TYPO3 application context'
           type: HTTP_AGENT
           key: typo3_GetApplicationContext
-          delay: 5m
+          delay: '{$TYPO3.DELAY.FAST}'
           history: 90d
           value_type: TEXT
           preprocessing:
@@ -422,7 +450,7 @@ zabbix_export:
                 - tag: Application
                   value: TYPO3
             - uuid: 9db85766e49a4a209c8f01f04830e7bf
-              expression: 'nodata(/Template TYPO3 9-14/typo3_GetApplicationContext,1000s)=1'
+              expression: 'nodata(/Template TYPO3 9-14/typo3_GetApplicationContext,{$TYPO3.NODATA})=1'
               name: 'TYPO3 Zabbix client malfunction'
               event_name: 'TYPO3 Zabbix client malfunction on {HOST.HOST}'
               priority: HIGH
@@ -431,7 +459,7 @@ zabbix_export:
           name: 'TYPO3 Composer audit (raw)'
           type: HTTP_AGENT
           key: typo3_GetComposerAudit
-          delay: 1h
+          delay: '{$TYPO3.DELAY.HOURLY}'
           history: 7d
           value_type: TEXT
           description: 'Runs composer audit on the site on every call (zabbix_client >= 14.2.4). Dependent items extract the values.'
@@ -471,7 +499,7 @@ zabbix_export:
           name: 'TYPO3 Composer packages (raw)'
           type: HTTP_AGENT
           key: typo3_GetComposerPackages
-          delay: 1h
+          delay: '{$TYPO3.DELAY.HOURLY}'
           history: 365d
           value_type: TEXT
           description: 'Installierte Composer-Pakete mit Versionen (ohne dev), aus Composer\InstalledVersions. Gespeichert wird nur bei Änderung (Heartbeat 1d) → History = Änderungsprotokoll. Operation erst ab zabbix_client 14.2.2; v12/v13-Clients antworten mit Fehler → Item nicht unterstützt, kein Alarm.'
@@ -712,7 +740,7 @@ zabbix_export:
           name: 'TYPO3 OPcache memory (raw)'
           type: HTTP_AGENT
           key: typo3_GetOpCacheMemory
-          delay: 5m
+          delay: '{$TYPO3.DELAY.FAST}'
           history: 1h
           value_type: TEXT
           description: 'Master item: fetches the full GetOpCacheMemory JSON from zabbix_client. Dependent items extract individual values via JSONPath.'
@@ -728,7 +756,7 @@ zabbix_export:
           name: 'TYPO3 OPcache active'
           type: HTTP_AGENT
           key: typo3_GetOpCacheStatus
-          delay: 1h
+          delay: '{$TYPO3.DELAY.HOURLY}'
           history: 90d
           trends: '0'
           preprocessing:
@@ -837,7 +865,7 @@ zabbix_export:
           name: 'PHP version'
           type: HTTP_AGENT
           key: typo3_GetPHPVersion
-          delay: 1h
+          delay: '{$TYPO3.DELAY.HOURLY}'
           history: 30d
           value_type: TEXT
           preprocessing:
@@ -883,7 +911,7 @@ zabbix_export:
           name: 'TYPO3 total log files size (KB)'
           type: HTTP_AGENT
           key: typo3_GetTotalLogFilesSize
-          delay: 1h
+          delay: '{$TYPO3.DELAY.HOURLY}'
           history: 90d
           preprocessing:
             - type: JSONPATH
@@ -946,7 +974,7 @@ zabbix_export:
           name: 'TYPO3 version (integer)'
           type: HTTP_AGENT
           key: typo3_GetTYPO3VersionAsInteger
-          delay: 1h
+          delay: '{$TYPO3.DELAY.HOURLY}'
           history: 1825d
           trends: 1825d
           preprocessing:
@@ -1186,7 +1214,7 @@ zabbix_export:
           name: 'TYPO3 outdated version'
           type: HTTP_AGENT
           key: typo3_HasOutdatedVersion
-          delay: 1h
+          delay: '{$TYPO3.DELAY.HOURLY}'
           history: 90d
           trends: '0'
           preprocessing:
@@ -1277,7 +1305,7 @@ zabbix_export:
           name: 'TYPO3 security update available'
           type: HTTP_AGENT
           key: typo3_HasSecurityUpdate
-          delay: 1h
+          delay: '{$TYPO3.DELAY.HOURLY}'
           history: 90d
           trends: '0'
           preprocessing:
@@ -1330,7 +1358,7 @@ zabbix_export:
           name: 'TYPO3 update available'
           type: HTTP_AGENT
           key: typo3_HasUpdate
-          delay: 1h
+          delay: '{$TYPO3.DELAY.HOURLY}'
           history: 90d
           trends: '0'
           preprocessing:
@@ -1433,7 +1461,7 @@ zabbix_export:
             key: typo3_GetOpCacheMemory
           triggers:
             - uuid: ea7be6fbcf9c4d5f935124ca264f0a3b
-              expression: 'max(/Template TYPO3 9-14/typo3_OpCacheMemory_interned_strings_free_percent,30m)<5'
+              expression: 'max(/Template TYPO3 9-14/typo3_OpCacheMemory_interned_strings_free_percent,{$TYPO3.OPCACHE.WINDOW})<5'
               name: 'OPcache interned strings buffer < 5% free on {HOST.NAME}'
               priority: INFO
               description: 'max() über 30m: auf FastCGI-Hosts (Hetzner fcgid) hat jeder PHP-Prozess einen eigenen OPcache, jede Abfrage trifft einen zufälligen Prozess. Information = keine Mail, nur Weekly-Report. Abhilfe: opcache.interned_strings_buffer=16+.'
@@ -1463,7 +1491,7 @@ zabbix_export:
             key: typo3_GetOpCacheMemory
           triggers:
             - uuid: 26966fbc3d364b4fb8c5d5c4587d751e
-              expression: 'max(/Template TYPO3 9-14/typo3_OpCacheMemory_memory_free_percent,30m)<10'
+              expression: 'max(/Template TYPO3 9-14/typo3_OpCacheMemory_memory_free_percent,{$TYPO3.OPCACHE.WINDOW})<10'
               name: 'OPcache free memory < 10% on {HOST.NAME}'
               priority: WARNING
               description: 'max() über 30m wegen fcgid (eigener OPcache je Prozess, zufälliger Prozess pro Abfrage).'
@@ -1528,7 +1556,7 @@ zabbix_export:
             key: typo3_GetOpCacheMemory
           triggers:
             - uuid: 95b0fe3e59af416fab3499701e80cc2f
-              expression: 'min(/Template TYPO3 9-14/typo3_OpCacheMemory_oom_restarts,30m)>0 and change(/Template TYPO3 9-14/typo3_OpCacheMemory_oom_restarts)>0'
+              expression: 'min(/Template TYPO3 9-14/typo3_OpCacheMemory_oom_restarts,{$TYPO3.OPCACHE.WINDOW})>0 and change(/Template TYPO3 9-14/typo3_OpCacheMemory_oom_restarts)>0'
               name: 'OPcache OOM restarts increased on {HOST.NAME}'
               priority: WARNING
               description: 'Unter fcgid ist der Zähler je Prozess verschieden und springt 0/1/0 → change()>0 allein war Fehlalarm. min(30m)>0: alle Prozesse der letzten 30 min hatten schon einen OOM-Restart.'
@@ -1549,7 +1577,7 @@ zabbix_export:
           name: 'TYPO3 other exceptions'
           type: HTTP_AGENT
           key: typo3_OtherExceptions
-          delay: 5m
+          delay: '{$TYPO3.DELAY.FAST}'
           history: 90d
           preprocessing:
             - type: JSONPATH
@@ -1573,7 +1601,7 @@ zabbix_export:
           name: 'TYPO3 PageNotFoundExceptions'
           type: HTTP_AGENT
           key: typo3_PageNotFoundException
-          delay: 5m
+          delay: '{$TYPO3.DELAY.FAST}'
           history: 90d
           preprocessing:
             - type: JSONPATH
@@ -1879,7 +1907,7 @@ zabbix_export:
           name: 'TYPO3 preset context value'
           type: HTTP_AGENT
           key: typo3_preset_context
-          delay: 1h
+          delay: '{$TYPO3.DELAY.HOURLY}'
           history: 30d
           value_type: TEXT
           preprocessing:
@@ -1913,7 +1941,7 @@ zabbix_export:
           name: 'TYPO3 preset image processor value'
           type: HTTP_AGENT
           key: typo3_preset_image
-          delay: 1h
+          delay: '{$TYPO3.DELAY.HOURLY}'
           history: 30d
           value_type: TEXT
           preprocessing:
@@ -1938,7 +1966,7 @@ zabbix_export:
           name: 'TYPO3 preset mail value'
           type: HTTP_AGENT
           key: typo3_preset_mail
-          delay: 1h
+          delay: '{$TYPO3.DELAY.HOURLY}'
           history: 30d
           value_type: TEXT
           preprocessing:
@@ -1963,7 +1991,7 @@ zabbix_export:
           name: 'TYPO3 preset password hashing value'
           type: HTTP_AGENT
           key: typo3_preset_passwordhashing
-          delay: 1h
+          delay: '{$TYPO3.DELAY.HOURLY}'
           history: 30d
           value_type: TEXT
           preprocessing:
@@ -1988,7 +2016,7 @@ zabbix_export:
           name: 'TYPO3 ServiceUnavailableExceptions'
           type: HTTP_AGENT
           key: typo3_ServiceUnavailableException
-          delay: 5m
+          delay: '{$TYPO3.DELAY.FAST}'
           history: 90d
           preprocessing:
             - type: JSONPATH
@@ -2083,9 +2111,9 @@ zabbix_export:
         - macro: '{$TYPO3_CLIENT_PATH}'
   triggers:
     - uuid: b6671967cb5147348c1e1d7c140f1011
-      expression: 'min(/Template Frontend Performance/web.test.time[Frontend Performance,Startseite,resp],5m)>{$FRONTEND.RESP.WARN}'
+      expression: 'min(/Template Frontend Performance/web.test.time[Frontend Performance,Startseite,resp],{$FRONTEND.WINDOW})>2'
       recovery_mode: RECOVERY_EXPRESSION
-      recovery_expression: 'max(/Template Frontend Performance/web.test.time[Frontend Performance,Startseite,resp],5m)<{$FRONTEND.RESP.WARN}*0.8'
+      recovery_expression: 'max(/Template Frontend Performance/web.test.time[Frontend Performance,Startseite,resp],{$FRONTEND.WINDOW})<2*0.8'
       name: 'Frontend: Startseite langsam (>{$FRONTEND.RESP.WARN}s)'
       opdata: 'Antwortzeit: {ITEM.LASTVALUE1}'
       priority: WARNING
@@ -2094,8 +2122,8 @@ zabbix_export:
         - name: 'Frontend: Startseite nicht erreichbar'
           expression: 'min(/Template Frontend Performance/web.test.fail[Frontend Performance],#2)>0'
         - name: 'Frontend: Startseite sehr langsam (>{$FRONTEND.RESP.HIGH}s)'
-          expression: 'min(/Template Frontend Performance/web.test.time[Frontend Performance,Startseite,resp],5m)>{$FRONTEND.RESP.HIGH}'
-          recovery_expression: 'max(/Template Frontend Performance/web.test.time[Frontend Performance,Startseite,resp],5m)<{$FRONTEND.RESP.HIGH}*0.8'
+          expression: 'min(/Template Frontend Performance/web.test.time[Frontend Performance,Startseite,resp],{$FRONTEND.WINDOW})>5'
+          recovery_expression: 'max(/Template Frontend Performance/web.test.time[Frontend Performance,Startseite,resp],{$FRONTEND.WINDOW})<5*0.8'
       tags:
         - tag: component
           value: frontend
@@ -2114,9 +2142,9 @@ zabbix_export:
         - tag: scope
           value: availability
     - uuid: fc62b98c05174109aa61d2925fa22bd5
-      expression: 'min(/Template Frontend Performance/web.test.time[Frontend Performance,Startseite,resp],5m)>{$FRONTEND.RESP.HIGH}'
+      expression: 'min(/Template Frontend Performance/web.test.time[Frontend Performance,Startseite,resp],{$FRONTEND.WINDOW})>5'
       recovery_mode: RECOVERY_EXPRESSION
-      recovery_expression: 'max(/Template Frontend Performance/web.test.time[Frontend Performance,Startseite,resp],5m)<{$FRONTEND.RESP.HIGH}*0.8'
+      recovery_expression: 'max(/Template Frontend Performance/web.test.time[Frontend Performance,Startseite,resp],{$FRONTEND.WINDOW})<5*0.8'
       name: 'Frontend: Startseite sehr langsam (>{$FRONTEND.RESP.HIGH}s)'
       opdata: 'Antwortzeit: {ITEM.LASTVALUE1}'
       priority: AVERAGE
