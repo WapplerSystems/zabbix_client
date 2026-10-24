@@ -25,11 +25,19 @@ Zabbix setup
 
     The file is also shipped with the extension in
     ``Resources/Private/ZabbixTemplate/zabbix-7/typo3.yaml``. It contains
-    :guilabel:`Template TYPO3 9-14` and its parent template
-    :guilabel:`Template Frontend Performance`; the second parent, :guilabel:`HTTP Service`,
+    :guilabel:`Template TYPO3 9-14`, its parent template
+    :guilabel:`Template Frontend Performance` and that one's parent
+    :guilabel:`Monitoring Defaults`; the second parent, :guilabel:`HTTP Service`,
     is part of every Zabbix installation. The template is exported from a production
     Zabbix, so it always matches the operations of the current release. Re-importing a
     newer version updates the existing template, hosts and history are kept.
+
+    Check intervals are user macros. :guilabel:`Monitoring Defaults` sets conservative
+    values (``{$TYPO3.DELAY.FAST}`` 30m, ``{$TYPO3.DELAY.HOURLY}`` 6h,
+    ``{$FRONTEND.DELAY}`` 15m, ``{$TYPO3.NODATA}`` 7200s). For hosts you want to watch
+    closely, override them on the host or in a template linked directly to the host,
+    e.g. 5m, 1h, 1m and 1000s plus ``{$FRONTEND.WINDOW}`` 5m and
+    ``{$TYPO3.OPCACHE.WINDOW}`` 30m.
 
     The files in ``zabbix-5/`` and ``zabbix-6/`` are kept for older Zabbix versions but no
     longer maintained.
