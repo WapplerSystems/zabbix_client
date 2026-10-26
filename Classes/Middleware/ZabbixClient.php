@@ -12,7 +12,6 @@ namespace WapplerSystems\ZabbixClient\Middleware;
 
 
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
-use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Log\LogManager;
@@ -94,10 +93,15 @@ class ZabbixClient implements MiddlewareInterface
         $params = array_merge($request->getParsedBody() ?? [], $request->getQueryParams() ?? []);
 
 
-        $GLOBALS['TYPO3_REQUEST'] = (new ServerRequest())->withAttribute(
-            'applicationType',
-            SystemEnvironmentBuilder::REQUESTTYPE_BE
-        )->withAttribute('frontend.typoscript',new FrontendTypoScript(new RootNode(),[],[],[]));
+        // Operations run outside the frontend rendering, but core code reads TypoScript "config." and
+        // normalizedParams from the global request (e.g. ListUtility -> SystemResourcePublisher::generateUri()).
+        // Provide an empty config array and keep the attributes of the incoming request.
+        $frontendTypoScript = new FrontendTypoScript(new RootNode(), [], [], []);
+        $frontendTypoScript->setSetupArray([]);
+        $frontendTypoScript->setConfigArray([]);
+        $GLOBALS['TYPO3_REQUEST'] = $request
+            ->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_BE)
+            ->withAttribute('frontend.typoscript', $frontendTypoScript);
 
         if ($operation !== null && $operation !== '') {
             try {
