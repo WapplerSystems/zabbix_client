@@ -71,4 +71,27 @@ class GetComposerOutdatedTest extends UnitTestCase
         self::assertSame('patch', $operation->level('2.2.0', '2.2.4'));
         self::assertNull($operation->level('dev-main 365cf5c', 'dev-main d4461dd'));
     }
+
+    #[Test]
+    public function packagesWithoutNewerVersionAreNotOutdated(): void
+    {
+        $operation = new class () extends GetComposerOutdated {
+            public function newer(array $package): bool
+            {
+                return $this->hasNewerVersion($package);
+            }
+        };
+
+        // path repository (packages/*): Composer finds no candidate
+        self::assertFalse($operation->newer([
+            'name' => 'vendor/sitepackage',
+            'version' => 'dev-release/v14 2957943',
+            'latest' => '[none matched]',
+            'latest-status' => 'up-to-date',
+        ]));
+        self::assertFalse($operation->newer(['name' => 'vendor/a', 'version' => '1.0.0', 'latest' => '1.0.0', 'latest-status' => 'up-to-date']));
+        self::assertFalse($operation->newer(['name' => 'vendor/b', 'version' => '1.0.0']));
+        self::assertTrue($operation->newer(['name' => 'vendor/c', 'version' => '4.4.5', 'latest' => '4.5.0', 'latest-status' => 'semver-safe-update']));
+        self::assertTrue($operation->newer(['name' => 'vendor/d', 'version' => '8.3.1', 'latest' => '9.0.1', 'latest-status' => 'update-possible']));
+    }
 }

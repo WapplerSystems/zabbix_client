@@ -47,6 +47,9 @@ class GetComposerOutdated implements IOperation, SingletonInterface
 
         if (isset($data['installed']) && is_array($data['installed'])) {
             foreach ($data['installed'] as $package) {
+                if (!is_array($package) || !$this->hasNewerVersion($package)) {
+                    continue;
+                }
                 $version = (string)($package['version'] ?? '');
                 $latest = (string)($package['latest'] ?? '');
                 $level = $this->getUpdateLevel($version, $latest);
@@ -73,6 +76,21 @@ class GetComposerOutdated implements IOperation, SingletonInterface
             'direct' => $direct,
             'packages' => $packages,
         ]);
+    }
+
+    /**
+     * "composer outdated" also lists packages for which no candidate exists at all, e.g. path
+     * repositories (packages/*) or branches no repository offers: latest "[none matched]",
+     * latest-status "up-to-date". Those are not updates.
+     */
+    protected function hasNewerVersion(array $package): bool
+    {
+        $latest = (string)($package['latest'] ?? '');
+        if ($latest === '' || str_starts_with($latest, '[')) {
+            return false;
+        }
+
+        return ($package['latest-status'] ?? '') !== 'up-to-date';
     }
 
     /**
