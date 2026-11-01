@@ -1765,7 +1765,7 @@ zabbix_export:
               parameters:
                 - $.value
           timeout: 3s
-          url: 'https://{HOST.HOST}/zabbixclient/'
+          url: '{$TYPO3_CLIENT_PATH}'
           query_fields:
             - name: operation
               value: PageSpeedInsights_GetDegradedPageUids
@@ -1803,7 +1803,7 @@ zabbix_export:
             - name: operation
               value: PageSpeedInsights_GetDegradedPageUids
             - name: strategy
-              value: desktop
+              value: mobile
             - name: field
               value: performance_score
           follow_redirects: 'NO'
