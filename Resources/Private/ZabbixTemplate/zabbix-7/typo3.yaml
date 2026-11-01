@@ -1193,7 +1193,7 @@ zabbix_export:
               expression: 'last(/Template TYPO3 9-14/typo3_HasIPTCPreservation)=0'
               name: 'TYPO3 Has missing IPTC preservation'
               event_name: 'TYPO3 Missing IPTC preservation on {HOST.HOST}'
-              priority: WARNING
+              priority: INFO
               tags:
                 - tag: Application
                   value: TYPO3
