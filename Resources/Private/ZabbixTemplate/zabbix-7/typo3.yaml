@@ -29,6 +29,9 @@ zabbix_export:
         - macro: '{$TYPO3.OPCACHE.WINDOW}'
           value: 1h
           description: 'Zeitfenster OPcache-Trigger'
+        - macro: '{$TYPO3.APCU.WINDOW}'
+          value: 1h
+          description: 'Zeitfenster APCu-Trigger'
     - uuid: e7752236596b41a9a09e3d3b7f237947
       template: 'Template Frontend Performance'
       name: 'Template Frontend Performance'
@@ -752,6 +755,22 @@ zabbix_export:
           posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
+        - uuid: ecbea1deb8bd48f5a3fc489c85ae5867
+          name: 'TYPO3 APCu memory (raw)'
+          type: HTTP_AGENT
+          key: typo3_GetApcuMemory
+          delay: '{$TYPO3.DELAY.FAST}'
+          history: 1h
+          value_type: TEXT
+          description: 'Master item: fetches the full GetApcuMemory JSON from zabbix_client. APCu belongs to the PHP-FPM process, so only this HTTP check sees the real cache (the CLI has its own, empty APCu).'
+          timeout: 5s
+          url: '{$TYPO3_CLIENT_PATH}'
+          query_fields:
+            - name: operation
+              value: GetApcuMemory
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          request_method: POST
+          verify_peer: 'YES'
         - uuid: 49554c76b24f4b2cbcae260d3fb059f3
           name: 'TYPO3 OPcache active'
           type: HTTP_AGENT
@@ -1384,6 +1403,134 @@ zabbix_export:
               name: 'TYPO3 Update available'
               event_name: 'TYPO3 Update available on {HOST.HOST}'
               priority: INFO
+        - uuid: ed9c7d069f40404f86e4ce8f137470da
+          name: 'TYPO3 APCu enabled'
+          type: DEPENDENT
+          key: typo3_ApcuMemory_enabled
+          history: 90d
+          trends: '0'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.enabled
+              error_handler: DISCARD_VALUE
+            - type: BOOL_TO_DECIMAL
+          master_item:
+            key: typo3_GetApcuMemory
+        - uuid: 8533fe43019e4dda818fb0db3f5b4ce6
+          name: 'TYPO3 APCu memory used percent'
+          type: DEPENDENT
+          key: typo3_ApcuMemory_memory_used_percent
+          history: 90d
+          value_type: FLOAT
+          units: '%'
+          description: 'Füllstand. Ein voller APCu ist allein kein Problem - erst Expunges zeigen, dass er überläuft.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.memory.used_percent
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: typo3_GetApcuMemory
+        - uuid: b1d606a6de11475680127b2c94468362
+          name: 'TYPO3 APCu memory total'
+          type: DEPENDENT
+          key: typo3_ApcuMemory_memory_total
+          history: 90d
+          units: 'B'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.memory.total
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: typo3_GetApcuMemory
+        - uuid: 0d59c039320a4431a0e7777fbbadc194
+          name: 'TYPO3 APCu entries'
+          type: DEPENDENT
+          key: typo3_ApcuMemory_num_entries
+          history: 90d
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.cache.num_entries
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: typo3_GetApcuMemory
+        - uuid: a1f043edc1944a88bfdfcfaff029dda1
+          name: 'TYPO3 APCu hit rate (since start)'
+          type: DEPENDENT
+          key: typo3_ApcuMemory_hit_rate
+          history: 90d
+          value_type: FLOAT
+          units: '%'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.cache.hit_rate
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: typo3_GetApcuMemory
+        - uuid: f3aaffbc94224b4cbe71d90c3844ddf9
+          name: 'TYPO3 APCu hits per second'
+          type: DEPENDENT
+          key: typo3_ApcuMemory_hits_per_second
+          history: 90d
+          value_type: FLOAT
+          units: 'hps'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.cache.hits
+              error_handler: DISCARD_VALUE
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+          master_item:
+            key: typo3_GetApcuMemory
+        - uuid: b99ee0007fee4a8eb692ae0fa0e4438f
+          name: 'TYPO3 APCu misses per second'
+          type: DEPENDENT
+          key: typo3_ApcuMemory_misses_per_second
+          history: 90d
+          value_type: FLOAT
+          units: 'mps'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.cache.misses
+              error_handler: DISCARD_VALUE
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+          master_item:
+            key: typo3_GetApcuMemory
+        - uuid: af566ae334804920a17d891bd6d2e3aa
+          name: 'TYPO3 APCu expunges per hour'
+          type: DEPENDENT
+          key: typo3_ApcuMemory_expunges_per_hour
+          history: 90d
+          value_type: FLOAT
+          description: 'Wie oft APCu pro Stunde wegen Speichermangel geleert wurde. Soll 0. Zähler-Reset (FPM-Reload) verwirft Zabbix automatisch.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.cache.expunges
+              error_handler: DISCARD_VALUE
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+            - type: MULTIPLIER
+              parameters:
+                - '3600'
+          master_item:
+            key: typo3_GetApcuMemory
+          triggers:
+            - uuid: 9ad45edba12f4cd097f5b943ea4199a0
+              expression: 'min(/Template TYPO3 9-14/typo3_ApcuMemory_expunges_per_hour,{$TYPO3.APCU.WINDOW})>0'
+              name: 'APCu läuft über und wird geleert on {HOST.NAME}'
+              priority: INFO
+              description: 'APCu verwirft bei Speichermangel seinen Inhalt; Seiten-/Hash-Cache im APCu werden dadurch zu Cache-Misses (volle Renderings, FPM-Pool läuft voll). Abhilfe: apc.shm_size erhöhen. Information = keine Mail. Auf fcgid-Hosts hat jeder Prozess einen eigenen APCu, die Werte springen dann.'
         - uuid: 2dc2d3799431464fa08e2d131671b7cc
           name: 'TYPO3 OPcache cache full'
           type: DEPENDENT
