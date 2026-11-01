@@ -2038,7 +2038,7 @@ zabbix_export:
               value: TYPO3
           triggers:
             - uuid: 3c96ab2f87e34cebacb8b2e134341887
-              expression: 'last(/Template TYPO3 9-14/typo3_ServiceUnavailableException)>0'
+              expression: 'last(/Template TYPO3 9-14/typo3_ServiceUnavailableException)>last(/Template TYPO3 9-14/typo3_ServiceUnavailableException,#2)'
               name: 'TYPO3 ServiceUnavailableExceptions increased'
               event_name: 'TYPO3 ServiceUnavailableExceptions increased on {HOST.HOST}'
               priority: WARNING
