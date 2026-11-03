@@ -164,3 +164,66 @@ When composer cannot run, the operations return ``status: false`` with the reaso
 example ``Cannot run composer audit: composer audit returned no JSON (exit code 1): The
 HOME or COMPOSER_HOME environment variable must be set …``. A failed check must never be
 read as a clean result.
+
+
+.. _items_script_execution:
+
+HasScriptExecutionInPublicDirs, GetScriptFilesInPublicDirs
+==========================================================
+
+TYPO3 writes to ``typo3temp/`` and ``fileadmin/``. If the web server executes PHP there,
+every file written through any vulnerability becomes a web shell. Uploaded ``.php``
+files are blocked by ``fileDenyPattern``, but that does not help when another bug writes
+the file. The install tool's server response check only covers double extensions such as
+``.php.wrong``, not plain ``.php`` files.
+
+.. code-block:: none
+
+   https://example.org/zabbixclient/?operation=HasScriptExecutionInPublicDirs
+   https://example.org/zabbixclient/?operation=GetScriptFilesInPublicDirs
+
+``HasScriptExecutionInPublicDirs`` creates a folder ``_zbx<random>.tmp`` in
+``typo3temp/assets`` and in the fileadmin directory, with a text file as control and a PHP
+file that only prints a random token. Both are requested over HTTP from the host Zabbix
+called (or the ``url`` parameter), then the folder is removed again. Per location the result
+is ``executed``, ``blocked``, ``unreachable`` (the control file could not be fetched, the
+result is inconclusive) or ``skipped`` (directory not writable).
+
+``GetScriptFilesInPublicDirs`` scans ``typo3temp`` and the root folders of all local file
+storages inside the public directory for files ending in ``.php``, ``.php5``, ``.phtml``,
+``.phar`` and similar, including double extensions such as ``shell.php.jpg``.
+``typo3temp/var`` is skipped (code cache of non-composer installations). The scan stops
+after 200 000 entries or 20 seconds and then reports ``truncated``.
+
+Block script execution in these directories, for Apache in a ``.htaccess`` in each of them:
+
+.. code-block:: apache
+
+   <FilesMatch "\.(php[0-9]?|pht|phtml|phar)(\.|$)">
+       Require all denied
+   </FilesMatch>
+
+and for nginx:
+
+.. code-block:: nginx
+
+   location ~* ^/(typo3temp|fileadmin)/.*\.(php[0-9]?|pht|phtml|phar)(\.|$) {
+       deny all;
+   }
+
+Results
+-------
+
+.. code-block:: json
+
+   {"status": true, "value": {
+     "executed": true, "executedIn": ["typo3temp"],
+     "locations": {"typo3temp": "executed", "fileadmin": "blocked"}
+   }}
+
+.. code-block:: json
+
+   {"status": true, "value": {
+     "count": 1, "truncated": false, "roots": ["typo3temp", "fileadmin"],
+     "files": [{"path": "typo3temp/tmp-addeba.php", "modified": "2026-09-29T23:12:26+02:00"}]
+   }}

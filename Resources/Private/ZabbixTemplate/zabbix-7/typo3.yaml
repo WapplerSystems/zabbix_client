@@ -2222,6 +2222,142 @@ zabbix_export:
               event_name: 'TYPO3 Zabbix extension update available on {HOST.HOST}'
               priority: INFO
               manual_close: 'YES'
+        - uuid: 916c41f9565a474bb9314ec71cd58731
+          name: 'TYPO3 PHP execution in public upload dirs (raw)'
+          type: HTTP_AGENT
+          key: typo3_HasScriptExecutionInPublicDirs
+          delay: 1d
+          history: 7d
+          value_type: TEXT
+          description: 'Places a harmless PHP probe in typo3temp/assets and fileadmin, requests it over HTTP and removes it again (zabbix_client >= 14.3.0). Dependent items extract the values.'
+          timeout: 30s
+          url: '{$TYPO3_CLIENT_PATH}'
+          query_fields:
+            - name: operation
+              value: HasScriptExecutionInPublicDirs
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          request_method: POST
+          tags:
+            - tag: Application
+              value: Security
+            - tag: Application
+              value: TYPO3
+        - uuid: d42d434234b248f685fc08bf5a5f0281
+          name: 'TYPO3 PHP executable in public upload dirs'
+          type: DEPENDENT
+          key: typo3_ScriptExecution_executed
+          history: 90d
+          description: '1 = the web server executes PHP files in typo3temp/assets or fileadmin. Any file written there through another vulnerability becomes a web shell.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.executed
+              error_handler: DISCARD_VALUE
+            - type: BOOL_TO_DECIMAL
+          master_item:
+            key: typo3_HasScriptExecutionInPublicDirs
+          tags:
+            - tag: Application
+              value: Security
+            - tag: Application
+              value: TYPO3
+          triggers:
+            - uuid: c3d6a5b11fa14338bd2d916a8c626e7d
+              expression: 'last(/Template TYPO3 9-14/typo3_ScriptExecution_executed)=1'
+              name: 'TYPO3 PHP executable in public upload dirs on {HOST.NAME}'
+              priority: HIGH
+              description: 'Block script execution in typo3temp/, fileadmin/ and other public storages, e.g. Apache: <FilesMatch "\.(php[0-9]?|pht|phtml|phar)(\.|$)"> Require all denied </FilesMatch>. Locations in item ''TYPO3 PHP execution in public upload dirs (locations)''.'
+              tags:
+                - tag: Application
+                  value: Security
+        - uuid: 01f1076d345447c6b7bad6ba33beb8b5
+          name: 'TYPO3 PHP execution in public upload dirs (locations)'
+          type: DEPENDENT
+          key: typo3_ScriptExecution_locations
+          history: 30d
+          value_type: TEXT
+          description: 'Per location: executed, blocked, unreachable (control file not reachable, inconclusive) or skipped (not writable).'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.locations
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: typo3_HasScriptExecutionInPublicDirs
+          tags:
+            - tag: Application
+              value: Security
+            - tag: Application
+              value: TYPO3
+        - uuid: be96279db2954c75880536537547dd1e
+          name: 'TYPO3 PHP files in public upload dirs (raw)'
+          type: HTTP_AGENT
+          key: typo3_GetScriptFilesInPublicDirs
+          delay: 1d
+          history: 7d
+          value_type: TEXT
+          description: 'Scans typo3temp and the public local file storages for PHP files (zabbix_client >= 14.3.0). Dependent items extract the values.'
+          timeout: 30s
+          url: '{$TYPO3_CLIENT_PATH}'
+          query_fields:
+            - name: operation
+              value: GetScriptFilesInPublicDirs
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          request_method: POST
+          tags:
+            - tag: Application
+              value: Security
+            - tag: Application
+              value: TYPO3
+        - uuid: c935f4652d074ea3980fcc4f32fde511
+          name: 'TYPO3 PHP files in public upload dirs'
+          type: DEPENDENT
+          key: typo3_ScriptFiles_count
+          history: 90d
+          description: 'Number of PHP files in typo3temp and public file storages. Nothing legitimate lives there, every hit is a web shell candidate.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.count
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: typo3_GetScriptFilesInPublicDirs
+          tags:
+            - tag: Application
+              value: Security
+            - tag: Application
+              value: TYPO3
+          triggers:
+            - uuid: 2312a13625554b3f9d68345ecab6ef59
+              expression: 'last(/Template TYPO3 9-14/typo3_ScriptFiles_count)>0'
+              name: 'TYPO3 PHP files found in public upload dirs on {HOST.NAME}'
+              opdata: '{ITEM.LASTVALUE1} files'
+              priority: HIGH
+              description: 'Possible web shell. Files in item ''TYPO3 PHP files in public upload dirs (list)''. Check and quarantine them before deleting, they are evidence.'
+              tags:
+                - tag: Application
+                  value: Security
+        - uuid: de57c1eb501e4ea996d50281bec32a4c
+          name: 'TYPO3 PHP files in public upload dirs (list)'
+          type: DEPENDENT
+          key: typo3_ScriptFiles_list
+          history: 30d
+          value_type: TEXT
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.files
+              error_handler: DISCARD_VALUE
+            - type: JAVASCRIPT
+              parameters:
+                - 'var a = JSON.parse(value); var l = []; for (var i = 0; i < a.length; i++) { l.push(a[i].path + '' ('' + a[i].modified + '')''); } return l.length ? l.join(''\n'') : ''none'';'
+          master_item:
+            key: typo3_GetScriptFilesInPublicDirs
+          tags:
+            - tag: Application
+              value: Security
+            - tag: Application
+              value: TYPO3
       httptests:
         - uuid: 1e419a8dc6e84a6bae2f75acd68d2d53
           name: Frontend
