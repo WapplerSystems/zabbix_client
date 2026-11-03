@@ -29,6 +29,9 @@ zabbix_export:
         - macro: '{$TYPO3.OPCACHE.WINDOW}'
           value: 1h
           description: 'Zeitfenster OPcache-Trigger'
+        - macro: '{$TYPO3.APCU.WINDOW}'
+          value: 1h
+          description: 'Zeitfenster APCu-Trigger'
     - uuid: e7752236596b41a9a09e3d3b7f237947
       template: 'Template Frontend Performance'
       name: 'Template Frontend Performance'
@@ -752,6 +755,22 @@ zabbix_export:
           posts: 'key={$TYPO3_CLIENT_KEY}'
           request_method: POST
           verify_peer: 'YES'
+        - uuid: ecbea1deb8bd48f5a3fc489c85ae5867
+          name: 'TYPO3 APCu memory (raw)'
+          type: HTTP_AGENT
+          key: typo3_GetApcuMemory
+          delay: '{$TYPO3.DELAY.FAST}'
+          history: 1h
+          value_type: TEXT
+          description: 'Master item: fetches the full GetApcuMemory JSON from zabbix_client. APCu belongs to the PHP-FPM process, so only this HTTP check sees the real cache (the CLI has its own, empty APCu).'
+          timeout: 5s
+          url: '{$TYPO3_CLIENT_PATH}'
+          query_fields:
+            - name: operation
+              value: GetApcuMemory
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          request_method: POST
+          verify_peer: 'YES'
         - uuid: 49554c76b24f4b2cbcae260d3fb059f3
           name: 'TYPO3 OPcache active'
           type: HTTP_AGENT
@@ -1384,6 +1403,134 @@ zabbix_export:
               name: 'TYPO3 Update available'
               event_name: 'TYPO3 Update available on {HOST.HOST}'
               priority: INFO
+        - uuid: ed9c7d069f40404f86e4ce8f137470da
+          name: 'TYPO3 APCu enabled'
+          type: DEPENDENT
+          key: typo3_ApcuMemory_enabled
+          history: 90d
+          trends: '0'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.enabled
+              error_handler: DISCARD_VALUE
+            - type: BOOL_TO_DECIMAL
+          master_item:
+            key: typo3_GetApcuMemory
+        - uuid: 8533fe43019e4dda818fb0db3f5b4ce6
+          name: 'TYPO3 APCu memory used percent'
+          type: DEPENDENT
+          key: typo3_ApcuMemory_memory_used_percent
+          history: 90d
+          value_type: FLOAT
+          units: '%'
+          description: 'Füllstand. Ein voller APCu ist allein kein Problem - erst Expunges zeigen, dass er überläuft.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.memory.used_percent
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: typo3_GetApcuMemory
+        - uuid: b1d606a6de11475680127b2c94468362
+          name: 'TYPO3 APCu memory total'
+          type: DEPENDENT
+          key: typo3_ApcuMemory_memory_total
+          history: 90d
+          units: 'B'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.memory.total
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: typo3_GetApcuMemory
+        - uuid: 0d59c039320a4431a0e7777fbbadc194
+          name: 'TYPO3 APCu entries'
+          type: DEPENDENT
+          key: typo3_ApcuMemory_num_entries
+          history: 90d
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.cache.num_entries
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: typo3_GetApcuMemory
+        - uuid: a1f043edc1944a88bfdfcfaff029dda1
+          name: 'TYPO3 APCu hit rate (since start)'
+          type: DEPENDENT
+          key: typo3_ApcuMemory_hit_rate
+          history: 90d
+          value_type: FLOAT
+          units: '%'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.cache.hit_rate
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: typo3_GetApcuMemory
+        - uuid: f3aaffbc94224b4cbe71d90c3844ddf9
+          name: 'TYPO3 APCu hits per second'
+          type: DEPENDENT
+          key: typo3_ApcuMemory_hits_per_second
+          history: 90d
+          value_type: FLOAT
+          units: 'hps'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.cache.hits
+              error_handler: DISCARD_VALUE
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+          master_item:
+            key: typo3_GetApcuMemory
+        - uuid: b99ee0007fee4a8eb692ae0fa0e4438f
+          name: 'TYPO3 APCu misses per second'
+          type: DEPENDENT
+          key: typo3_ApcuMemory_misses_per_second
+          history: 90d
+          value_type: FLOAT
+          units: 'mps'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.cache.misses
+              error_handler: DISCARD_VALUE
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+          master_item:
+            key: typo3_GetApcuMemory
+        - uuid: af566ae334804920a17d891bd6d2e3aa
+          name: 'TYPO3 APCu expunges per hour'
+          type: DEPENDENT
+          key: typo3_ApcuMemory_expunges_per_hour
+          history: 90d
+          value_type: FLOAT
+          description: 'Wie oft APCu pro Stunde wegen Speichermangel geleert wurde. Soll 0. Zähler-Reset (FPM-Reload) verwirft Zabbix automatisch.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.cache.expunges
+              error_handler: DISCARD_VALUE
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+            - type: MULTIPLIER
+              parameters:
+                - '3600'
+          master_item:
+            key: typo3_GetApcuMemory
+          triggers:
+            - uuid: 9ad45edba12f4cd097f5b943ea4199a0
+              expression: 'min(/Template TYPO3 9-14/typo3_ApcuMemory_expunges_per_hour,{$TYPO3.APCU.WINDOW})>0'
+              name: 'APCu läuft über und wird geleert on {HOST.NAME}'
+              priority: INFO
+              description: 'APCu verwirft bei Speichermangel seinen Inhalt; Seiten-/Hash-Cache im APCu werden dadurch zu Cache-Misses (volle Renderings, FPM-Pool läuft voll). Abhilfe: apc.shm_size erhöhen. Information = keine Mail. Auf fcgid-Hosts hat jeder Prozess einen eigenen APCu, die Werte springen dann.'
         - uuid: 2dc2d3799431464fa08e2d131671b7cc
           name: 'TYPO3 OPcache cache full'
           type: DEPENDENT
@@ -2075,6 +2222,142 @@ zabbix_export:
               event_name: 'TYPO3 Zabbix extension update available on {HOST.HOST}'
               priority: INFO
               manual_close: 'YES'
+        - uuid: 916c41f9565a474bb9314ec71cd58731
+          name: 'TYPO3 PHP execution in public upload dirs (raw)'
+          type: HTTP_AGENT
+          key: typo3_HasScriptExecutionInPublicDirs
+          delay: 1d
+          history: 7d
+          value_type: TEXT
+          description: 'Places a harmless PHP probe in typo3temp/assets and fileadmin, requests it over HTTP and removes it again (zabbix_client >= 14.3.0). Dependent items extract the values.'
+          timeout: 30s
+          url: '{$TYPO3_CLIENT_PATH}'
+          query_fields:
+            - name: operation
+              value: HasScriptExecutionInPublicDirs
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          request_method: POST
+          tags:
+            - tag: Application
+              value: Security
+            - tag: Application
+              value: TYPO3
+        - uuid: d42d434234b248f685fc08bf5a5f0281
+          name: 'TYPO3 PHP executable in public upload dirs'
+          type: DEPENDENT
+          key: typo3_ScriptExecution_executed
+          history: 90d
+          description: '1 = the web server executes PHP files in typo3temp/assets or fileadmin. Any file written there through another vulnerability becomes a web shell.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.executed
+              error_handler: DISCARD_VALUE
+            - type: BOOL_TO_DECIMAL
+          master_item:
+            key: typo3_HasScriptExecutionInPublicDirs
+          tags:
+            - tag: Application
+              value: Security
+            - tag: Application
+              value: TYPO3
+          triggers:
+            - uuid: c3d6a5b11fa14338bd2d916a8c626e7d
+              expression: 'last(/Template TYPO3 9-14/typo3_ScriptExecution_executed)=1'
+              name: 'TYPO3 PHP executable in public upload dirs on {HOST.NAME}'
+              priority: HIGH
+              description: 'Block script execution in typo3temp/, fileadmin/ and other public storages, e.g. Apache: <FilesMatch "\.(php[0-9]?|pht|phtml|phar)(\.|$)"> Require all denied </FilesMatch>. Locations in item ''TYPO3 PHP execution in public upload dirs (locations)''.'
+              tags:
+                - tag: Application
+                  value: Security
+        - uuid: 01f1076d345447c6b7bad6ba33beb8b5
+          name: 'TYPO3 PHP execution in public upload dirs (locations)'
+          type: DEPENDENT
+          key: typo3_ScriptExecution_locations
+          history: 30d
+          value_type: TEXT
+          description: 'Per location: executed, blocked, unreachable (control file not reachable, inconclusive) or skipped (not writable).'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.locations
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: typo3_HasScriptExecutionInPublicDirs
+          tags:
+            - tag: Application
+              value: Security
+            - tag: Application
+              value: TYPO3
+        - uuid: be96279db2954c75880536537547dd1e
+          name: 'TYPO3 PHP files in public upload dirs (raw)'
+          type: HTTP_AGENT
+          key: typo3_GetScriptFilesInPublicDirs
+          delay: 1d
+          history: 7d
+          value_type: TEXT
+          description: 'Scans typo3temp and the public local file storages for PHP files (zabbix_client >= 14.3.0). Dependent items extract the values.'
+          timeout: 30s
+          url: '{$TYPO3_CLIENT_PATH}'
+          query_fields:
+            - name: operation
+              value: GetScriptFilesInPublicDirs
+          posts: 'key={$TYPO3_CLIENT_KEY}'
+          request_method: POST
+          tags:
+            - tag: Application
+              value: Security
+            - tag: Application
+              value: TYPO3
+        - uuid: c935f4652d074ea3980fcc4f32fde511
+          name: 'TYPO3 PHP files in public upload dirs'
+          type: DEPENDENT
+          key: typo3_ScriptFiles_count
+          history: 90d
+          description: 'Number of PHP files in typo3temp and public file storages. Nothing legitimate lives there, every hit is a web shell candidate.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.count
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: typo3_GetScriptFilesInPublicDirs
+          tags:
+            - tag: Application
+              value: Security
+            - tag: Application
+              value: TYPO3
+          triggers:
+            - uuid: 2312a13625554b3f9d68345ecab6ef59
+              expression: 'last(/Template TYPO3 9-14/typo3_ScriptFiles_count)>0'
+              name: 'TYPO3 PHP files found in public upload dirs on {HOST.NAME}'
+              opdata: '{ITEM.LASTVALUE1} files'
+              priority: HIGH
+              description: 'Possible web shell. Files in item ''TYPO3 PHP files in public upload dirs (list)''. Check and quarantine them before deleting, they are evidence.'
+              tags:
+                - tag: Application
+                  value: Security
+        - uuid: de57c1eb501e4ea996d50281bec32a4c
+          name: 'TYPO3 PHP files in public upload dirs (list)'
+          type: DEPENDENT
+          key: typo3_ScriptFiles_list
+          history: 30d
+          value_type: TEXT
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.value.files
+              error_handler: DISCARD_VALUE
+            - type: JAVASCRIPT
+              parameters:
+                - 'var a = JSON.parse(value); var l = []; for (var i = 0; i < a.length; i++) { l.push(a[i].path + '' ('' + a[i].modified + '')''); } return l.length ? l.join(''\n'') : ''none'';'
+          master_item:
+            key: typo3_GetScriptFilesInPublicDirs
+          tags:
+            - tag: Application
+              value: Security
+            - tag: Application
+              value: TYPO3
       httptests:
         - uuid: 1e419a8dc6e84a6bae2f75acd68d2d53
           name: Frontend
