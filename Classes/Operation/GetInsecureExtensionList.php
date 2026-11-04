@@ -49,7 +49,7 @@ class GetInsecureExtensionList implements IOperation, SingletonInterface
             ) {
                 /** @var Extension $terObject */
                 $terObject = $information['terObject'];
-                $insecureStatus = $terObject->getReviewState();
+                $insecureStatus = $terObject->reviewState;
                 if ($insecureStatus === -1) {
                     if (
                         array_key_exists('installed', $information)
@@ -57,12 +57,12 @@ class GetInsecureExtensionList implements IOperation, SingletonInterface
                     ) {
                         $loadedInsecure[] = [
                             'extensionKey' => $extensionKey,
-                            'version' => $terObject->getVersion(),
+                            'version' => $terObject->version,
                         ];
                     } else {
                         $existingInsecure[] = [
                             'extensionKey' => $extensionKey,
-                            'version' => $terObject->getVersion(),
+                            'version' => $terObject->version,
                         ];
                     }
                 }
