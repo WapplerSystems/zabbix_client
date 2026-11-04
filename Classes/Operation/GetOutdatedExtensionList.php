@@ -49,7 +49,7 @@ class GetOutdatedExtensionList implements IOperation, SingletonInterface
             ) {
                 /** @var Extension $terObject */
                 $terObject = $information['terObject'];
-                $insecureStatus = $terObject->getReviewState();
+                $insecureStatus = $terObject->reviewState;
                 if ($insecureStatus === -2) {
                     if (
                         array_key_exists('installed', $information)
@@ -57,12 +57,12 @@ class GetOutdatedExtensionList implements IOperation, SingletonInterface
                     ) {
                         $loadedOutdated[] = [
                             'extensionKey' => $extensionKey,
-                            'version' => $terObject->getVersion(),
+                            'version' => $terObject->version,
                         ];
                     } else {
                         $existingOutdated[] = [
                             'extensionKey' => $extensionKey,
-                            'version' => $terObject->getVersion(),
+                            'version' => $terObject->version,
                         ];
                     }
                 }
